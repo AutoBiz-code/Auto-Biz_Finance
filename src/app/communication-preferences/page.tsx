@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import { BellRing, Mail, MessageCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast"; // Assuming useToast is compatible or updated
+import { BellRing, Mail, MessageCircle, Loader2 } from "lucide-react";
 
 interface Preferences {
   emailPaymentAlerts: boolean;
@@ -24,14 +24,14 @@ export default function CommunicationPreferencesPage() {
     whatsappReportDelivery: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
-  // Simulate loading preferences from a backend
   useEffect(() => {
     setIsLoading(true);
-    // In a real app, fetch these from user settings
+    // Simulate fetching preferences
     setTimeout(() => {
-      // Example: setPreferences(fetchedPreferences);
+      // setPreferences(fetchedPreferences); 
       setIsLoading(false);
     }, 500);
   }, []);
@@ -42,43 +42,43 @@ export default function CommunicationPreferencesPage() {
   };
 
   const handleSaveChanges = () => {
-    setIsLoading(true);
-    // Simulate saving to backend
+    setIsSaving(true);
+    // Simulate saving to backend (e.g., Firestore via a server action)
     setTimeout(() => {
       console.log("Preferences saved:", preferences);
-      toast({ title: "Success", description: "Communication preferences updated successfully." });
-      setIsLoading(false);
+      toast({ title: "Success", description: "Communication preferences updated." });
+      setIsSaving(false);
     }, 1000);
   };
 
-  if (isLoading && !preferences.emailPaymentAlerts && !preferences.whatsappPaymentAlerts) { // Only show full loader on initial load
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <BellRing className="h-12 w-12 animate-pulse text-primary" />
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 fade-in">
       <h1 className="text-3xl font-headline font-semibold text-foreground">Communication Preferences</h1>
       
-      <Card className="shadow-lg">
+      <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader>
           <CardTitle className="text-card-foreground flex items-center gap-2">
             <BellRing className="h-6 w-6 text-primary" />
             Notification Settings
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Manage how you receive payment alerts and report deliveries.
+            Manage how you receive payment alerts and report deliveries from AutoBiz Finance.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
             <h3 className="text-lg font-medium text-card-foreground mb-3">Payment Alerts</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-md border border-input bg-card hover:bg-muted/50 transition-colors">
-                <Label htmlFor="emailPaymentAlerts" className="flex items-center gap-2 text-card-foreground cursor-pointer">
+              <div className="flex items-center justify-between p-4 rounded-md border border-border bg-input hover:bg-input/80 transition-colors">
+                <Label htmlFor="emailPaymentAlerts" className="flex items-center gap-2 text-foreground cursor-pointer">
                   <Mail className="h-5 w-5 text-primary" />
                   Email Payment Alerts
                 </Label>
@@ -87,10 +87,11 @@ export default function CommunicationPreferencesPage() {
                   checked={preferences.emailPaymentAlerts}
                   onCheckedChange={(value) => handlePreferenceChange("emailPaymentAlerts", value)}
                   aria-label="Toggle email payment alerts"
+                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
                 />
               </div>
-              <div className="flex items-center justify-between p-4 rounded-md border border-input bg-card hover:bg-muted/50 transition-colors">
-                <Label htmlFor="whatsappPaymentAlerts" className="flex items-center gap-2 text-card-foreground cursor-pointer">
+              <div className="flex items-center justify-between p-4 rounded-md border border-border bg-input hover:bg-input/80 transition-colors">
+                <Label htmlFor="whatsappPaymentAlerts" className="flex items-center gap-2 text-foreground cursor-pointer">
                   <MessageCircle className="h-5 w-5 text-primary" />
                   WhatsApp Payment Alerts
                 </Label>
@@ -99,6 +100,7 @@ export default function CommunicationPreferencesPage() {
                   checked={preferences.whatsappPaymentAlerts}
                   onCheckedChange={(value) => handlePreferenceChange("whatsappPaymentAlerts", value)}
                   aria-label="Toggle WhatsApp payment alerts"
+                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
                 />
               </div>
             </div>
@@ -107,8 +109,8 @@ export default function CommunicationPreferencesPage() {
           <div>
             <h3 className="text-lg font-medium text-card-foreground mb-3">Report Delivery</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-md border border-input bg-card hover:bg-muted/50 transition-colors">
-                <Label htmlFor="emailReportDelivery" className="flex items-center gap-2 text-card-foreground cursor-pointer">
+              <div className="flex items-center justify-between p-4 rounded-md border border-border bg-input hover:bg-input/80 transition-colors">
+                <Label htmlFor="emailReportDelivery" className="flex items-center gap-2 text-foreground cursor-pointer">
                   <Mail className="h-5 w-5 text-primary" />
                   Email Report Delivery
                 </Label>
@@ -117,10 +119,11 @@ export default function CommunicationPreferencesPage() {
                   checked={preferences.emailReportDelivery}
                   onCheckedChange={(value) => handlePreferenceChange("emailReportDelivery", value)}
                   aria-label="Toggle email report delivery"
+                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
                 />
               </div>
-              <div className="flex items-center justify-between p-4 rounded-md border border-input bg-card hover:bg-muted/50 transition-colors">
-                <Label htmlFor="whatsappReportDelivery" className="flex items-center gap-2 text-card-foreground cursor-pointer">
+              <div className="flex items-center justify-between p-4 rounded-md border border-border bg-input hover:bg-input/80 transition-colors">
+                <Label htmlFor="whatsappReportDelivery" className="flex items-center gap-2 text-foreground cursor-pointer">
                   <MessageCircle className="h-5 w-5 text-primary" />
                   WhatsApp Report Delivery
                 </Label>
@@ -129,14 +132,16 @@ export default function CommunicationPreferencesPage() {
                   checked={preferences.whatsappReportDelivery}
                   onCheckedChange={(value) => handlePreferenceChange("whatsappReportDelivery", value)}
                   aria-label="Toggle WhatsApp report delivery"
+                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
                 />
               </div>
             </div>
           </div>
           
           <div className="pt-4">
-            <Button onClick={handleSaveChanges} disabled={isLoading} className="w-full sm:w-auto">
-              {isLoading ? "Saving..." : "Save Changes"}
+            <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto btn-metamask hover-scale">
+              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+              {isSaving ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </CardContent>
@@ -144,4 +149,3 @@ export default function CommunicationPreferencesPage() {
     </div>
   );
 }
-

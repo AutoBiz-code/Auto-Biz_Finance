@@ -19,14 +19,15 @@ if (typeof window !== 'undefined') {
   if (!firebaseConfig.apiKey) {
     console.error(
       "CRITICAL: Firebase config key NEXT_PUBLIC_FIREBASE_API_KEY is missing or undefined. " +
-      "Please check your .env file at the root of your project and ensure it's correctly formatted and this variable is defined with your actual Firebase API Key."
+      "Please check your .env file at the ROOT of your project and ensure it's correctly formatted and this variable is defined with your actual Firebase API Key. " +
+      "After updating .env, YOU MUST RESTART your Next.js development server."
     );
   }
   if (!firebaseConfig.authDomain) {
-    console.warn("Firebase config key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is missing. Authentication might not work as expected.");
+    console.warn("Firebase config key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is missing. Authentication might not work as expected. Check your .env file at the project root.");
   }
   if (!firebaseConfig.projectId) {
-    console.warn("Firebase config key NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing. Firestore and other project-specific services might not work.");
+    console.warn("Firebase config key NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing. Firestore and other project-specific services might not work. Check your .env file at the project root.");
   }
 }
 
@@ -42,7 +43,7 @@ try {
         auth = getAuth(app);
         console.log("Firebase app initialized successfully with Project ID:", firebaseConfig.projectId);
       } else {
-        console.error("Firebase initialization SKIPPED due to missing critical config values (API Key, Auth Domain, or Project ID). Check .env file and browser console for details.");
+        console.error("Firebase initialization SKIPPED due to missing critical config values (API Key, Auth Domain, or Project ID). Check your .env file at the project root and browser console for details. Remember to restart your Next.js server after .env changes.");
         // Error details are logged by the checks above.
       }
     } else {
@@ -52,8 +53,9 @@ try {
     }
   }
 } catch (error) {
-  console.error("CRITICAL: Firebase initialization failed with an error:", error);
+  console.error("CRITICAL: Firebase initialization failed with an error:", error, "This often means there is an issue with the values provided in your .env file at the project root or with your Firebase project setup itself. Please verify your credentials and restart your Next.js server.");
   // app and auth will remain undefined if an error occurs
 }
 
 export { app, auth /*, db */ };
+

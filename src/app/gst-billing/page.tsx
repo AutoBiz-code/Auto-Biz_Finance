@@ -85,7 +85,7 @@ export default function GstBillingPage() {
       router.push("/sign-in");
       return;
     }
-    if (!companyName || !companyAddress || !companyGstin || !companyEmail || !customerName || !customerAddress || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0)) {
+    if (!companyName || !companyAddress || !companyGstin || !companyEmail || !customerName || !customerAddress || !customerPhone || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0)) {
       toast({ title: "Missing Information", description: "Please fill out all required company, customer, and item details correctly.", variant: "destructive" });
       return;
     }
@@ -205,8 +205,8 @@ export default function GstBillingPage() {
                     <Input id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="e.g., Acme Corp" required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="customerPhone" className="text-card-foreground">Customer Phone</Label>
-                    <Input id="customerPhone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="e.g., 9876543210" />
+                    <Label htmlFor="customerPhone" className="text-card-foreground">Customer Phone *</Label>
+                    <Input id="customerPhone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="e.g., 9876543210" required />
                   </div>
                 </div>
                 <div className="space-y-2">

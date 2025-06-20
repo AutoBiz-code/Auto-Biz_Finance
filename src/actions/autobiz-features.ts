@@ -2,18 +2,27 @@
 "use server";
 
 // Placeholder server actions for AutoBiz Finance features
-// In a real application, these would interact with Firebase (Firestore, Cloud Functions)
-// and external APIs (LaTeX for PDF, Razorpay, WhatsApp, Botpress via Cloud Functions).
+
+export interface GstPdfItem {
+  name: string;
+  quantity: number;
+  rate: number;
+  taxRate: number;
+  total: number; // Total for this item: quantity * rate * (1 + taxRate/100)
+}
 
 interface GstPdfParams {
   userId: string;
   customerName: string;
-  amount: number;
-  items: string[];
+  customerAddress: string;
+  customerPhone: string;
+  invoiceDate: string; // ISO string date
+  items: GstPdfItem[];
+  notes?: string;
 }
 
 export async function generateGstPdfAction(params: GstPdfParams) {
-  console.log("Server Action: Attempting to generate GST PDF:", params);
+  console.log("Server Action: Attempting to generate GST PDF with detailed params:", params);
   // Simulate backend processing (e.g., calling a Cloud Function that uses LaTeX)
   await new Promise(resolve => setTimeout(resolve, 1500));
   // In a real app, you'd get a PDF URL back from the Cloud Function
@@ -61,6 +70,3 @@ export async function analyzeBusinessDataAction(params: BusinessAnalysisParams) 
   };
   return { success: true, message: "Business data analysis completed.", analysisData };
 }
-
-// Note: The WhatsApp AI Reply feature will use a Genkit flow directly,
-// so it does not need a separate server action here.

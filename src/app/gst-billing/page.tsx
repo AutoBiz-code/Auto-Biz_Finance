@@ -8,17 +8,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Loader2, PlusCircle, Trash2, DollarSign } from "lucide-react";
+import { FileText, Loader2, PlusCircle, Trash2, Building } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { generateGstPdfAction, type GstPdfItem } from "@/actions/autobiz-features";
-import { DatePicker } from "@/components/ui/date-picker"; // New import
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface BillItem extends GstPdfItem {
   id: string; // For React key prop
 }
 
 export default function GstBillingPage() {
+  // Company Details
+  const [companyName, setCompanyName] = useState("");
+  const [companyAddress, setCompanyAddress] = useState("");
+  const [companyGstin, setCompanyGstin] = useState("");
+  const [companyEmail, setCompanyEmail] = useState("");
+  const [companyPhone, setCompanyPhone] = useState("");
+
+  // Customer Details
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -77,8 +85,8 @@ export default function GstBillingPage() {
       router.push("/sign-in");
       return;
     }
-    if (!customerName || !customerAddress || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0)) {
-      toast({ title: "Missing Information", description: "Please fill out all required customer and item details correctly.", variant: "destructive" });
+    if (!companyName || !companyAddress || !companyGstin || !customerName || !customerAddress || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0)) {
+      toast({ title: "Missing Information", description: "Please fill out all required company, customer, and item details correctly.", variant: "destructive" });
       return;
     }
 
@@ -94,6 +102,11 @@ export default function GstBillingPage() {
 
       const result = await generateGstPdfAction({
         userId: user.uid,
+        companyName,
+        companyAddress,
+        companyGstin,
+        companyEmail,
+        companyPhone,
         customerName,
         customerAddress,
         customerPhone,
@@ -106,13 +119,12 @@ export default function GstBillingPage() {
         title: "GST Bill PDF Generation Initiated (Simulated)",
         description: `PDF for ${customerName} is being generated. ${result.message}`,
       });
-      // Reset form
-      setCustomerName("");
-      setCustomerAddress("");
-      setCustomerPhone("");
-      setInvoiceDate(new Date());
-      setItemsList([{ id: crypto.randomUUID(), name: "", quantity: 1, rate: 0, taxRate: 0, total: 0 }]);
-      setNotes("");
+      // Reset form (optional - consider user experience)
+      // setCompanyName(""); setCompanyAddress(""); setCompanyGstin(""); setCompanyEmail(""); setCompanyPhone("");
+      // setCustomerName(""); setCustomerAddress(""); setCustomerPhone("");
+      // setInvoiceDate(new Date());
+      // setItemsList([{ id: crypto.randomUUID(), name: "", quantity: 1, rate: 0, taxRate: 0, total: 0 }]);
+      // setNotes("");
     } catch (error: any) {
       console.error("GST Bill generation error:", error);
       toast({ title: "Error", description: error.message || "Failed to initiate PDF generation.", variant: "destructive" });
@@ -143,73 +155,117 @@ export default function GstBillingPage() {
             New GST Bill
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Enter the details below to generate a new GST bill.
+            Enter your company details, customer details, and bill items below.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-8">
+            {/* Company Details */}
+            <section>
+              <h3 className="text-xl font-medium text-card-foreground mb-4 flex items-center gap-2">
+                <Building className="h-5 w-5 text-primary" /> Your Company Details
+              </h3>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName" className="text-card-foreground">Company Name *</Label>
+                    <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Your Business Name" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="companyGstin" className="text-card-foreground">Company GSTIN *</Label>
+                    <Input id="companyGstin" value={companyGstin} onChange={(e) => setCompanyGstin(e.target.value)} placeholder="Your Company GSTIN" required />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="companyAddress" className="text-card-foreground">Company Address *</Label>
+                  <Textarea id="companyAddress" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Your Company's Full Address" required />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="companyEmail" className="text-card-foreground">Company Email</Label>
+                    <Input id="companyEmail" type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="yourcompany@example.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="companyPhone" className="text-card-foreground">Company Phone</Label>
+                    <Input id="companyPhone" type="tel" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} placeholder="Your Company Phone Number" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <hr className="border-border/50" />
+
             {/* Customer Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="customerName" className="text-card-foreground">Customer Name *</Label>
-                <Input id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="e.g., Acme Corp" required />
+            <section>
+              <h3 className="text-xl font-medium text-card-foreground mb-4">Customer Details</h3>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="customerName" className="text-card-foreground">Customer Name *</Label>
+                    <Input id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="e.g., Acme Corp" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="customerPhone" className="text-card-foreground">Customer Phone</Label>
+                    <Input id="customerPhone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="e.g., 9876543210" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="customerAddress" className="text-card-foreground">Customer Address *</Label>
+                  <Textarea id="customerAddress" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} placeholder="e.g., 123 Main St, Anytown" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="invoiceDate" className="text-card-foreground">Invoice Date *</Label>
+                  <DatePicker date={invoiceDate} setDate={setInvoiceDate} className="bg-input border-border text-foreground focus:ring-primary" />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="customerPhone" className="text-card-foreground">Customer Phone</Label>
-                <Input id="customerPhone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="e.g., 9876543210" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="customerAddress" className="text-card-foreground">Customer Address *</Label>
-              <Textarea id="customerAddress" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} placeholder="e.g., 123 Main St, Anytown" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="invoiceDate" className="text-card-foreground">Invoice Date *</Label>
-              <DatePicker date={invoiceDate} setDate={setInvoiceDate} className="bg-input border-border text-foreground focus:ring-primary" />
-            </div>
+            </section>
 
+            <hr className="border-border/50" />
+            
             {/* Itemized List */}
-            <div className="space-y-4">
-              <Label className="text-card-foreground text-lg font-medium">Items *</Label>
-              {itemsList.map((item, index) => (
-                <Card key={item.id} className="p-4 space-y-3 bg-input/50 border-border/50">
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                    <div className="md:col-span-2 space-y-1">
-                      <Label htmlFor={`itemName-${index}`} className="text-xs">Item Name</Label>
-                      <Input id={`itemName-${index}`} value={item.name} onChange={(e) => handleItemChange(index, "name", e.target.value)} placeholder="Product/Service Name" required />
+            <section>
+              <h3 className="text-xl font-medium text-card-foreground mb-4">Items *</h3>
+              <div className="space-y-4">
+                {itemsList.map((item, index) => (
+                  <Card key={item.id} className="p-4 space-y-3 bg-input/50 border-border/50">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                      <div className="md:col-span-2 space-y-1">
+                        <Label htmlFor={`itemName-${index}`} className="text-xs">Item Name</Label>
+                        <Input id={`itemName-${index}`} value={item.name} onChange={(e) => handleItemChange(index, "name", e.target.value)} placeholder="Product/Service Name" required />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`quantity-${index}`} className="text-xs">Quantity</Label>
+                        <Input id={`quantity-${index}`} type="number" value={item.quantity} onChange={(e) => handleItemChange(index, "quantity", e.target.value)} placeholder="Qty" required min="0.01" step="any"/>
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`rate-${index}`} className="text-xs">Rate (INR)</Label>
+                        <Input id={`rate-${index}`} type="number" value={item.rate} onChange={(e) => handleItemChange(index, "rate", e.target.value)} placeholder="Rate" required min="0.01" step="any"/>
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`taxRate-${index}`} className="text-xs">Tax Rate (%)</Label>
+                        <Input id={`taxRate-${index}`} type="number" value={item.taxRate} onChange={(e) => handleItemChange(index, "taxRate", e.target.value)} placeholder="GST %" required min="0" step="any"/>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <Label htmlFor={`quantity-${index}`} className="text-xs">Quantity</Label>
-                      <Input id={`quantity-${index}`} type="number" value={item.quantity} onChange={(e) => handleItemChange(index, "quantity", e.target.value)} placeholder="Qty" required min="0.01" step="any"/>
+                    <div className="flex justify-between items-center mt-2">
+                      <p className="text-sm text-muted-foreground">
+                        Item Total: <span className="font-semibold text-foreground">₹{item.total.toFixed(2)}</span>
+                      </p>
+                      {itemsList.length > 1 && (
+                        <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(index)} className="text-destructive hover:text-destructive/80">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
-                    <div className="space-y-1">
-                      <Label htmlFor={`rate-${index}`} className="text-xs">Rate (INR)</Label>
-                      <Input id={`rate-${index}`} type="number" value={item.rate} onChange={(e) => handleItemChange(index, "rate", e.target.value)} placeholder="Rate" required min="0.01" step="any"/>
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor={`taxRate-${index}`} className="text-xs">Tax Rate (%)</Label>
-                      <Input id={`taxRate-${index}`} type="number" value={item.taxRate} onChange={(e) => handleItemChange(index, "taxRate", e.target.value)} placeholder="GST %" required min="0" step="any"/>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <p className="text-sm text-muted-foreground">
-                      Item Total: <span className="font-semibold text-foreground">₹{item.total.toFixed(2)}</span>
-                    </p>
-                    {itemsList.length > 1 && (
-                      <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(index)} className="text-destructive hover:text-destructive/80">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              ))}
-              <Button type="button" variant="outline" onClick={handleAddItem} className="text-primary border-primary hover:bg-primary/10">
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-              </Button>
-            </div>
-
+                  </Card>
+                ))}
+                <Button type="button" variant="outline" onClick={handleAddItem} className="text-primary border-primary hover:bg-primary/10">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+                </Button>
+              </div>
+            </section>
+            
             {/* Grand Total */}
-            <div className="text-right">
+            <div className="text-right mt-6">
               <p className="text-xl font-bold text-foreground">
                 Grand Total: ₹{calculateGrandTotal().toFixed(2)}
               </p>

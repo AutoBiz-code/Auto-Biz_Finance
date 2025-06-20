@@ -13,6 +13,13 @@ export interface GstPdfItem {
 
 interface GstPdfParams {
   userId: string;
+  // Company Details
+  companyName: string;
+  companyAddress: string;
+  companyGstin: string;
+  companyEmail?: string;
+  companyPhone?: string;
+  // Customer Details
   customerName: string;
   customerAddress: string;
   customerPhone: string;

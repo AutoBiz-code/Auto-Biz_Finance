@@ -18,7 +18,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp, auth: firebaseAuthInstance } = useAuth(); // Get auth instance if needed directly
+  const { signUp, auth: firebaseAuthInstance } = useAuth(); 
   const router = useRouter();
   const { toast } = useToast();
 
@@ -39,11 +39,9 @@ export default function SignUpPage() {
       return;
     }
     try {
-      await signUp(firebaseAuthInstance, email, password);
-      // User will be automatically signed in by Firebase if successful.
-      // The syncUserData Cloud Function you've outlined will handle Firestore user creation.
+      await signUp(email, password); // Corrected: Removed firebaseAuthInstance from arguments
       toast({ title: "Success", description: "Account created successfully! Redirecting..." });
-      router.push("/"); // Redirect to dashboard
+      router.push("/"); 
     } catch (error) {
       const authError = error as AuthError;
       console.error("Sign up error:", authError);
@@ -66,7 +64,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 fade-in">
+    <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-primary/30">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline text-primary">Create Account</CardTitle>

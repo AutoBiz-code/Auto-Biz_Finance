@@ -17,7 +17,7 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, auth: firebaseAuthInstance } = useAuth(); // Get auth instance if needed directly
+  const { signIn, auth: firebaseAuthInstance } = useAuth(); 
   const router = useRouter();
   const { toast } = useToast();
 
@@ -30,9 +30,9 @@ export default function SignInPage() {
       return;
     }
     try {
-      await signIn(firebaseAuthInstance, email, password);
+      await signIn(email, password); // Corrected: Removed firebaseAuthInstance from arguments
       toast({ title: "Success", description: "Signed in successfully." });
-      router.push("/"); // Redirect to dashboard or home page
+      router.push("/"); 
     } catch (error) {
       const authError = error as AuthError;
       console.error("Sign in error:", authError);
@@ -53,7 +53,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 fade-in">
+    <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-primary/30">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline text-primary">Sign In to AutoBiz</CardTitle>

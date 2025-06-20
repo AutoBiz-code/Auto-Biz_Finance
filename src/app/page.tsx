@@ -4,7 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { IndianRupee, Bot, FileSignature, BarChart3, Zap, UserCircle as UserIcon, Loader2, MessageSquare, FileTextIcon } from "lucide-react"; // Renamed UserCircle to avoid conflict
+import { IndianRupee, Bot, FileSignature, Zap, UserCircle as UserIcon, Loader2, MessageSquare, FileTextIcon } from "lucide-react"; // Renamed UserCircle to avoid conflict
 import { cn } from "@/lib/utils";
 import { automateWhatsApp, generateGSTInvoice, reconcileUPITransactions } from "@/actions/autobiz";
 import { useToast } from "@/hooks/use-toast";
@@ -47,7 +47,6 @@ export default function DashboardPage() {
     { title: "Transactions Processed", value: "2,345", icon: <IndianRupee className="h-6 w-6 text-primary" /> },
     { title: "Invoices Generated", value: "580", icon: <FileSignature className="h-6 w-6 text-primary" /> },
     { title: "Automated Replies", value: "1,200", icon: <Bot className="h-6 w-6 text-primary" /> },
-    { title: "Revenue Target Progress", value: "₹1.2 Cr / ₹5 Cr", icon: <BarChart3 className="h-6 w-6 text-primary" />, progress: 24 },
   ];
 
   const handleAction = async (actionFn: () => Promise<any>, successMessage: string) => {
@@ -114,7 +113,7 @@ export default function DashboardPage() {
 
       <section aria-labelledby="financial-metrics">
         <h2 id="financial-metrics" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.1s'}}>Key Metrics</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {financialMetrics.map((metric, idx) => (
             <Card key={metric.title} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card text-card-foreground fade-in hover-scale" style={{animationDelay: `${0.2 + idx * 0.05}s`}}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

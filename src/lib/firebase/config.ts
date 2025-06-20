@@ -1,4 +1,3 @@
-
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
@@ -16,11 +15,17 @@ const firebaseConfig = {
 
 // Log if critical keys are missing (for debugging in the browser)
 if (typeof window !== 'undefined') {
-  if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
+  if (!firebaseConfig.apiKey) {
     console.error(
-      "CRITICAL: Firebase config keys (NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN, NEXT_PUBLIC_FIREBASE_PROJECT_ID) are missing or undefined. " +
-      "Please check your .env file at the root of your project and ensure it's correctly formatted and these variables are defined."
+      "CRITICAL: Firebase config key NEXT_PUBLIC_FIREBASE_API_KEY is missing or undefined. " +
+      "Please check your .env file at the root of your project and ensure it's correctly formatted and this variable is defined with your actual Firebase API Key."
     );
+  }
+  if (!firebaseConfig.authDomain) {
+    console.warn("Firebase config key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is missing. Authentication might not work as expected.");
+  }
+  if (!firebaseConfig.projectId) {
+    console.warn("Firebase config key NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing. Firestore and other project-specific services might not work.");
   }
 }
 
@@ -34,12 +39,15 @@ try {
       if (firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId) {
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
+        console.log("Firebase app initialized successfully.");
       } else {
+        console.error("Firebase initialization skipped due to missing critical config values (API Key, Auth Domain, or Project ID).");
         // Error already logged above, app and auth will remain undefined
       }
     } else {
       app = getApps()[0];
       auth = getAuth(app);
+      console.log("Firebase app already initialized.");
     }
   }
 } catch (error) {

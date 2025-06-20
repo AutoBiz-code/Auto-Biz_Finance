@@ -16,9 +16,9 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   Settings,
-  Briefcase, // Placeholder for Features
-  DollarSign, // Placeholder for Pricing
-  Rocket, // Placeholder for AutoBiz logo
+  Briefcase, 
+  DollarSign, 
+  Rocket, 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -51,7 +51,7 @@ export function AppSidebar() {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
               <SidebarMenuItem key={item.href} className="fade-in" style={{animationDelay: `${0.3 + index * 0.1}s`}}>
-                <Link href={item.href} legacyBehavior passHref>
+                <Link href={item.href}>
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
@@ -61,12 +61,12 @@ export function AppSidebar() {
                     )}
                     tooltip={{ children: item.label, side: "right", align: "center" }}
                   >
-                    <a>
+                    <>
                       <item.icon className="h-5 w-5" />
                       <span className="group-data-[state=collapsed]:hidden">
                         {item.label}
                       </span>
-                    </a>
+                    </>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -74,9 +74,7 @@ export function AppSidebar() {
           })}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarHeader className="p-4 mt-auto"> {/* Footer placeholder */}
-        {/* Authentication buttons were here. Removed as per request. */}
-        {/* You can add other footer content here if needed. */}
+      <SidebarHeader className="p-4 mt-auto"> 
       </SidebarHeader>
     </Sidebar>
   );

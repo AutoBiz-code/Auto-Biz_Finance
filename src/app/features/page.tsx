@@ -1,7 +1,8 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, FileText, IndianRupee, Zap } from "lucide-react";
 import Link from "next/link";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Features | AutoBiz Finance",
@@ -33,7 +34,7 @@ const features = [
     icon: <Zap className="h-10 w-10 text-primary mb-4" />,
     title: "Real-time Dashboard & Analytics",
     description: "Monitor key financial metrics and process statuses in real-time to make informed decisions.",
-    link: "/",
+    link: "/", // Link to dashboard page
     dataAiHint: "data analytics"
   }
 ];
@@ -50,8 +51,7 @@ export default function FeaturesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {features.map((feature, idx) => (
-          <Link href={feature.link} key={feature.title} legacyBehavior>
-            <a className="block hover-scale">
+          <Link href={feature.link} key={feature.title} className="block hover-scale">
               <Card className="h-full shadow-xl hover:shadow-2xl transition-shadow duration-300 bg-card text-card-foreground flex flex-col" style={{animationDelay: `${0.2 + idx * 0.1}s`}}>
                 <CardHeader className="items-center text-center">
                   {feature.icon}
@@ -63,7 +63,6 @@ export default function FeaturesPage() {
                   </CardDescription>
                 </CardContent>
               </Card>
-            </a>
           </Link>
         ))}
       </div>

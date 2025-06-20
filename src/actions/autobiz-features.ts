@@ -17,12 +17,12 @@ interface GstPdfParams {
   companyName: string;
   companyAddress: string;
   companyGstin: string;
-  companyEmail?: string;
+  companyEmail: string; // Made mandatory
   companyPhone?: string;
   // Customer Details
   customerName: string;
   customerAddress: string;
-  customerPhone: string;
+  customerPhone: string; // Assuming this was intended to be string and not optional
   invoiceDate: string; // ISO string date
   items: GstPdfItem[];
   notes?: string;

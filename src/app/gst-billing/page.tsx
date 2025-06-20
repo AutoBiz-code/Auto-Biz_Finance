@@ -85,7 +85,7 @@ export default function GstBillingPage() {
       router.push("/sign-in");
       return;
     }
-    if (!companyName || !companyAddress || !companyGstin || !customerName || !customerAddress || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0)) {
+    if (!companyName || !companyAddress || !companyGstin || !companyEmail || !customerName || !customerAddress || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0)) {
       toast({ title: "Missing Information", description: "Please fill out all required company, customer, and item details correctly.", variant: "destructive" });
       return;
     }
@@ -155,7 +155,7 @@ export default function GstBillingPage() {
             New GST Bill
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Enter your company details, customer details, and bill items below.
+            Enter your company details, customer details, and bill items below. Fields marked with * are required.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -182,8 +182,8 @@ export default function GstBillingPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="companyEmail" className="text-card-foreground">Company Email</Label>
-                    <Input id="companyEmail" type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="yourcompany@example.com" />
+                    <Label htmlFor="companyEmail" className="text-card-foreground">Company Email *</Label>
+                    <Input id="companyEmail" type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="yourcompany@example.com" required/>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="companyPhone" className="text-card-foreground">Company Phone</Label>

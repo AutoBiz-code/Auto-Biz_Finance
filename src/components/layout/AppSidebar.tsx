@@ -27,33 +27,34 @@ import {
   FileSignature,
   Zap,
   UserCircle,
+  PanelLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/", label: "Home", icon: LayoutDashboard }, // Changed Dashboard to Home
   { href: "/features", label: "Features", icon: Briefcase },
   { href: "/pricing", label: "Pricing", icon: DollarSign },
-  { href: "/communication-preferences", label: "Preferences", icon: Settings },
 ];
 
 const featurePages = [
   { href: "/whatsapp-automation", label: "WhatsApp Bot", icon: MessageCircle },
   { href: "/gst-invoicing", label: "GST Invoicing", icon: FileSignature },
   { href: "/upi-reconciliation", label: "UPI Reconciliation", icon: Zap },
+  { href: "/communication-preferences", label: "Preferences", icon: Settings },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { user, signOut, loading } = useAuth(); // Get user and signOut from context
+  const { user, signOut: firebaseSignOut, loading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await firebaseSignOut();
       toast({ title: "Signed Out", description: "You have been successfully signed out." });
       router.push("/sign-in");
     } catch (error) {
@@ -72,7 +73,11 @@ export function AppSidebar() {
           </h1>
         </Link>
         <div className="group-data-[state=expanded]:md:hidden group-data-[state=collapsed]:block">
-           <SidebarTrigger asChild><Button variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary"><Settings /></Button></SidebarTrigger>
+           <SidebarTrigger asChild>
+             <Button variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary">
+               <PanelLeft />
+             </Button>
+           </SidebarTrigger>
         </div>
       </SidebarHeader>
       <SidebarContent className="p-2">
@@ -81,7 +86,7 @@ export function AppSidebar() {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
               <SidebarMenuItem key={item.href} className="fade-in" style={{animationDelay: `${0.3 + index * 0.1}s`}}>
-                <Link href={item.href} passHref>
+                <Link href={item.href}>
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
@@ -105,12 +110,12 @@ export function AppSidebar() {
         </SidebarMenu>
         
         <SidebarMenu className="mt-4">
-           <SidebarGroupLabel className="group-data-[state=collapsed]:hidden text-xs uppercase text-muted-foreground tracking-wider">Features</SidebarGroupLabel>
+           <SidebarGroupLabel className="group-data-[state=collapsed]:hidden text-xs uppercase text-muted-foreground tracking-wider">Tools</SidebarGroupLabel> {/* Changed from Features to Tools */}
           {featurePages.map((item, index) => {
             const isActive = pathname === item.href;
             return (
               <SidebarMenuItem key={item.href} className="fade-in" style={{animationDelay: `${0.4 + navItems.length * 0.1 + index * 0.1}s`}}>
-                <Link href={item.href} passHref>
+                <Link href={item.href}>
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
@@ -137,7 +142,7 @@ export function AppSidebar() {
         {!loading && (
           user ? (
             // Authenticated user view
-            <div className="flex flex-col gap-2 items-center group-data-[state=collapsed]:hidden fade-in" style={{animationDelay: '0.8s'}}>
+            <div className="flex flex-col gap-2 items-start group-data-[state=collapsed]:hidden fade-in" style={{animationDelay: '0.8s'}}>
               <div className="flex items-center gap-2 w-full mb-2 p-2 rounded-md bg-sidebar-accent/30">
                 <UserCircle className="h-6 w-6 text-sidebar-primary" />
                 <span className="text-sm text-sidebar-foreground truncate" title={user.email || ""}>{user.email || "User"}</span>
@@ -171,12 +176,16 @@ export function AppSidebar() {
               </Button>
             ) : (
               <>
-                <Button asChild variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign In">
-                  <Link href="/sign-in"><LogIn /></Link>
-                </Button>
-                <Button asChild variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign Up">
-                  <Link href="/sign-up"><UserPlus /></Link>
-                </Button>
+                <Link href="/sign-in" passHref>
+                  <Button asChild variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign In">
+                     <LogIn />
+                  </Button>
+                </Link>
+                <Link href="/sign-up" passHref>
+                  <Button asChild variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign Up">
+                    <UserPlus />
+                  </Button>
+                </Link>
               </>
             )}
           </div>

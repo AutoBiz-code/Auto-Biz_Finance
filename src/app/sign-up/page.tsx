@@ -18,7 +18,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, auth: firebaseAuthInstance } = useAuth(); // Get auth instance if needed directly
   const router = useRouter();
   const { toast } = useToast();
 
@@ -28,20 +28,36 @@ export default function SignUpPage() {
       toast({ title: "Error", description: "Passwords do not match.", variant: "destructive" });
       return;
     }
+    if (password.length < 6) {
+      toast({ title: "Error", description: "Password should be at least 6 characters.", variant: "destructive" });
+      return;
+    }
     setIsLoading(true);
+    if (!firebaseAuthInstance) {
+      toast({ title: "Error", description: "Authentication service not ready.", variant: "destructive" });
+      setIsLoading(false);
+      return;
+    }
     try {
-      await signUp(auth, email, password); // auth is imported from firebase/config in AuthContext
-      toast({ title: "Success", description: "Account created successfully. Please sign in." });
-      // User will be automatically signed in by Firebase if successful,
-      // or you can redirect to sign-in page: router.push("/sign-in");
-      // For now, redirecting to home, assuming onAuthStateChanged handles user state.
-      router.push("/"); 
+      await signUp(firebaseAuthInstance, email, password);
+      // User will be automatically signed in by Firebase if successful.
+      // The syncUserData Cloud Function you've outlined will handle Firestore user creation.
+      toast({ title: "Success", description: "Account created successfully! Redirecting..." });
+      router.push("/"); // Redirect to dashboard
     } catch (error) {
       const authError = error as AuthError;
       console.error("Sign up error:", authError);
+      let friendlyMessage = "An unexpected error occurred. Please try again.";
+      if (authError.code === 'auth/email-already-in-use') {
+        friendlyMessage = "This email address is already in use.";
+      } else if (authError.code === 'auth/invalid-email') {
+        friendlyMessage = "The email address is not valid.";
+      } else if (authError.code === 'auth/weak-password') {
+        friendlyMessage = "The password is too weak.";
+      }
       toast({
         title: "Sign Up Failed",
-        description: authError.message || "An unexpected error occurred. Please try again.",
+        description: friendlyMessage,
         variant: "destructive",
       });
     } finally {
@@ -77,7 +93,7 @@ export default function SignUpPage() {
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="•••••••• (min. 6 characters)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

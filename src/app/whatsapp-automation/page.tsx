@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Bot, Settings2 } from "lucide-react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "WhatsApp Automation (Botpress) | AutoBiz Finance",
+  description: "Streamline customer communication with Botpress-powered WhatsApp automation by AutoBiz Finance.",
 };
 
 export default function WhatsappAutomationPage() {
@@ -19,7 +20,7 @@ export default function WhatsappAutomationPage() {
           <div className="md:w-1/2">
              <Image 
               src="https://placehold.co/600x400.png" 
-              alt="WhatsApp Automation with Botpress" 
+              alt="WhatsApp Automation with Botpress illustration for AutoBiz Finance" 
               width={600} 
               height={400} 
               className="object-cover h-full w-full"
@@ -35,7 +36,7 @@ export default function WhatsappAutomationPage() {
             </CardHeader>
             <CardContent className="p-0">
               <CardDescription className="text-base text-muted-foreground mb-6">
-                Integrate seamlessly with Botpress to automate your WhatsApp responses. Utilize predefined templates and intelligent triggers to handle common queries, send alerts, and engage with customers 24/7. Enhance customer satisfaction and operational efficiency for your SME in Gurugram.
+                Integrate seamlessly with Botpress to automate your WhatsApp responses using AutoBiz Finance. Utilize predefined templates and intelligent triggers to handle common queries, send alerts, and engage with customers 24/7. Enhance customer satisfaction and operational efficiency for your SME in Gurugram.
               </CardDescription>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-2">
@@ -63,3 +64,4 @@ export default function WhatsappAutomationPage() {
     </div>
   );
 }
+

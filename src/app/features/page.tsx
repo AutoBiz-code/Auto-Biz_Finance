@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Features | AutoBiz Finance",
+  description: "Discover the powerful automation features of AutoBiz Finance for SMEs in Gurugram.",
 };
 
 const features = [
@@ -34,7 +35,7 @@ const features = [
     icon: <Zap className="h-10 w-10 text-primary mb-4" />,
     title: "Real-time Dashboard & Analytics",
     description: "Monitor key financial metrics and process statuses in real-time to make informed decisions.",
-    link: "/", // Link to dashboard page
+    link: "/", // Link to dashboard page (Home)
     dataAiHint: "data analytics"
   }
 ];

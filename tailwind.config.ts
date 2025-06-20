@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['var(--font-pt-sans)', 'sans-serif'], // Using CSS var from layout
-        headline: ['var(--font-space-grotesk)', 'sans-serif'], // Using CSS var from layout
+        body: ['var(--font-roboto)', 'sans-serif'], 
+        headline: ['var(--font-roboto)', 'sans-serif'], // Using Roboto for headline too, or choose another from next/font
         code: ['monospace'],
       },
       colors: {
@@ -26,11 +26,11 @@ export default {
           foreground: 'hsl(var(--popover-foreground))',
         },
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
+          DEFAULT: 'hsl(var(--primary))', // Orange
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
+          DEFAULT: 'hsl(var(--secondary))', // Purple
           foreground: 'hsl(var(--secondary-foreground))',
         },
         muted: {
@@ -38,7 +38,7 @@ export default {
           foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
+          DEFAULT: 'hsl(var(--accent))', // Purple (same as secondary for MetaMask)
           foreground: 'hsl(var(--accent-foreground))',
         },
         destructive: {
@@ -47,7 +47,7 @@ export default {
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
+        ring: 'hsl(var(--ring))', // Orange
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',
@@ -67,9 +67,9 @@ export default {
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg: 'var(--radius)', // 0.5rem
+        md: 'calc(var(--radius) - 2px)', // 0.375rem (6px)
+        sm: 'calc(var(--radius) - 4px)', // 0.25rem (4px) - MetaMask buttons are ~5px, so this is close
       },
       keyframes: {
         'accordion-down': {
@@ -88,7 +88,7 @@ export default {
             height: '0',
           },
         },
-        'fadeIn': { /* Added from prompt */
+        'fadeIn': { 
           from: { opacity: '0' },
           to: { opacity: '1' },
         },
@@ -96,7 +96,7 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'fade-in': 'fadeIn 0.5s ease-in-out', /* Added from prompt */
+        'fade-in': 'fadeIn 0.5s ease-in-out',
       },
     },
   },

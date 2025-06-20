@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast"; 
 import { BellRing, Mail, MessageCircle, Loader2 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
 interface Preferences {
@@ -27,28 +27,28 @@ export default function CommunicationPreferencesPage() {
     emailReportDelivery: true,
     whatsappReportDelivery: false,
   });
-  const [isLoading, setIsLoading] = useState(true); // For preference loading
+  const [isLoading, setIsLoading] = useState(true); 
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/sign-in"); // Redirect if not authenticated
+      router.push("/sign-in"); 
     }
   }, [user, authLoading, router]);
 
   useEffect(() => {
     if (user) {
       setIsLoading(true);
-      // Simulate fetching preferences (replace with actual Firestore fetch)
-      // For now, using default or previously set local state.
-      // In a real app: fetchPreferencesForUser(user.uid).then(setPreferences);
+      // Simulate fetching preferences (replace with actual Firestore fetch for user.uid)
       setTimeout(() => {
-        // setPreferences(fetchedPreferences); 
+        // Example: setPreferences(fetchedPreferencesFromFirestore); 
         setIsLoading(false);
       }, 500);
+    } else if (!authLoading && !user) {
+        setIsLoading(false); // Not logged in, no preferences to load
     }
-  }, [user]);
+  }, [user, authLoading]);
 
 
   const handlePreferenceChange = (key: keyof Preferences, value: boolean) => {
@@ -58,11 +58,11 @@ export default function CommunicationPreferencesPage() {
   const handleSaveChanges = async () => {
     if (!user) {
       toast({ title: "Error", description: "You must be signed in to save preferences.", variant: "destructive" });
+      router.push("/sign-in");
       return;
     }
     setIsSaving(true);
-    // Simulate saving to backend (e.g., Firestore via a server action or API call)
-    // In a real app: savePreferencesForUser(user.uid, preferences);
+    // Simulate saving to backend (e.g., Firestore via a server action or API call for user.uid)
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log("Preferences saved for user:", user.uid, preferences);
     toast({ title: "Success", description: "Communication preferences updated." });

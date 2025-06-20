@@ -1,7 +1,7 @@
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
-// import { getFirestore, Firestore } from "firebase/firestore"; // If you need Firestore client-side
+// import { getFirestore, Firestore } from "firebase/firestore"; // Uncomment if you need Firestore client-side
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,15 +15,20 @@ const firebaseConfig = {
 
 let app: FirebaseApp;
 let auth: Auth;
-// let db: Firestore; // If you need Firestore client-side
+// let db: Firestore; // Uncomment if you need Firestore client-side
 
-if (getApps().length === 0) {
+if (typeof window !== 'undefined' && getApps().length === 0) {
   app = initializeApp(firebaseConfig);
-} else {
+  auth = getAuth(app);
+  // db = getFirestore(app); // Uncomment if you need Firestore client-side
+} else if (typeof window !== 'undefined') {
   app = getApps()[0];
+  auth = getAuth(app);
+  // db = getFirestore(app); // Uncomment if you need Firestore client-side
+} else {
+  // Handle server-side where window is not defined, if necessary
+  // For now, client-side initialization is prioritized
 }
 
-auth = getAuth(app);
-// db = getFirestore(app); // If you need Firestore client-side
-
+// @ts-ignore
 export { app, auth /*, db */ };

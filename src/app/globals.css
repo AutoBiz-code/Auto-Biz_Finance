@@ -4,26 +4,24 @@
 
 @layer base {
   :root {
-    /* Inspired by MetaMask Dark Theme & Prompt */
-    /* Background: linear-gradient(135deg, #1a1a2e, #16213e) */
-    /* For CSS vars, using a solid base, gradient applied to body */
-    --background: 232 32% 10%; /* Approx. #1a1a2e */
+    /* MetaMask Inspired Dark Theme */
+    /* Background: linear-gradient(135deg, #1a1a2e, #16213e) -> approx hsl(232, 32%, 10%) / hsl(225, 50%, 16%) */
+    --background: 232 32% 10%; /* Solid base for CSS vars, gradient on body */
     --foreground: 0 0% 95%; /* Light Gray/Off-white for text */
 
-    /* Cards/Modals: Slightly lighter than background */
-    --card: 230 20% 15%; /* Approx. #202030 */
+    --card: 230 20% 15%; /* Slightly lighter than background, e.g., #202030 */
     --card-foreground: 0 0% 95%;
 
-    --popover: 230 20% 12%;
+    --popover: 230 20% 12%; /* Darker popover */
     --popover-foreground: 0 0% 95%;
 
     /* Primary action color (Orange from gradient #FF6F61) */
     --primary: 5 100% 69%; /* Vivid Orange #FF6F61 */
-    --primary-foreground: 0 0% 100%; /* Pure White */
+    --primary-foreground: 0 0% 100%; /* Pure White for text on primary */
 
-    /* Secondary color / Accent (Purple from gradient #6B48FF) */
+    /* Secondary/Accent color (Purple from gradient #6B48FF) */
     --secondary: 250 100% 64%; /* Vivid Purple #6B48FF */
-    --secondary-foreground: 0 0% 100%;
+    --secondary-foreground: 0 0% 100%; /* Pure White for text on secondary */
 
     --muted: 230 15% 25%; /* Darker muted elements */
     --muted-foreground: 0 0% 60%; /* Softer gray for muted text */
@@ -36,16 +34,16 @@
 
     --border: 230 15% 30%; /* Subtle borders */
     --input: 230 15% 20%; /* Dark input background */
-    --ring: 5 100% 69%; /* Orange for focus rings */
+    --ring: 5 100% 69%; /* Orange for focus rings, matching primary */
 
-    --radius: 0.5rem;
+    --radius: 0.5rem; /* Default was 0.5rem, MetaMask uses ~5px, so this is close */
 
-    /* Sidebar specific theme */
-    --sidebar-background: 230 25% 12%; /* Darker than main bg */
+    /* Sidebar specific theme (can be same as main for MetaMask dark) */
+    --sidebar-background: 230 25% 12%; /* Darker than main bg, e.g. #161A28 */
     --sidebar-foreground: 0 0% 85%; 
-    --sidebar-primary: 5 100% 69%; 
+    --sidebar-primary: 5 100% 69%; /* Orange for active/hover in sidebar */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 230 20% 20%; 
+    --sidebar-accent: 230 20% 20%; /* Hover bg for sidebar items */
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 230 15% 25%;
     --sidebar-ring: 5 100% 69%;
@@ -63,10 +61,14 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    background: linear-gradient(135deg, #1a1a2e, #16213e); /* MetaMask-like gradient */
+    @apply bg-background text-foreground font-body;
+    background: linear-gradient(135deg, #1a1a2e, #16213e); /* MetaMask body gradient */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  /* Ensure h1, h2, etc also use the main foreground color */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-foreground;
   }
 }
 
@@ -87,45 +89,45 @@
   transform: scale(1.05);
 }
 
-/* Sliding navigation - for sidebar, this is handled by the component's logic. */
-/* If a separate top nav bar is needed, this can be applied */
+/* Sliding navigation - primarily for sidebar handled by component */
 nav {
   /* Default state, can be overridden by component specific logic */
+  /* For horizontal nav: transform: translateX(-100%); */
   transition: transform 0.5s ease-in-out;
 }
-nav.sliding-nav-hidden { /* Example class if needed */
-  transform: translateX(-100%);
-}
-nav.sliding-nav-visible { /* Example class if needed */
-  transform: translateX(0);
+nav.active { /* For horizontal nav */
+  /* transform: translateX(0); */
 }
 
 
 /* Specific button styling for MetaMask theme */
-/* This will be applied to Shadcn Button's default variant via tailwind.config.ts or specific classes */
 .btn-metamask {
   @apply text-white font-semibold py-2 px-4 rounded-md transition-all duration-300 ease-in-out;
   background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--primary))); /* Purple to Orange gradient */
   border: none;
+  padding: 10px 20px; /* From prompt */
+  border-radius: 5px; /* From prompt */
 }
 .btn-metamask:hover {
   opacity: 0.9;
-  box-shadow: 0 0 15px hsla(var(--primary), 0.5);
+  box-shadow: 0 0 15px hsla(var(--primary), 0.5); /* Optional glow effect */
 }
 
-/* Ensure ShadCN button default variant picks up the MetaMask gradient */
+/* Override Shadcn Button's default variant if needed, or use .btn-metamask class directly */
 @layer components {
-  .btn-default-override {
+  .btn-default-override { /* If you want to change the default Button variant */
     @apply text-primary-foreground font-semibold py-2 px-4 rounded-md transition-all duration-300 ease-in-out;
     background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--primary)));
     border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
   }
   .btn-default-override:hover {
     opacity: 0.9;
     box-shadow: 0 0 15px hsla(var(--primary), 0.5);
   }
   /* If Button component uses `bg-primary` for default, this ensures it gets the gradient */
-  .button-primary-override {
+  .button-primary-override { /* Apply this class if specific override for primary variant is needed */
      background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--primary))) !important;
   }
 }

@@ -1,36 +1,38 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Pricing | AutoBiz Finance",
+  description: "Choose the best plan for your SME with AutoBiz Finance. Transparent pricing for financial automation.",
 };
 
 const pricingPlans = [
   {
     name: "Basic",
-    price: "₹X,XXX",
+    price: "₹X,XXX", // Placeholder price
     priceSuffix: "/ month",
     features: [
       "500 WhatsApp Conversations",
-      "Automated GST Invoicing",
-      "UPI Reconciliation",
-      "Basic Dashboard",
+      "Automated GST Invoicing (Basic)",
+      "UPI Reconciliation (Basic)",
+      "Standard Dashboard",
       "Email Support",
     ],
     cta: "Get Started with Basic",
   },
   {
     name: "Pro",
-    price: "₹Y,YYY",
+    price: "₹Y,YYY", // Placeholder price
     priceSuffix: "/ month",
     features: [
       "1500 WhatsApp Conversations",
       "All Basic Features",
+      "Advanced GST & UPI Features",
       "Advanced Dashboard Metrics",
       "Priority Email Support",
-      "API Access (Coming Soon)",
     ],
     cta: "Upgrade to Pro",
     highlighted: true,
@@ -43,7 +45,7 @@ const pricingPlans = [
       "Unlimited WhatsApp Conversations",
       "All Pro Features",
       "Dedicated Account Manager",
-      "Custom Integrations",
+      "Custom Integrations (Botpress, ClearTax, Razorpay)",
       "SLA & Premium Support",
     ],
     cta: "Contact Sales",
@@ -56,7 +58,7 @@ export default function PricingPage() {
       <div className="text-center">
         <h1 className="text-4xl font-headline font-bold text-foreground">Flexible Pricing for Your Business</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Choose the plan that best fits your SME's needs and scale as you grow with AutoBiz Finance.
+          Choose the plan that best fits your SME's needs in Gurugram and scale as you grow with AutoBiz Finance.
         </p>
       </div>
 
@@ -93,8 +95,12 @@ export default function PricingPage() {
         ))}
       </div>
        <p className="text-center text-muted-foreground mt-8">
-        Current date: {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}. Target revenue of ₹5 crore/month by July 2025.
+        Target revenue of ₹5 crore/month by July 2025.
+      </p>
+      <p className="text-center text-xs text-muted-foreground/70">
+        Current date: {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
       </p>
     </div>
   );
 }
+

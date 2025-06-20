@@ -4,19 +4,13 @@ import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
-import { PT_Sans, Space_Grotesk } from 'next/font/google';
+import { Roboto } from 'next/font/google';
 import { AuthProvider } from '@/contexts/AuthContext';
 
-const ptSans = PT_Sans({
+const roboto = Roboto({
   subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-pt-sans',
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-space-grotesk',
+  weight: ['300', '400', '500', '700'],
+  variable: '--font-roboto',
 });
 
 export const metadata: Metadata = {
@@ -30,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${ptSans.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" className={`${roboto.variable}`}>
       <head>
         {/* Using next/font, direct Google Font links removed */}
       </head>

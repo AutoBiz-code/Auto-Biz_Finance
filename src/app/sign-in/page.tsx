@@ -17,23 +17,34 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, auth: firebaseAuthInstance } = useAuth(); // Get auth instance if needed directly
   const router = useRouter();
   const { toast } = useToast();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    if (!firebaseAuthInstance) {
+      toast({ title: "Error", description: "Authentication service not ready.", variant: "destructive" });
+      setIsLoading(false);
+      return;
+    }
     try {
-      await signIn(auth, email, password); // auth is imported from firebase/config in AuthContext
+      await signIn(firebaseAuthInstance, email, password);
       toast({ title: "Success", description: "Signed in successfully." });
       router.push("/"); // Redirect to dashboard or home page
     } catch (error) {
       const authError = error as AuthError;
       console.error("Sign in error:", authError);
+      let friendlyMessage = "An unexpected error occurred. Please try again.";
+      if (authError.code === 'auth/invalid-credential' || authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password') {
+        friendlyMessage = "Invalid email or password. Please try again.";
+      } else if (authError.code === 'auth/invalid-email') {
+        friendlyMessage = "The email address is not valid.";
+      }
       toast({
         title: "Sign In Failed",
-        description: authError.message || "An unexpected error occurred. Please try again.",
+        description: friendlyMessage,
         variant: "destructive",
       });
     } finally {

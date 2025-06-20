@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { FileText, Zap } from "lucide-react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "GST Invoicing (ClearTax) | AutoBiz Finance",
+  description: "Automate your GST invoicing with ClearTax integration through AutoBiz Finance.",
 };
 
 export default function GstInvoicingPage() {
@@ -25,7 +26,7 @@ export default function GstInvoicingPage() {
             </CardHeader>
             <CardContent className="p-0">
               <CardDescription className="text-base text-muted-foreground mb-6">
-                Automate your GST invoice generation by connecting with ClearTax. Our system helps fetch relevant data and generate GST-compliant invoices, ensuring accuracy and saving valuable time for your SME.
+                Automate your GST invoice generation by connecting with ClearTax through AutoBiz Finance. Our system helps fetch relevant data and generate GST-compliant invoices, ensuring accuracy and saving valuable time for your SME.
               </CardDescription>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-2">
@@ -51,7 +52,7 @@ export default function GstInvoicingPage() {
            <div className="md:w-1/2 order-1 md:order-2">
              <Image 
               src="https://placehold.co/600x400.png" 
-              alt="GST Invoicing with ClearTax illustration" 
+              alt="GST Invoicing with ClearTax illustration for AutoBiz Finance" 
               width={600} 
               height={400} 
               className="object-cover h-full w-full"

@@ -4,12 +4,13 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { IndianRupee, MessageSquare, FileTextIcon, BarChart3, Zap, Bot, FileSignature, UserCircle } from "lucide-react";
-import { cn } from "@/lib/utils"; // Make sure cn is imported
+import { IndianRupee, MessageSquare, FileTextIcon, BarChart3, Zap, Bot, FileSignature, UserCircle, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { automateWhatsApp, generateGSTInvoice, reconcileUPITransactions } from "@/actions/autobiz";
 import { useToast } from "@/hooks/use-toast";
 import React from "react";
-import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 interface Metric {
   title: string;
@@ -21,13 +22,29 @@ interface Metric {
 
 export default function DashboardPage() {
   const { toast } = useToast();
-  const { user, loading } = useAuth(); // Get user from AuthContext
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter(); // Initialize useRouter
 
   // Placeholder data for plan and conversation count
-  const userPlan = "Basic"; // This would come from Firestore for the logged-in user
-  const conversationCount = 250; // This would also come from Firestore
+  // In a real app, this would come from Firestore for the logged-in user
+  const [userPlan, setUserPlan] = React.useState("Basic"); 
+  const [conversationCount, setConversationCount] = React.useState(0); 
+  
+  // Simulate fetching user-specific data like plan and conversation count
+  React.useEffect(() => {
+    if (user) {
+      // Placeholder: In a real app, fetch from Firestore using user.uid
+      // e.g., fetchUserAppData(user.uid).then(data => { setUserPlan(data.plan); setConversationCount(data.conversationCount); });
+      // For now, using defaults or simulating fetch
+      setTimeout(() => {
+        setUserPlan("Basic"); // Example
+        setConversationCount(250); // Example
+      }, 500);
+    }
+  }, [user]);
+
   const conversationLimit = userPlan === "Basic" ? 500 : userPlan === "Pro" ? 1500 : Infinity;
-  const conversationProgress = (conversationCount / conversationLimit) * 100;
+  const conversationProgress = conversationLimit > 0 && conversationLimit !== Infinity ? (conversationCount / conversationLimit) * 100 : 0;
 
 
   const financialMetrics: Metric[] = [
@@ -40,19 +57,26 @@ export default function DashboardPage() {
   const handleAction = async (action: () => Promise<any>, successMessage: string) => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please sign in to perform this action.", variant: "destructive" });
+      router.push("/sign-in"); // Redirect to sign-in if not authenticated
       return;
     }
     try {
-      await action();
-      toast({ title: "Success", description: successMessage });
-    } catch (error) {
-      toast({ title: "Error", description: "An error occurred. Please try again.", variant: "destructive" });
+      // Simulate API call, replace with actual action
+      await new Promise(resolve => setTimeout(resolve, 1000)); 
+      // await action(); // Uncomment when actual actions are implemented
+      toast({ title: "Success (Simulated)", description: successMessage });
+    } catch (error: any) {
+      toast({ title: "Error (Simulated)", description: error.message || "An error occurred. Please try again.", variant: "destructive" });
       console.error(error);
     }
   };
 
-  if (loading) {
-    return <div className="flex justify-center items-center h-screen"><UserCircle className="h-12 w-12 animate-spin text-primary" /></div>;
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
@@ -82,6 +106,14 @@ export default function DashboardPage() {
                <p className="text-xs text-muted-foreground mt-1">{conversationProgress.toFixed(0)}% used</p>
             </div>
           </CardContent>
+        </Card>
+      )}
+
+      {!user && !authLoading && (
+         <Card className="mb-8 shadow-lg bg-card text-card-foreground fade-in p-6 text-center" style={{animationDelay: '0.1s'}}>
+            <CardTitle className="text-card-foreground mb-2">Welcome to AutoBiz Finance!</CardTitle>
+            <CardDescription className="text-muted-foreground mb-4">Please sign in to access your dashboard and features.</CardDescription>
+            <Button onClick={() => router.push('/sign-in')} className="btn-metamask">Sign In</Button>
         </Card>
       )}
 
@@ -115,7 +147,7 @@ export default function DashboardPage() {
               <CardDescription className="text-muted-foreground">Handle customer queries via Botpress.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full btn-metamask" onClick={() => handleAction(async () => automateWhatsApp({}), "WhatsApp automation initiated.")}>
+              <Button className="w-full btn-metamask" onClick={() => handleAction(async () => automateWhatsApp({userId: user?.uid, message: "Test"}), "WhatsApp automation initiated.")}>
                 <Bot className="mr-2"/> Start WhatsApp Automation
               </Button>
             </CardContent>
@@ -126,7 +158,7 @@ export default function DashboardPage() {
               <CardDescription className="text-muted-foreground">Automate invoicing via ClearTax.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full btn-metamask" onClick={() => handleAction(async () => generateGSTInvoice({}), "GST invoice generation started.")}>
+              <Button className="w-full btn-metamask" onClick={() => handleAction(async () => generateGSTInvoice({userId: user?.uid, invoiceDetails: {amount: 100}}), "GST invoice generation started.")}>
                 <FileSignature className="mr-2"/> Generate Invoices
               </Button>
             </CardContent>
@@ -137,7 +169,7 @@ export default function DashboardPage() {
               <CardDescription className="text-muted-foreground">Sync and reconcile UPI payments via Razorpay.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full btn-metamask" onClick={() => handleAction(async () => reconcileUPITransactions({}), "UPI reconciliation process initiated.")}>
+              <Button className="w-full btn-metamask" onClick={() => handleAction(async () => reconcileUPITransactions({userId: user?.uid, rawData: "Test Data"}), "UPI reconciliation process initiated.")}>
                 <IndianRupee className="mr-2"/> Reconcile Transactions
               </Button>
             </CardContent>

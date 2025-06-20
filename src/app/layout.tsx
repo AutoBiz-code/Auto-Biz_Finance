@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -10,13 +9,13 @@ import { AuthProvider } from '@/contexts/AuthContext';
 const roboto = Roboto({
   subsets: ['latin'],
   weight: ['300', '400', '500', '700'],
-  variable: '--font-roboto',
+  variable: '--font-roboto', // Use a CSS variable for the body font
 });
 
 const spaceGrotesk = SpaceGrotesk({
   subsets: ['latin'],
   weight: ['400', '500', '700'],
-  variable: '--font-space-grotesk',
+  variable: '--font-space-grotesk', // Use a CSS variable for headlines
 });
 
 export const metadata: Metadata = {
@@ -33,7 +32,7 @@ export default function RootLayout({
     <html lang="en" className={`${roboto.variable} ${spaceGrotesk.variable}`}>
       <head>
       </head>
-      <body className="font-body antialiased">
+      <body className="font-body antialiased"> {/* font-body will apply Roboto via CSS variable */}
         <AuthProvider>
           <SidebarProvider defaultOpen={true}>
             <AppSidebar />

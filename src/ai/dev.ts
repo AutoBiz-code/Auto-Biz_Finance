@@ -1,5 +1,8 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/categorize-upi-transactions.ts';
-import '@/ai/flows/flag-reconciliation-discrepancies.ts';
+// Remove or comment out old flow imports if they are no longer used
+// import '@/ai/flows/categorize-upi-transactions.ts';
+// import '@/ai/flows/flag-reconciliation-discrepancies.ts';
+
+import '@/ai/flows/generate-whatsapp-reply-flow.ts';

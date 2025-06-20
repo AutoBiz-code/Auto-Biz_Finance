@@ -1,3 +1,5 @@
+// This flow may no longer be directly used if UPI reconciliation is part of the new "Business Analysis" feature.
+// Consider archiving or removing if not part of the current core feature set.
 'use server';
 /**
  * @fileOverview This file contains the Genkit flow for flagging reconciliation discrepancies in UPI transactions.
@@ -59,6 +61,9 @@ const flagReconciliationDiscrepanciesFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+        throw new Error("AI failed to flag reconciliation discrepancies.");
+    }
+    return output;
   }
 );

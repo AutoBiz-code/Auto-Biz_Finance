@@ -4,25 +4,26 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
-// import type { Metadata } from "next"; // Metadata cannot be in client components
+import { useState, useEffect } from 'react';
+import type { Metadata } from "next";
 
-// export const metadata: Metadata = { // Moved to parent or layout if needed globally
+// Note: Metadata can't be dynamic in client components this way. 
+// It should be defined in a server component or layout.tsx for static metadata.
+// export const metadata: Metadata = { 
 //   title: "Pricing | AutoBiz Finance",
 //   description: "Choose the best plan for your SME with AutoBiz Finance. Transparent pricing for financial automation.",
 // };
-
-import { useState, useEffect } from 'react';
 
 
 const pricingPlans = [
   {
     name: "Basic",
-    price: "₹X,XXX", 
+    price: "₹999", 
     priceSuffix: "/ month",
     features: [
-      "500 WhatsApp Conversations",
-      "Automated GST Invoicing (Basic)",
-      "UPI Reconciliation (Basic)",
+      "500 AI Reply Generations (WhatsApp/Botpress)",
+      "GST Bill Generation (PDF)",
+      "Basic Stock Management",
       "Standard Dashboard",
       "Email Support",
     ],
@@ -30,13 +31,13 @@ const pricingPlans = [
   },
   {
     name: "Pro",
-    price: "₹Y,YYY", 
+    price: "₹2499", 
     priceSuffix: "/ month",
     features: [
-      "1500 WhatsApp Conversations",
+      "1500 AI Reply Generations",
       "All Basic Features",
-      "Advanced GST & UPI Features",
-      "Advanced Dashboard Metrics",
+      "Advanced GST Features",
+      "Business Analysis Module",
       "Priority Email Support",
     ],
     cta: "Upgrade to Pro",
@@ -47,10 +48,10 @@ const pricingPlans = [
     price: "Custom",
     priceSuffix: "",
     features: [
-      "Unlimited WhatsApp Conversations",
+      "Unlimited AI Reply Generations",
       "All Pro Features",
       "Dedicated Account Manager",
-      "Custom Integrations (Botpress, ClearTax, Razorpay)",
+      "Custom API Integrations",
       "SLA & Premium Support",
     ],
     cta: "Contact Sales",
@@ -70,6 +71,9 @@ export default function PricingPage() {
         <h1 className="text-4xl font-headline font-bold text-foreground">Flexible Pricing for Your Business</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
           Choose the plan that best fits your SME's needs in Gurugram and scale as you grow with AutoBiz Finance.
+        </p>
+         <p className="mt-2 text-sm text-muted-foreground/80">
+          Targeting ₹5 crore/month revenue by July 2025.
         </p>
       </div>
 
@@ -105,14 +109,13 @@ export default function PricingPage() {
           </Card>
         ))}
       </div>
-       <p className="text-center text-muted-foreground mt-8">
-        Target revenue of ₹5 crore/month by July 2025.
-      </p>
+      
       {currentDate && (
-        <p className="text-center text-xs text-muted-foreground/70">
-          Current date: {currentDate}.
+        <p className="text-center text-xs text-muted-foreground/70 mt-8">
+          Pricing effective as of: {currentDate}.
         </p>
       )}
     </div>
   );
 }
+

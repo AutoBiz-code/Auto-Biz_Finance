@@ -47,19 +47,30 @@ export default function GstBillingPage() {
     if (field === 'name') {
         currentItem.name = value as string;
     } else {
+        // For quantity, rate, taxRate
         const numValue = parseFloat(value as string);
         if (!isNaN(numValue)) {
             if (field === 'quantity') currentItem.quantity = numValue;
-            if (field === 'rate') currentItem.rate = numValue;
-            if (field === 'taxRate') currentItem.taxRate = numValue;
-        } else if (value === "" && (field === 'quantity' || field === 'rate' || field === 'taxRate')) {
+            else if (field === 'rate') currentItem.rate = numValue;
+            else if (field === 'taxRate') currentItem.taxRate = numValue;
+        } else if (value === "") { // If empty string, set to 0
            if (field === 'quantity') currentItem.quantity = 0;
-           if (field === 'rate') currentItem.rate = 0;
-           if (field === 'taxRate') currentItem.taxRate = 0;
+           else if (field === 'rate') currentItem.rate = 0;
+           else if (field === 'taxRate') currentItem.taxRate = 0;
         }
+        // If value is non-numeric and not empty (e.g. "abc"), the field retains its previous value due to the conditions above.
     }
     
-    currentItem.total = currentItem.quantity * currentItem.rate * (1 + currentItem.taxRate / 100);
+    // Defensively calculate total, ensuring inputs are numbers
+    const q = Number(currentItem.quantity);
+    const r = Number(currentItem.rate);
+    const tr = Number(currentItem.taxRate);
+
+    const finalQ = isNaN(q) ? 0 : q;
+    const finalR = isNaN(r) ? 0 : r;
+    const finalTR = isNaN(tr) ? 0 : tr;
+    
+    currentItem.total = finalQ * finalR * (1 + finalTR / 100);
     newItems[index] = currentItem;
     setItemsList(newItems);
   };
@@ -74,7 +85,7 @@ export default function GstBillingPage() {
   };
 
   const calculateGrandTotal = () => {
-    return itemsList.reduce((acc, item) => acc + item.total, 0);
+    return itemsList.reduce((acc, item) => acc + (Number(item.total) || 0), 0);
   };
 
 
@@ -85,8 +96,8 @@ export default function GstBillingPage() {
       router.push("/sign-in");
       return;
     }
-    if (!companyName || !companyAddress || !companyGstin || !companyEmail || !customerName || !customerAddress || !customerPhone || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0)) {
-      toast({ title: "Missing Information", description: "Please fill out all required company, customer, and item details correctly.", variant: "destructive" });
+    if (!companyName || !companyAddress || !companyGstin || !companyEmail || !customerName || !customerAddress || !customerPhone || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0 || item.taxRate < 0)) {
+      toast({ title: "Missing Information", description: "Please fill out all required company, customer, and item details correctly. Ensure item quantity and rate are positive, and tax rate is non-negative.", variant: "destructive" });
       return;
     }
 
@@ -94,10 +105,10 @@ export default function GstBillingPage() {
     try {
       const itemsToSubmit: GstPdfItem[] = itemsList.map(item => ({
         name: item.name,
-        quantity: item.quantity,
-        rate: item.rate,
-        taxRate: item.taxRate,
-        total: item.total,
+        quantity: Number(item.quantity) || 0,
+        rate: Number(item.rate) || 0,
+        taxRate: Number(item.taxRate) || 0,
+        total: Number(item.total) || 0,
       }));
 
       const result = await generateGstPdfAction({

@@ -21,7 +21,6 @@ import {
   Rocket, // Placeholder for AutoBiz logo
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 const navItems = [
   { href: "/", label: "Home", icon: LayoutDashboard },
@@ -75,33 +74,9 @@ export function AppSidebar() {
           })}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarHeader className="p-4 mt-auto"> {/* Footer for auth */}
-        <SignedIn>
-          <div className="flex items-center justify-center group-data-[state=collapsed]:hidden">
-            <UserButton afterSignOutUrl="/" appearance={{
-              elements: {
-                avatarBox: "w-10 h-10",
-                userButtonPopoverCard: "bg-card border-border text-card-foreground",
-              }
-            }}/>
-          </div>
-           <div className="hidden items-center justify-center group-data-[state=collapsed]:flex">
-             <UserButton afterSignOutUrl="/" appearance={{
-              elements: {
-                avatarBox: "w-8 h-8",
-                 userButtonPopoverCard: "bg-card border-border text-card-foreground",
-              }
-            }}/>
-          </div>
-        </SignedIn>
-        <SignedOut>
-          <SignInButton mode="modal">
-            <Button variant="outline" className="w-full group-data-[state=collapsed]:px-2 btn-metamask">
-               <span className="group-data-[state=collapsed]:hidden">Sign In</span>
-               <span className="hidden group-data-[state=collapsed]:inline">In</span>
-            </Button>
-          </SignInButton>
-        </SignedOut>
+      <SidebarHeader className="p-4 mt-auto"> {/* Footer placeholder */}
+        {/* Authentication buttons were here. Removed as per request. */}
+        {/* You can add other footer content here if needed. */}
       </SidebarHeader>
     </Sidebar>
   );

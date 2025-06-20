@@ -4,11 +4,12 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { IndianRupee, MessageSquare, FileTextIcon, BarChart3, Zap, Bot, FileSignature } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { IndianRupee, MessageSquare, FileTextIcon, BarChart3, Zap, Bot, FileSignature, UserCircle } from "lucide-react";
+import { cn } from "@/lib/utils"; // Make sure cn is imported
 import { automateWhatsApp, generateGSTInvoice, reconcileUPITransactions } from "@/actions/autobiz";
 import { useToast } from "@/hooks/use-toast";
 import React from "react";
+import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
 
 interface Metric {
   title: string;
@@ -20,6 +21,14 @@ interface Metric {
 
 export default function DashboardPage() {
   const { toast } = useToast();
+  const { user, loading } = useAuth(); // Get user from AuthContext
+
+  // Placeholder data for plan and conversation count
+  const userPlan = "Basic"; // This would come from Firestore for the logged-in user
+  const conversationCount = 250; // This would also come from Firestore
+  const conversationLimit = userPlan === "Basic" ? 500 : userPlan === "Pro" ? 1500 : Infinity;
+  const conversationProgress = (conversationCount / conversationLimit) * 100;
+
 
   const financialMetrics: Metric[] = [
     { title: "Transactions Processed", value: "2,345", icon: <IndianRupee className="h-6 w-6 text-primary" /> },
@@ -29,6 +38,10 @@ export default function DashboardPage() {
   ];
 
   const handleAction = async (action: () => Promise<any>, successMessage: string) => {
+    if (!user) {
+      toast({ title: "Authentication Required", description: "Please sign in to perform this action.", variant: "destructive" });
+      return;
+    }
     try {
       await action();
       toast({ title: "Success", description: successMessage });
@@ -38,10 +51,40 @@ export default function DashboardPage() {
     }
   };
 
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen"><UserCircle className="h-12 w-12 animate-spin text-primary" /></div>;
+  }
+
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-headline font-semibold text-foreground fade-in">AutoBiz Finance Dashboard</h1>
       
+      {user && (
+        <Card className="mb-8 shadow-lg bg-card text-card-foreground fade-in" style={{animationDelay: '0.1s'}}>
+          <CardHeader>
+            <CardTitle className="text-card-foreground flex items-center gap-2">
+              <UserCircle className="h-7 w-7 text-primary" />
+              User Details
+            </CardTitle>
+             <CardDescription className="text-muted-foreground">
+              Welcome, {user.email}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p><span className="font-medium text-card-foreground">Email:</span> <span className="text-muted-foreground">{user.email}</span></p>
+            <p><span className="font-medium text-card-foreground">Current Plan:</span> <span className="text-muted-foreground">{userPlan}</span></p>
+            <div>
+              <p className="font-medium text-card-foreground mb-1">Conversation Usage:</p>
+              <div className="flex items-center gap-2">
+                <Progress value={conversationProgress} aria-label={`Conversation usage ${conversationProgress.toFixed(0)}%`} className="h-3 flex-1 [&>div]:bg-gradient-to-r [&>div]:from-secondary [&>div]:to-primary" />
+                <span className="text-sm text-muted-foreground">{conversationCount} / {conversationLimit === Infinity ? 'Unlimited' : conversationLimit}</span>
+              </div>
+               <p className="text-xs text-muted-foreground mt-1">{conversationProgress.toFixed(0)}% used</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <section aria-labelledby="financial-metrics">
         <h2 id="financial-metrics" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.1s'}}>Key Metrics</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

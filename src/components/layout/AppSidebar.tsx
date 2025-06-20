@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarHeader,
@@ -10,7 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarGroupLabel, // Added import
+  SidebarGroupLabel,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -21,12 +21,16 @@ import {
   DollarSign,
   Rocket,
   LogIn,
+  LogOut,
   UserPlus,
   MessageCircle,
   FileSignature,
   Zap,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
+import { useToast } from "@/hooks/use-toast";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -43,6 +47,20 @@ const featurePages = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { user, signOut, loading } = useAuth(); // Get user and signOut from context
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({ title: "Signed Out", description: "You have been successfully signed out." });
+      router.push("/sign-in");
+    } catch (error) {
+      console.error("Sign out error in sidebar:", error);
+      toast({ title: "Error", description: "Failed to sign out.", variant: "destructive" });
+    }
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
@@ -63,7 +81,7 @@ export function AppSidebar() {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
               <SidebarMenuItem key={item.href} className="fade-in" style={{animationDelay: `${0.3 + index * 0.1}s`}}>
-                <Link href={item.href}>
+                <Link href={item.href} passHref>
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
@@ -92,7 +110,7 @@ export function AppSidebar() {
             const isActive = pathname === item.href;
             return (
               <SidebarMenuItem key={item.href} className="fade-in" style={{animationDelay: `${0.4 + navItems.length * 0.1 + index * 0.1}s`}}>
-                <Link href={item.href}>
+                <Link href={item.href} passHref>
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
@@ -102,7 +120,7 @@ export function AppSidebar() {
                     )}
                     tooltip={{ children: item.label, side: "right", align: "center" }}
                   >
-                    <span className="flex items-center gap-2">
+                     <span className="flex items-center gap-2">
                       <item.icon className="h-5 w-5" />
                       <span className="group-data-[state=collapsed]:hidden">
                         {item.label}
@@ -116,18 +134,53 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarHeader className="p-4 mt-auto border-t border-sidebar-border"> 
-        <div className="flex flex-col gap-2 items-center group-data-[state=collapsed]:hidden fade-in" style={{animationDelay: '0.8s'}}>
-          <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-            <LogIn className="mr-2 h-4 w-4" /> Sign In
-          </Button>
-          <Button className="w-full btn-metamask">
-            <UserPlus className="mr-2 h-4 w-4" /> Sign Up
-          </Button>
-        </div>
-        <div className="hidden group-data-[state=collapsed]:flex flex-col gap-2 items-center">
-           <Button variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary"><LogIn /></Button>
-           <Button variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary"><UserPlus /></Button>
-        </div>
+        {!loading && (
+          user ? (
+            // Authenticated user view
+            <div className="flex flex-col gap-2 items-center group-data-[state=collapsed]:hidden fade-in" style={{animationDelay: '0.8s'}}>
+              <div className="flex items-center gap-2 w-full mb-2 p-2 rounded-md bg-sidebar-accent/30">
+                <UserCircle className="h-6 w-6 text-sidebar-primary" />
+                <span className="text-sm text-sidebar-foreground truncate" title={user.email || ""}>{user.email || "User"}</span>
+              </div>
+              <Button onClick={handleSignOut} variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                <LogOut className="mr-2 h-4 w-4" /> Sign Out
+              </Button>
+            </div>
+          ) : (
+            // Unauthenticated user view
+            <div className="flex flex-col gap-2 items-center group-data-[state=collapsed]:hidden fade-in" style={{animationDelay: '0.8s'}}>
+              <Button asChild variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                <Link href="/sign-in">
+                  <LogIn className="mr-2 h-4 w-4" /> Sign In
+                </Link>
+              </Button>
+              <Button asChild className="w-full btn-metamask">
+                <Link href="/sign-up">
+                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+                </Link>
+              </Button>
+            </div>
+          )
+        )}
+        {/* Collapsed view */}
+        {!loading && (
+          <div className="hidden group-data-[state=collapsed]:flex flex-col gap-2 items-center">
+            {user ? (
+              <Button onClick={handleSignOut} variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign Out">
+                <LogOut />
+              </Button>
+            ) : (
+              <>
+                <Button asChild variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign In">
+                  <Link href="/sign-in"><LogIn /></Link>
+                </Button>
+                <Button asChild variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign Up">
+                  <Link href="/sign-up"><UserPlus /></Link>
+                </Button>
+              </>
+            )}
+          </div>
+        )}
       </SidebarHeader>
     </Sidebar>
   );

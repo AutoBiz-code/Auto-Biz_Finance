@@ -28,7 +28,7 @@
     --muted: 230 15% 25%; /* Darker muted elements */
     --muted-foreground: 0 0% 60%; /* Softer gray for muted text */
 
-    --accent: 250 100% 64%; /* Using purple as main accent */
+    --accent: 250 100% 64%; /* Using purple as main accent for general UI accents */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 70% 50%; /* Standard destructive red */
@@ -87,7 +87,22 @@
   transform: scale(1.05);
 }
 
+/* Sliding navigation - for sidebar, this is handled by the component's logic. */
+/* If a separate top nav bar is needed, this can be applied */
+nav {
+  /* Default state, can be overridden by component specific logic */
+  transition: transform 0.5s ease-in-out;
+}
+nav.sliding-nav-hidden { /* Example class if needed */
+  transform: translateX(-100%);
+}
+nav.sliding-nav-visible { /* Example class if needed */
+  transform: translateX(0);
+}
+
+
 /* Specific button styling for MetaMask theme */
+/* This will be applied to Shadcn Button's default variant via tailwind.config.ts or specific classes */
 .btn-metamask {
   @apply text-white font-semibold py-2 px-4 rounded-md transition-all duration-300 ease-in-out;
   background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--primary))); /* Purple to Orange gradient */
@@ -98,17 +113,19 @@
   box-shadow: 0 0 15px hsla(var(--primary), 0.5);
 }
 
-/* Adjust ShadCN button to use this style by default or via a variant if preferred */
-/* Overriding default button for simplicity in prototype */
-.btn-default-override {
-  @apply text-primary-foreground font-semibold py-2 px-4 rounded-md transition-all duration-300 ease-in-out;
-  background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--primary)));
-  border: none;
-}
-.btn-default-override:hover {
-  opacity: 0.9;
-  box-shadow: 0 0 15px hsla(var(--primary), 0.5);
-}
-.btn-default-override.bg-primary { /* Ensure ShadCN's default variant also gets this */
-   background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--primary))) !important;
+/* Ensure ShadCN button default variant picks up the MetaMask gradient */
+@layer components {
+  .btn-default-override {
+    @apply text-primary-foreground font-semibold py-2 px-4 rounded-md transition-all duration-300 ease-in-out;
+    background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--primary)));
+    border: none;
+  }
+  .btn-default-override:hover {
+    opacity: 0.9;
+    box-shadow: 0 0 15px hsla(var(--primary), 0.5);
+  }
+  /* If Button component uses `bg-primary` for default, this ensures it gets the gradient */
+  .button-primary-override {
+     background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--primary))) !important;
+  }
 }

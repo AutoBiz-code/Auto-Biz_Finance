@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast"; // Assuming useToast is compatible or updated
+import { useToast } from "@/hooks/use-toast"; 
 import { BellRing, Mail, MessageCircle, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
+import { useRouter } from "next/navigation";
 
 interface Preferences {
   emailPaymentAlerts: boolean;
@@ -17,44 +19,70 @@ interface Preferences {
 }
 
 export default function CommunicationPreferencesPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [preferences, setPreferences] = useState<Preferences>({
     emailPaymentAlerts: false,
     whatsappPaymentAlerts: true,
     emailReportDelivery: true,
     whatsappReportDelivery: false,
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // For preference loading
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    setIsLoading(true);
-    // Simulate fetching preferences
-    setTimeout(() => {
-      // setPreferences(fetchedPreferences); 
-      setIsLoading(false);
-    }, 500);
-  }, []);
+    if (!authLoading && !user) {
+      router.push("/sign-in"); // Redirect if not authenticated
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
+    if (user) {
+      setIsLoading(true);
+      // Simulate fetching preferences (replace with actual Firestore fetch)
+      // For now, using default or previously set local state.
+      // In a real app: fetchPreferencesForUser(user.uid).then(setPreferences);
+      setTimeout(() => {
+        // setPreferences(fetchedPreferences); 
+        setIsLoading(false);
+      }, 500);
+    }
+  }, [user]);
 
 
   const handlePreferenceChange = (key: keyof Preferences, value: boolean) => {
     setPreferences((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
+    if (!user) {
+      toast({ title: "Error", description: "You must be signed in to save preferences.", variant: "destructive" });
+      return;
+    }
     setIsSaving(true);
-    // Simulate saving to backend (e.g., Firestore via a server action)
-    setTimeout(() => {
-      console.log("Preferences saved:", preferences);
-      toast({ title: "Success", description: "Communication preferences updated." });
-      setIsSaving(false);
-    }, 1000);
+    // Simulate saving to backend (e.g., Firestore via a server action or API call)
+    // In a real app: savePreferencesForUser(user.uid, preferences);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log("Preferences saved for user:", user.uid, preferences);
+    toast({ title: "Success", description: "Communication preferences updated." });
+    setIsSaving(false);
   };
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    // This case should ideally be handled by the redirect, but as a fallback:
+    return (
+      <div className="flex flex-col justify-center items-center h-64 text-center">
+        <p className="text-lg text-muted-foreground mb-4">Please sign in to manage your communication preferences.</p>
+        <Button onClick={() => router.push('/sign-in')} className="btn-metamask">Sign In</Button>
       </div>
     );
   }

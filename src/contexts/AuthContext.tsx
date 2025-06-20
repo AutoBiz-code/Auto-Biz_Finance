@@ -22,12 +22,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Log the state of firebaseAuthInstance when the component mounts
     console.log("AuthContext useEffect: firebaseAuthInstance is", firebaseAuthInstance);
 
     if (!firebaseAuthInstance) {
-      console.error("AuthContext: Firebase auth instance is NOT available. Authentication features will not work. This usually means Firebase initialization failed, likely due to missing .env configuration.");
-      setLoading(false); // Stop loading, but auth is broken
+      console.error("AuthContext: Firebase auth instance is NOT available. Authentication features will not work. This usually means Firebase initialization failed, likely due to missing .env configuration or an error during initialization. Check browser console and src/lib/firebase/config.ts logs.");
+      setLoading(false); 
       return;
     }
 
@@ -41,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log("AuthContext: Unsubscribing from onAuthStateChanged.");
       unsubscribe();
     };
-  }, []); // Empty dependency array means this runs once on mount
+  }, []); 
 
   const handleSignUp = async (email: string, password: string): Promise<UserCredential> => {
     if (!firebaseAuthInstance) {
@@ -66,18 +65,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     try {
       await firebaseSignOut(firebaseAuthInstance);
-      setUser(null); // Clear user state locally
+      setUser(null); 
       console.log("AuthContext: User signed out.");
     } catch (error) {
       console.error("AuthContext: Error signing out: ", error);
-      // Potentially show a toast to the user
     }
   };
   
   const value: AuthContextType = {
     user,
     loading,
-    auth: firebaseAuthInstance || null, // Provide the auth instance, can be null
+    auth: firebaseAuthInstance || null, 
     signUp: handleSignUp,
     signIn: handleSignIn,
     signOut: handleSignOut,

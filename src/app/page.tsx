@@ -4,13 +4,13 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { IndianRupee, MessageSquare, FileTextIcon, BarChart3, Zap, Bot, FileSignature, UserCircle, Loader2 } from "lucide-react";
+import { IndianRupee, Bot, FileSignature, BarChart3, Zap, UserCircle as UserIcon, Loader2, MessageSquare, FileTextIcon } from "lucide-react"; // Renamed UserCircle to avoid conflict
 import { cn } from "@/lib/utils";
 import { automateWhatsApp, generateGSTInvoice, reconcileUPITransactions } from "@/actions/autobiz";
 import { useToast } from "@/hooks/use-toast";
 import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation"; 
 
 interface Metric {
   title: string;
@@ -23,22 +23,18 @@ interface Metric {
 export default function DashboardPage() {
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter(); 
 
-  // Placeholder data for plan and conversation count
-  // In a real app, this would come from Firestore for the logged-in user
   const [userPlan, setUserPlan] = React.useState("Basic"); 
   const [conversationCount, setConversationCount] = React.useState(0); 
   
-  // Simulate fetching user-specific data like plan and conversation count
   React.useEffect(() => {
     if (user) {
       // Placeholder: In a real app, fetch from Firestore using user.uid
       // e.g., fetchUserAppData(user.uid).then(data => { setUserPlan(data.plan); setConversationCount(data.conversationCount); });
-      // For now, using defaults or simulating fetch
       setTimeout(() => {
-        setUserPlan("Basic"); // Example
-        setConversationCount(250); // Example
+        setUserPlan("Basic"); 
+        setConversationCount(250); 
       }, 500);
     }
   }, [user]);
@@ -54,16 +50,15 @@ export default function DashboardPage() {
     { title: "Revenue Target Progress", value: "₹1.2 Cr / ₹5 Cr", icon: <BarChart3 className="h-6 w-6 text-primary" />, progress: 24 },
   ];
 
-  const handleAction = async (action: () => Promise<any>, successMessage: string) => {
+  const handleAction = async (actionFn: () => Promise<any>, successMessage: string) => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please sign in to perform this action.", variant: "destructive" });
-      router.push("/sign-in"); // Redirect to sign-in if not authenticated
+      router.push("/sign-in"); 
       return;
     }
     try {
-      // Simulate API call, replace with actual action
-      await new Promise(resolve => setTimeout(resolve, 1000)); 
-      // await action(); // Uncomment when actual actions are implemented
+      // await actionFn(); // Actual action call
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       toast({ title: "Success (Simulated)", description: successMessage });
     } catch (error: any) {
       toast({ title: "Error (Simulated)", description: error.message || "An error occurred. Please try again.", variant: "destructive" });
@@ -80,18 +75,18 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-headline font-semibold text-foreground fade-in">AutoBiz Finance Dashboard</h1>
+    <div className="space-y-8 fade-in">
+      <h1 className="text-3xl font-headline font-semibold text-foreground">AutoBiz Finance Dashboard</h1>
       
       {user && (
         <Card className="mb-8 shadow-lg bg-card text-card-foreground fade-in" style={{animationDelay: '0.1s'}}>
           <CardHeader>
             <CardTitle className="text-card-foreground flex items-center gap-2">
-              <UserCircle className="h-7 w-7 text-primary" />
+              <UserIcon className="h-7 w-7 text-primary" />
               User Details
             </CardTitle>
              <CardDescription className="text-muted-foreground">
-              Welcome, {user.email}
+              Welcome, {user.email || "User"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -103,7 +98,7 @@ export default function DashboardPage() {
                 <Progress value={conversationProgress} aria-label={`Conversation usage ${conversationProgress.toFixed(0)}%`} className="h-3 flex-1 [&>div]:bg-gradient-to-r [&>div]:from-secondary [&>div]:to-primary" />
                 <span className="text-sm text-muted-foreground">{conversationCount} / {conversationLimit === Infinity ? 'Unlimited' : conversationLimit}</span>
               </div>
-               <p className="text-xs text-muted-foreground mt-1">{conversationProgress.toFixed(0)}% used</p>
+               <p className="text-xs text-muted-foreground mt-1">{conversationProgress.toFixed(0)}% used ({conversationLimit === Infinity ? 'Unlimited' : conversationLimit - conversationCount} remaining)</p>
             </div>
           </CardContent>
         </Card>
@@ -121,7 +116,7 @@ export default function DashboardPage() {
         <h2 id="financial-metrics" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.1s'}}>Key Metrics</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {financialMetrics.map((metric, idx) => (
-            <Card key={metric.title} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card text-card-foreground fade-in hover-scale" style={{animationDelay: `${0.2 + idx * 0.1}s`}}>
+            <Card key={metric.title} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card text-card-foreground fade-in hover-scale" style={{animationDelay: `${0.2 + idx * 0.05}s`}}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-card-foreground">{metric.title}</CardTitle>
                 {metric.icon}
@@ -148,7 +143,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <Button className="w-full btn-metamask" onClick={() => handleAction(async () => automateWhatsApp({userId: user?.uid, message: "Test"}), "WhatsApp automation initiated.")}>
-                <Bot className="mr-2"/> Start WhatsApp Automation
+                <Bot className="mr-2 h-5 w-5"/> Start Automation
               </Button>
             </CardContent>
           </Card>
@@ -159,7 +154,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <Button className="w-full btn-metamask" onClick={() => handleAction(async () => generateGSTInvoice({userId: user?.uid, invoiceDetails: {amount: 100}}), "GST invoice generation started.")}>
-                <FileSignature className="mr-2"/> Generate Invoices
+                <FileSignature className="mr-2 h-5 w-5"/> Generate Invoices
               </Button>
             </CardContent>
           </Card>
@@ -170,7 +165,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <Button className="w-full btn-metamask" onClick={() => handleAction(async () => reconcileUPITransactions({userId: user?.uid, rawData: "Test Data"}), "UPI reconciliation process initiated.")}>
-                <IndianRupee className="mr-2"/> Reconcile Transactions
+                <IndianRupee className="mr-2 h-5 w-5"/> Reconcile Payments
               </Button>
             </CardContent>
           </Card>

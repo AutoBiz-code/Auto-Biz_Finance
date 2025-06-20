@@ -35,7 +35,7 @@ const features = [
     icon: <Zap className="h-10 w-10 text-primary mb-4" />,
     title: "Real-time Dashboard & Analytics",
     description: "Monitor key financial metrics and process statuses in real-time to make informed decisions.",
-    link: "/", // Link to dashboard page (Home)
+    link: "/", 
     dataAiHint: "data analytics"
   }
 ];

@@ -18,7 +18,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp, auth: firebaseAuthInstance } = useAuth(); 
+  const { signUp } = useAuth(); 
   const router = useRouter();
   const { toast } = useToast();
 
@@ -33,13 +33,8 @@ export default function SignUpPage() {
       return;
     }
     setIsLoading(true);
-    if (!firebaseAuthInstance) {
-      toast({ title: "Error", description: "Authentication service not ready.", variant: "destructive" });
-      setIsLoading(false);
-      return;
-    }
     try {
-      await signUp(email, password); // Corrected: Removed firebaseAuthInstance from arguments
+      await signUp(email, password); 
       toast({ title: "Success", description: "Account created successfully! Redirecting..." });
       router.push("/"); 
     } catch (error) {
@@ -52,6 +47,8 @@ export default function SignUpPage() {
         friendlyMessage = "The email address is not valid.";
       } else if (authError.code === 'auth/weak-password') {
         friendlyMessage = "The password is too weak.";
+      } else if (authError.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+        friendlyMessage = "API Key not valid. Please ensure Firebase is configured correctly by the administrator.";
       }
       toast({
         title: "Sign Up Failed",

@@ -17,8 +17,8 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-4">
-      <div className="bg-card p-8 rounded-lg shadow-xl text-center max-w-md w-full">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-transparent text-foreground p-4">
+      <div className="bg-card p-8 rounded-lg shadow-xl text-center max-w-md w-full border border-border">
         <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-6" />
         <h2 className="text-3xl font-headline font-semibold text-card-foreground mb-4">
           Something went wrong!
@@ -33,7 +33,7 @@ export default function Error({
         )}
         <Button
           onClick={() => reset()}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          className="btn-metamask hover-scale"
           aria-label="Try again"
         >
           Try again

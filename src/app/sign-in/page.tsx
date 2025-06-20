@@ -17,20 +17,15 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, auth: firebaseAuthInstance } = useAuth(); 
+  const { signIn } = useAuth(); 
   const router = useRouter();
   const { toast } = useToast();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    if (!firebaseAuthInstance) {
-      toast({ title: "Error", description: "Authentication service not ready.", variant: "destructive" });
-      setIsLoading(false);
-      return;
-    }
     try {
-      await signIn(email, password); // Corrected: Removed firebaseAuthInstance from arguments
+      await signIn(email, password);
       toast({ title: "Success", description: "Signed in successfully." });
       router.push("/"); 
     } catch (error) {
@@ -41,6 +36,8 @@ export default function SignInPage() {
         friendlyMessage = "Invalid email or password. Please try again.";
       } else if (authError.code === 'auth/invalid-email') {
         friendlyMessage = "The email address is not valid.";
+      } else if (authError.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+        friendlyMessage = "API Key not valid. Please ensure Firebase is configured correctly by the administrator.";
       }
       toast({
         title: "Sign In Failed",

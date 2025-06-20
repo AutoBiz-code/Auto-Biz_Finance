@@ -1,18 +1,23 @@
 
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
-import type { Metadata } from "next";
+// import type { Metadata } from "next"; // Metadata cannot be in client components
 
-export const metadata: Metadata = {
-  title: "Pricing | AutoBiz Finance",
-  description: "Choose the best plan for your SME with AutoBiz Finance. Transparent pricing for financial automation.",
-};
+// export const metadata: Metadata = { // Moved to parent or layout if needed globally
+//   title: "Pricing | AutoBiz Finance",
+//   description: "Choose the best plan for your SME with AutoBiz Finance. Transparent pricing for financial automation.",
+// };
+
+import { useState, useEffect } from 'react';
+
 
 const pricingPlans = [
   {
     name: "Basic",
-    price: "₹X,XXX", // Placeholder price
+    price: "₹X,XXX", 
     priceSuffix: "/ month",
     features: [
       "500 WhatsApp Conversations",
@@ -25,7 +30,7 @@ const pricingPlans = [
   },
   {
     name: "Pro",
-    price: "₹Y,YYY", // Placeholder price
+    price: "₹Y,YYY", 
     priceSuffix: "/ month",
     features: [
       "1500 WhatsApp Conversations",
@@ -53,6 +58,12 @@ const pricingPlans = [
 ];
 
 export default function PricingPage() {
+  const [currentDate, setCurrentDate] = useState('');
+
+  useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+  }, []);
+
   return (
     <div className="space-y-12 fade-in">
       <div className="text-center">
@@ -97,10 +108,11 @@ export default function PricingPage() {
        <p className="text-center text-muted-foreground mt-8">
         Target revenue of ₹5 crore/month by July 2025.
       </p>
-      <p className="text-center text-xs text-muted-foreground/70">
-        Current date: {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
-      </p>
+      {currentDate && (
+        <p className="text-center text-xs text-muted-foreground/70">
+          Current date: {currentDate}.
+        </p>
+      )}
     </div>
   );
 }
-

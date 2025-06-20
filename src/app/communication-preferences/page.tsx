@@ -46,7 +46,7 @@ export default function CommunicationPreferencesPage() {
         setIsLoading(false);
       }, 500);
     } else if (!authLoading && !user) {
-        setIsLoading(false); // Not logged in, no preferences to load
+        setIsLoading(false); 
     }
   }, [user, authLoading]);
 
@@ -78,7 +78,6 @@ export default function CommunicationPreferencesPage() {
   }
 
   if (!user) {
-    // This case should ideally be handled by the redirect, but as a fallback:
     return (
       <div className="flex flex-col justify-center items-center h-64 text-center">
         <p className="text-lg text-muted-foreground mb-4">Please sign in to manage your communication preferences.</p>

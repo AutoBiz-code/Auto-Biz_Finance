@@ -4,7 +4,7 @@ import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
-import { Roboto } from 'next/font/google';
+import { Roboto, Space_Grotesk as SpaceGrotesk } from 'next/font/google';
 import { AuthProvider } from '@/contexts/AuthContext';
 
 const roboto = Roboto({
@@ -13,9 +13,15 @@ const roboto = Roboto({
   variable: '--font-roboto',
 });
 
+const spaceGrotesk = SpaceGrotesk({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-space-grotesk',
+});
+
 export const metadata: Metadata = {
   title: 'AutoBiz Finance',
-  description: 'Automate your business finances with AI-powered tools.',
+  description: 'Automate your business finances with AI-powered tools for Indian SMEs.',
 };
 
 export default function RootLayout({
@@ -24,9 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${roboto.variable}`}>
+    <html lang="en" className={`${roboto.variable} ${spaceGrotesk.variable}`}>
       <head>
-        {/* Using next/font, direct Google Font links removed */}
       </head>
       <body className="font-body antialiased">
         <AuthProvider>

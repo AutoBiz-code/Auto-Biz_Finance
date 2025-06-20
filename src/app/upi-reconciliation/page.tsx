@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,22 +9,22 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, IndianRupee } from "lucide-react";
 import { reconcileUPITransactions } from "@/actions/autobiz";
-import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
-import { useRouter } from "next/navigation"; // Import useRouter
-// Metadata cannot be used in client components like this, moved to layout or parent server component if needed
-// import type { Metadata } from "next";
-// export const metadata: Metadata = { 
-//   title: "UPI Reconciliation (Razorpay) | AutoBiz Finance",
-//   description: "Reconcile UPI transactions efficiently with Razorpay integration via AutoBiz Finance.",
-// };
+import { useAuth } from "@/contexts/AuthContext"; 
+import { useRouter } from "next/navigation"; 
 
 
 export default function UpiReconciliationPage() {
   const [transactionData, setTransactionData] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth(); // Get user from AuthContext
-  const router = useRouter(); // Initialize useRouter
+  const { user, loading: authLoading } = useAuth(); 
+  const router = useRouter(); 
+
+  useEffect(() => {
+    // Metadata is typically set in Server Components or layout.tsx
+    // document.title = "UPI Reconciliation (Razorpay) | AutoBiz Finance";
+  }, []);
+
 
   const handleReconcile = async () => {
     if (!user) {
@@ -38,7 +38,6 @@ export default function UpiReconciliationPage() {
     }
     setIsLoading(true);
     try {
-      // In a real app, this would involve more specific data for Razorpay
       const result = await reconcileUPITransactions({ userId: user.uid, rawData: transactionData }); 
       toast({ title: "Success (Simulated)", description: "UPI reconciliation process initiated with Razorpay." });
       console.log("Reconciliation result:", result);
@@ -50,6 +49,15 @@ export default function UpiReconciliationPage() {
       setIsLoading(false);
     }
   };
+  
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-8 fade-in">
@@ -57,7 +65,10 @@ export default function UpiReconciliationPage() {
       
       <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader>
-          <CardTitle className="text-card-foreground">Reconcile UPI Transactions via Razorpay</CardTitle>
+          <CardTitle className="text-card-foreground flex items-center gap-2">
+            <IndianRupee className="h-6 w-6 text-primary" />
+            Reconcile UPI Transactions
+          </CardTitle>
           <CardDescription className="text-muted-foreground">
             Enter unstructured UPI transaction data below, or connect your Razorpay account (feature coming soon) to automatically reconcile payments with AutoBiz Finance.
           </CardDescription>
@@ -76,7 +87,7 @@ export default function UpiReconciliationPage() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleReconcile} disabled={isLoading} className="w-full sm:w-auto btn-metamask hover-scale">
+          <Button onClick={handleReconcile} disabled={isLoading || authLoading} className="w-full sm:w-auto btn-metamask hover-scale">
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <IndianRupee className="mr-2 h-4 w-4" />}
             Initiate Reconciliation
           </Button>

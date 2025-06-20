@@ -26,7 +26,7 @@ import {
   MessageCircle,
   FileSignature,
   Zap,
-  UserCircle,
+  UserCircle as UserIcon, // Renamed to avoid conflict with local User type
   PanelLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const navItems = [
-  { href: "/", label: "Home", icon: LayoutDashboard }, // Changed Dashboard to Home
+  { href: "/", label: "Home", icon: LayoutDashboard },
   { href: "/features", label: "Features", icon: Briefcase },
   { href: "/pricing", label: "Pricing", icon: DollarSign },
 ];
@@ -66,7 +66,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-sidebar-foreground hover:text-sidebar-primary transition-colors fade-in" style={{animationDelay: '0.2s'}}>
+        <Link href="/" className="flex items-center gap-2 text-sidebar-foreground hover:text-sidebar-primary transition-colors fade-in" style={{animationDelay: '0.1s'}}>
           <Rocket className="h-8 w-8 text-primary" />
           <h1 className="text-xl font-headline font-semibold group-data-[state=collapsed]:hidden">
             AutoBiz Finance
@@ -85,7 +85,7 @@ export function AppSidebar() {
           {navItems.map((item, index) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
-              <SidebarMenuItem key={item.href} className="fade-in" style={{animationDelay: `${0.3 + index * 0.1}s`}}>
+              <SidebarMenuItem key={item.href} className="fade-in" style={{animationDelay: `${0.2 + index * 0.05}s`}}>
                 <Link href={item.href}>
                   <SidebarMenuButton
                     asChild
@@ -110,11 +110,11 @@ export function AppSidebar() {
         </SidebarMenu>
         
         <SidebarMenu className="mt-4">
-           <SidebarGroupLabel className="group-data-[state=collapsed]:hidden text-xs uppercase text-muted-foreground tracking-wider">Tools</SidebarGroupLabel> {/* Changed from Features to Tools */}
+           <SidebarGroupLabel className="group-data-[state=collapsed]:hidden text-xs uppercase text-muted-foreground tracking-wider">Tools</SidebarGroupLabel>
           {featurePages.map((item, index) => {
             const isActive = pathname === item.href;
             return (
-              <SidebarMenuItem key={item.href} className="fade-in" style={{animationDelay: `${0.4 + navItems.length * 0.1 + index * 0.1}s`}}>
+              <SidebarMenuItem key={item.href} className="fade-in" style={{animationDelay: `${0.3 + navItems.length * 0.05 + index * 0.05}s`}}>
                 <Link href={item.href}>
                   <SidebarMenuButton
                     asChild
@@ -141,10 +141,9 @@ export function AppSidebar() {
       <SidebarHeader className="p-4 mt-auto border-t border-sidebar-border"> 
         {!loading && (
           user ? (
-            // Authenticated user view
-            <div className="flex flex-col gap-2 items-start group-data-[state=collapsed]:hidden fade-in" style={{animationDelay: '0.8s'}}>
+            <div className="flex flex-col gap-2 items-start group-data-[state=collapsed]:hidden fade-in" style={{animationDelay: '0.5s'}}>
               <div className="flex items-center gap-2 w-full mb-2 p-2 rounded-md bg-sidebar-accent/30">
-                <UserCircle className="h-6 w-6 text-sidebar-primary" />
+                <UserIcon className="h-6 w-6 text-sidebar-primary" />
                 <span className="text-sm text-sidebar-foreground truncate" title={user.email || ""}>{user.email || "User"}</span>
               </div>
               <Button onClick={handleSignOut} variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
@@ -152,8 +151,7 @@ export function AppSidebar() {
               </Button>
             </div>
           ) : (
-            // Unauthenticated user view
-            <div className="flex flex-col gap-2 items-center group-data-[state=collapsed]:hidden fade-in" style={{animationDelay: '0.8s'}}>
+            <div className="flex flex-col gap-2 items-center group-data-[state=collapsed]:hidden fade-in" style={{animationDelay: '0.5s'}}>
               <Button asChild variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                 <Link href="/sign-in">
                   <LogIn className="mr-2 h-4 w-4" /> Sign In
@@ -167,7 +165,6 @@ export function AppSidebar() {
             </div>
           )
         )}
-        {/* Collapsed view */}
         {!loading && (
           <div className="hidden group-data-[state=collapsed]:flex flex-col gap-2 items-center">
             {user ? (

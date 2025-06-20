@@ -1,4 +1,3 @@
-
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
@@ -20,6 +19,7 @@ if (typeof window !== 'undefined') {
     console.error(
       "CRITICAL: Firebase config key NEXT_PUBLIC_FIREBASE_API_KEY is missing or undefined. " +
       "Please check your .env file at the ROOT of your project and ensure it's correctly formatted and this variable is defined with your actual Firebase API Key. " +
+      "This .env file should be at the same level as your package.json file. " +
       "After updating .env, YOU MUST RESTART your Next.js development server."
     );
   }
@@ -44,7 +44,6 @@ try {
         console.log("Firebase app initialized successfully with Project ID:", firebaseConfig.projectId);
       } else {
         console.error("Firebase initialization SKIPPED due to missing critical config values (API Key, Auth Domain, or Project ID). Check your .env file at the project root and browser console for details. Remember to restart your Next.js server after .env changes.");
-        // Error details are logged by the checks above.
       }
     } else {
       app = getApps()[0];
@@ -58,4 +57,3 @@ try {
 }
 
 export { app, auth /*, db */ };
-

@@ -56,7 +56,7 @@ export default function GstInvoicingPage() {
               width={600} 
               height={400} 
               className="object-cover h-full w-full"
-              data-ai-hint="invoice document tax"
+              data-ai-hint="invoice tax"
             />
           </div>
         </div>

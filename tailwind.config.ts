@@ -1,7 +1,7 @@
 import type {Config} from 'tailwindcss';
 
 export default {
-  darkMode: ['class'],
+  darkMode: ['class'], // Or 'media' or remove if not using class-based dark mode
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -11,7 +11,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['var(--font-roboto)', 'sans-serif'], 
-        headline: ['var(--font-roboto)', 'sans-serif'], // Using Roboto for headline too, or choose another from next/font
+        headline: ['var(--font-space-grotesk)', 'sans-serif'], 
         code: ['monospace'],
       },
       colors: {
@@ -26,11 +26,11 @@ export default {
           foreground: 'hsl(var(--popover-foreground))',
         },
         primary: {
-          DEFAULT: 'hsl(var(--primary))', // Orange
+          DEFAULT: 'hsl(var(--primary))', 
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))', // Purple
+          DEFAULT: 'hsl(var(--secondary))', 
           foreground: 'hsl(var(--secondary-foreground))',
         },
         muted: {
@@ -38,7 +38,7 @@ export default {
           foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))', // Purple (same as secondary for MetaMask)
+          DEFAULT: 'hsl(var(--accent))', 
           foreground: 'hsl(var(--accent-foreground))',
         },
         destructive: {
@@ -47,7 +47,7 @@ export default {
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))', // Orange
+        ring: 'hsl(var(--ring))', 
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',
@@ -67,9 +67,9 @@ export default {
         },
       },
       borderRadius: {
-        lg: 'var(--radius)', // 0.5rem
-        md: 'calc(var(--radius) - 2px)', // 0.375rem (6px)
-        sm: 'calc(var(--radius) - 4px)', // 0.25rem (4px) - MetaMask buttons are ~5px, so this is close
+        lg: 'var(--radius)', 
+        md: 'calc(var(--radius) - 2px)', 
+        sm: 'calc(var(--radius) - 4px)', 
       },
       keyframes: {
         'accordion-down': {

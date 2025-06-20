@@ -1,3 +1,4 @@
+
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
@@ -39,10 +40,10 @@ try {
       if (firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId) {
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
-        console.log("Firebase app initialized successfully.");
+        console.log("Firebase app initialized successfully with Project ID:", firebaseConfig.projectId);
       } else {
-        console.error("Firebase initialization skipped due to missing critical config values (API Key, Auth Domain, or Project ID).");
-        // Error already logged above, app and auth will remain undefined
+        console.error("Firebase initialization SKIPPED due to missing critical config values (API Key, Auth Domain, or Project ID). Check .env file and browser console for details.");
+        // Error details are logged by the checks above.
       }
     } else {
       app = getApps()[0];
@@ -51,7 +52,7 @@ try {
     }
   }
 } catch (error) {
-  console.error("CRITICAL: Firebase initialization failed:", error);
+  console.error("CRITICAL: Firebase initialization failed with an error:", error);
   // app and auth will remain undefined if an error occurs
 }
 

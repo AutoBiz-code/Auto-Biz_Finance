@@ -2,15 +2,16 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, AuthError } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth, UserCredential } from 'firebase/auth';
+import { auth as firebaseAuthInstance } from '@/lib/firebase/config'; // aliased import
 import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signUp: typeof createUserWithEmailAndPassword;
-  signIn: typeof signInWithEmailAndPassword;
+  auth: Auth | null; // Make Auth instance available, can be null if not initialized
+  signUp: (email: string, password: string) => Promise<UserCredential>;
+  signIn: (email: string, password: string) => Promise<UserCredential>;
   signOut: () => Promise<void>;
 }
 
@@ -21,42 +22,78 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth) { // Wait for auth to be initialized
-      setLoading(false); // Or handle appropriately
+    // Log the state of firebaseAuthInstance when the component mounts
+    console.log("AuthContext useEffect: firebaseAuthInstance is", firebaseAuthInstance);
+
+    if (!firebaseAuthInstance) {
+      console.error("AuthContext: Firebase auth instance is NOT available. Authentication features will not work. This usually means Firebase initialization failed, likely due to missing .env configuration.");
+      setLoading(false); // Stop loading, but auth is broken
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+
+    const unsubscribe = onAuthStateChanged(firebaseAuthInstance, (currentUser) => {
+      console.log("AuthContext onAuthStateChanged: currentUser is", currentUser);
       setUser(currentUser);
       setLoading(false);
     });
-    return () => unsubscribe();
-  }, []);
 
-  const signOut = async () => {
+    return () => {
+      console.log("AuthContext: Unsubscribing from onAuthStateChanged.");
+      unsubscribe();
+    };
+  }, []); // Empty dependency array means this runs once on mount
+
+  const handleSignUp = async (email: string, password: string): Promise<UserCredential> => {
+    if (!firebaseAuthInstance) {
+      console.error("Attempted to call signUp but Firebase Auth is not initialized.");
+      throw new Error("Firebase Auth not initialized for signUp. Check Firebase configuration.");
+    }
+    return createUserWithEmailAndPassword(firebaseAuthInstance, email, password);
+  };
+
+  const handleSignIn = async (email: string, password: string): Promise<UserCredential> => {
+    if (!firebaseAuthInstance) {
+      console.error("Attempted to call signIn but Firebase Auth is not initialized.");
+      throw new Error("Firebase Auth not initialized for signIn. Check Firebase configuration.");
+    }
+    return signInWithEmailAndPassword(firebaseAuthInstance, email, password);
+  };
+
+  const handleSignOut = async () => {
+    if (!firebaseAuthInstance) {
+      console.error("Attempted to call signOut but Firebase Auth is not initialized.");
+      throw new Error("Firebase Auth not initialized for signOut.");
+    }
     try {
-      if (auth) {
-        await firebaseSignOut(auth);
-      }
-      setUser(null);
+      await firebaseSignOut(firebaseAuthInstance);
+      setUser(null); // Clear user state locally
+      console.log("AuthContext: User signed out.");
     } catch (error) {
-      console.error("Error signing out: ", error);
-      // Handle error, maybe show a toast
+      console.error("AuthContext: Error signing out: ", error);
+      // Potentially show a toast to the user
     }
   };
   
-  // Expose Firebase's createUserWithEmailAndPassword and signInWithEmailAndPassword
-  // They already return promises that can be handled for errors in the UI components.
+  const value: AuthContextType = {
+    user,
+    loading,
+    auth: firebaseAuthInstance || null, // Provide the auth instance, can be null
+    signUp: handleSignUp,
+    signIn: handleSignIn,
+    signOut: handleSignOut,
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-background">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        <p className="ml-4 text-foreground">Initializing Authentication...</p>
       </div>
     );
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp: createUserWithEmailAndPassword, signIn: signInWithEmailAndPassword, signOut }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

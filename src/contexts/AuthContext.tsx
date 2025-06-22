@@ -26,10 +26,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setIsClient(true);
     
-    // We now rely on firebaseAuthInstance being undefined if config is bad.
-    // The checks are simplified to catch this case.
     if (!firebaseAuthInstance) {
-      setAuthError("CRITICAL: Firebase is not configured properly. This usually means your .env file is missing, has incorrect values, or you haven't restarted your server after editing it.");
+      setAuthError("CRITICAL: Firebase is not configured properly. Your .env file is likely missing or has incorrect values.");
       setLoading(false);
       return;
     }
@@ -43,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (error) => {
         console.error("Firebase onAuthStateChanged Error:", error);
         if (error.code === 'auth/invalid-api-key') {
-          setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
+          setAuthError("CRITICAL: Your Firebase API Key is not valid. Please check your .env file and restart your server.");
         } else {
            setAuthError(`An unexpected authentication error occurred: ${error.message}`);
         }
@@ -60,11 +58,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       const authError = error as AuthError;
       if (authError.code === 'auth/invalid-api-key') {
-        // This is the critical error. Set the state to show the full-page error.
-        setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
-        // Do NOT re-throw, let the context handle it by showing the full-page error.
+        setAuthError("CRITICAL: Your Firebase API Key is not valid. Please check your .env file and restart your server.");
       } else {
-        // Re-throw other user-facing errors (wrong password, etc.) to be handled by the calling page component's toast.
         throw error;
       }
     }
@@ -104,23 +99,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-background text-foreground p-8 text-center">
         <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-6" />
-        <h1 className="text-2xl font-headline font-bold text-destructive mb-4">Firebase Configuration Error</h1>
-        <p className="max-w-xl text-muted-foreground mb-4">
-          {authError}
+        <h1 className="text-2xl font-headline font-bold text-destructive mb-2">Action Required: Firebase Configuration Error</h1>
+        <p className="max-w-xl text-muted-foreground mb-6">
+          The application has detected that it cannot connect to Firebase. This is almost always caused by a problem with your `.env` file or the server not being restarted.
         </p>
-        <div className="text-left bg-card p-6 rounded-lg border border-border max-w-2xl w-full">
+        <div className="text-left bg-card p-6 rounded-lg border border-border max-w-3xl w-full">
             <h2 className="font-semibold text-lg text-card-foreground mb-3">How to Fix This:</h2>
-            <ol className="list-decimal list-inside space-y-3 text-sm text-muted-foreground">
+            <ol className="list-decimal list-inside space-y-4 text-sm text-muted-foreground">
                 <li>
                   <strong>Locate the `.env` file:</strong> Find this file in the **root directory** of your project (the same level as `package.json`). If it doesn't exist, create it.
                 </li>
                 <li>
-                  <strong>Fill in your Firebase credentials:</strong> Open the `.env` file and ensure all variables starting with `NEXT_PUBLIC_FIREBASE_` are filled in correctly from your Firebase project settings. Do not leave placeholder values.
+                  <strong>Fill in your Firebase credentials:</strong> Open the `.env` file and ensure all variables (like `NEXT_PUBLIC_FIREBASE_API_KEY`) are filled in correctly from your Firebase project settings. **Do not leave placeholder values.**
                 </li>
                 <li>
-                  <strong>Restart your server:</strong> This is the most critical step. After saving changes to the `.env` file, you **must stop (`Control + C`) and restart (`npm run dev`)** your development server for the changes to be applied.
+                  <strong className="text-lg text-primary">Restart your server:</strong> This is the most important step. After saving changes to the `.env` file, you **MUST stop your development server (press `Control + C` in the terminal) and restart it (`npm run dev`)**.
                 </li>
             </ol>
+            <div className="mt-6 pt-4 border-t border-border">
+              <h3 className="font-semibold text-card-foreground mb-2">Important</h3>
+              <p className="text-xs text-muted-foreground">As an AI, I cannot perform these steps for you. These actions require access to your local files and terminal, which I do not have. Please follow the steps above carefully.</p>
+            </div>
         </div>
       </div>
     );

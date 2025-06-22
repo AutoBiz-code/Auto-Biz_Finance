@@ -30,15 +30,19 @@ export default function GstBillingPage() {
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(new Date());
-  const [itemsList, setItemsList] = useState<BillItem[]>([
-    { id: crypto.randomUUID(), name: "", quantity: 1, rate: 0, taxRate: 0, total: 0 }
-  ]);
+  const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(undefined);
+  const [itemsList, setItemsList] = useState<BillItem[]>([]);
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+
+  // Populate initial values on client-side mount to avoid hydration errors
+  useEffect(() => {
+    setInvoiceDate(new Date());
+    setItemsList([{ id: crypto.randomUUID(), name: "", quantity: 1, rate: 0, taxRate: 0, total: 0 }]);
+  }, []);
 
   const handleItemChange = (index: number, field: keyof Omit<BillItem, "id" | "total">, value: string | number) => {
     const newItems = [...itemsList];

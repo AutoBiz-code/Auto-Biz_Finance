@@ -25,23 +25,14 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function AppleIcon(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-            <path d="M19.334 14.398c-.546.966-1.144 1.89-2.025 2.525-.865.626-1.855.966-2.91.933-.993.024-2.01-.303-2.83-.805-1.22-.733-2.06-1.95-2.8-3.237-.463-.805-.85-1.633-1.12-2.525C7.324 11.2 7.3 10.9 7.3 10.65c0-.25.024-.5.07-.75.047-.25.118-.502.21-.752.28-.733.644-1.442 1.12-2.06.888-1.214 2.13-1.94 3.49-2.037.97-.07 1.94.212 2.76.708.41.25.78.577 1.1 1-.41-.277-.843-.48-1.29-.602-.448-.12-1.01-.167-1.44.024-.96.408-1.734 1.213-2.25 2.107-.46.805-.84 1.7-.84 2.812s.28 2.083.81 2.885c.38.577.81.955 1.33 1.144.52.19.96.213 1.4.19.07 0 .14-.002.21-.005.353-.01.7-.12 1.05-.287.41-.19.78-.455 1.1-.78-.02.012-.04.024-.06.036-.61.432-1.34.65-2.13.65-.54 0-1.08-.12-1.57-.355-.49-.234-.92-.577-1.27-1.022-.28-.38-.51-.83-.65-1.33-.14-.5-.21-1.04-.21-1.59s.07-1.09.21-1.59c.14-.5.37-1 .68-1.38.31-.38.7-.68 1.12-.91.42-.23.9-.355 1.4-.355.61 0 1.2.167 1.76.48.56.313 1.05.752 1.44 1.285.38.532.61 1.163.61 1.83 0 .19-.01.38-.04.577-.03.19-.07.38-.14.553-.07.17-.16.33-.28.48a.85.85 0 0 1-.26.284c-.11.083-.24.12-.38.12-.14 0-.28-.05-.38-.144-.1-.095-.19-.214-.24-.356-.1-.307-.15-.615-.15-.925s.05-.615.15-.924c.05-.142.14-.26.24-.356.2-.19.48-.285.78-.285.28 0 .54.07.75.21.21.144.38.335.5.577.33.733.49 1.54.49 2.41 0 .78-.17 1.54-.52 2.21zm-1.12-5.467c.36-.21.72-.357 1.08-.43.05-.01.09-.02.14-.03-.1-.144-.21-.287-.33-.408-.36-.356-.77-.615-1.22-.78-.5-.166-1.01-.19-1.52-.095-.92.19-1.74.755-2.3 1.52-.28.38-.51.81-.63 1.285-.12.47-.19.96-.19 1.47s.07.97.19 1.44c.12.47.35.91.66 1.28.31.37.7.66 1.12.86.42.2.89.308 1.38.308.33 0 .66-.05.97-.144.31-.095.61-.237.88-.43-.38.21-.78.357-1.2.43-.33.05-.66.07-.97.07-.63 0-1.27-.19-1.83-.553-.56-.363-1.03-.87-1.38-1.49-.35-.61-.53-1.3-.53-2.03s.18-1.42.53-2.03c.35-.62.82-1.13 1.38-1.5.56-.36 1.2-.54 1.84-.54.38 0 .77.05 1.14.144z"/>
-        </svg>
-    );
-}
-
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isAppleLoading, setIsAppleLoading] = useState(false);
 
-  const { signUp, signInWithGoogle, signInWithApple } = useAuth(); 
+  const { signUp, signInWithGoogle } = useAuth(); 
   const router = useRouter();
   const { toast } = useToast();
 
@@ -83,22 +74,16 @@ export default function SignUpPage() {
     }
   };
 
-  const handleSocialSignIn = async (provider: 'google' | 'apple') => {
-    if (provider === 'google') {
-      setIsGoogleLoading(true);
-    } else {
-      setIsAppleLoading(true);
-    }
-    
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
     try {
-      const signInMethod = provider === 'google' ? signInWithGoogle : signInWithApple;
-      await signInMethod();
+      await signInWithGoogle();
       toast({ title: "Success", description: "Signed up and logged in successfully." });
       router.push("/");
     } catch (error) {
       const authError = error as AuthError;
-      console.error(`Sign in with ${provider} error:`, authError);
-      let friendlyMessage = `An error occurred while signing up with ${provider}. Please try again.`;
+      console.error(`Sign in with Google error:`, authError);
+      let friendlyMessage = `An error occurred while signing up with Google. Please try again.`;
        if (authError.code === 'auth/popup-closed-by-user') {
         friendlyMessage = "Sign-up cancelled. The sign-in window was closed before completion.";
       } else if (authError.code === 'auth/account-exists-with-different-credential') {
@@ -106,7 +91,7 @@ export default function SignUpPage() {
       } else if (authError.code === 'auth/popup-blocked-by-browser') {
         friendlyMessage = "Your browser blocked the sign-in popup. Please allow popups for this site and try again.";
       } else if (authError.code === 'auth/operation-not-allowed') {
-        friendlyMessage = `Sign-up with ${provider} is not enabled. Please contact the administrator.`;
+        friendlyMessage = `Sign-up with Google is not enabled. Please contact the administrator.`;
       }
       toast({
         title: "Sign Up Failed",
@@ -115,7 +100,6 @@ export default function SignUpPage() {
       });
     } finally {
       setIsGoogleLoading(false);
-      setIsAppleLoading(false);
     }
   }
 
@@ -130,17 +114,11 @@ export default function SignUpPage() {
         </CardHeader>
         
         <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button variant="outline" className="w-full" onClick={() => handleSocialSignIn('google')} disabled={isGoogleLoading || isAppleLoading}>
-                    {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
-                    Google
-                </Button>
-                <Button variant="outline" className="w-full" onClick={() => handleSocialSignIn('apple')} disabled={isGoogleLoading || isAppleLoading}>
-                    {isAppleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5" />}
-                    Apple
-                </Button>
-            </div>
-
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
+                {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
+                Sign up with Google
+            </Button>
+            
             <div className="flex items-center">
                 <Separator className="flex-1" />
                 <span className="px-4 text-xs text-muted-foreground">OR</span>
@@ -188,7 +166,7 @@ export default function SignUpPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full btn-metamask hover-scale" disabled={isLoading || isGoogleLoading || isAppleLoading}>
+            <Button type="submit" className="w-full btn-metamask hover-scale" disabled={isLoading || isGoogleLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
               Sign Up with Email
             </Button>

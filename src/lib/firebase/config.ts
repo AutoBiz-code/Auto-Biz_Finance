@@ -1,7 +1,7 @@
 
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, Auth, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
+import { getAuth, Auth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,7 +16,6 @@ const firebaseConfig = {
 let app: FirebaseApp | undefined = undefined;
 let auth: Auth | undefined = undefined;
 let googleProvider: GoogleAuthProvider | undefined = undefined;
-let appleProvider: OAuthProvider | undefined = undefined;
 
 // This function now centralizes initialization and logging for client-side execution.
 function initializeFirebaseOnClient() {
@@ -54,7 +53,6 @@ function initializeFirebaseOnClient() {
   if (app) {
     auth = getAuth(app);
     googleProvider = new GoogleAuthProvider();
-    appleProvider = new OAuthProvider('apple.com');
   }
 }
 
@@ -63,4 +61,4 @@ if (typeof window !== 'undefined') {
   initializeFirebaseOnClient();
 }
 
-export { app, auth, googleProvider, appleProvider };
+export { app, auth, googleProvider };

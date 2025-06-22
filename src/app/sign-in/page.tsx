@@ -51,7 +51,7 @@ export default function SignInPage() {
       } else if (authError.code === 'auth/invalid-email') {
         friendlyMessage = "The email address is not valid.";
       } else if (authError.code === 'auth/invalid-api-key') {
-        friendlyMessage = "API Key not valid. Please ensure Firebase is configured correctly by the administrator.";
+        friendlyMessage = "API Key is not valid. Please check your .env file and restart your development server.";
       }
       toast({
         title: "Sign In Failed",
@@ -73,9 +73,12 @@ export default function SignInPage() {
       console.error(`Sign in with Google error:`, error);
       let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
 
-      if (error?.code) { // Check if it's a Firebase AuthError
+      if (error?.code) { 
         const authError = error as AuthError;
         switch (authError.code) {
+          case 'auth/invalid-api-key':
+             friendlyMessage = "API Key is not valid. Please check your .env file and restart your development server.";
+            break;
           case 'auth/operation-not-allowed':
             friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
             break;

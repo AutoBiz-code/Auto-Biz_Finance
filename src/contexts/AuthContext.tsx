@@ -22,13 +22,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isConfigValid, setIsConfigValid] = useState(true);
 
   useEffect(() => {
     console.log("AuthContext useEffect: firebaseAuthInstance is", firebaseAuthInstance);
 
     if (!firebaseAuthInstance) {
       console.error("AuthContext: Firebase auth instance is NOT available. Authentication features will not work. This usually means Firebase initialization failed, likely due to missing .env configuration or an error during initialization. Check browser console and src/lib/firebase/config.ts logs.");
-      setLoading(false); 
+      setLoading(false);
+      setIsConfigValid(false);
       return;
     }
 
@@ -99,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signOut: handleSignOut,
   };
 
-  if (!firebaseAuthInstance) {
+  if (!isConfigValid) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-background text-foreground p-8 text-center">
         <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-6" />

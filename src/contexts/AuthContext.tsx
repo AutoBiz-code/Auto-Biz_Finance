@@ -65,9 +65,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await createUserWithEmailAndPassword(firebaseAuthInstance, email, password);
     } catch (error) {
-      // Re-throw the error to be handled by the calling page component.
-      console.error("Firebase SignUp Error:", error);
-      throw error;
+      const authError = error as AuthError;
+      console.error("Firebase SignUp Error:", authError);
+      if (authError.code === 'auth/invalid-api-key') {
+        setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
+      } else {
+        // Re-throw other errors to be handled by the calling page component (e.g., for toasts).
+        throw error;
+      }
     }
   };
 
@@ -76,8 +81,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await signInWithEmailAndPassword(firebaseAuthInstance, email, password);
     } catch (error) {
-      console.error("Firebase SignIn Error:", error);
-      throw error;
+      const authError = error as AuthError;
+      console.error("Firebase SignIn Error:", authError);
+      if (authError.code === 'auth/invalid-api-key') {
+        setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
+      } else {
+        throw error;
+      }
     }
   };
 
@@ -86,8 +96,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await signInWithPopup(firebaseAuthInstance, googleProvider);
     } catch (error) {
-      console.error("Firebase Google SignIn Error:", error);
-      throw error;
+      const authError = error as AuthError;
+      console.error("Firebase Google SignIn Error:", authError);
+      if (authError.code === 'auth/invalid-api-key') {
+        setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
+      } else {
+        throw error;
+      }
     }
   };
 

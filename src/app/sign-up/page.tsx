@@ -59,6 +59,9 @@ export default function SignUpPage() {
           friendlyMessage = "CRITICAL: Your Firebase API Key is not valid. Please check your .env file and restart your server.";
        } else {
           switch (authError.code) {
+            case 'auth/unauthorized-domain':
+              friendlyMessage = "This domain is not authorized. Please add 'studio.firebase.google.com' to your Firebase project's authorized domains in the Authentication settings.";
+              break;
             case 'auth/email-already-in-use':
               friendlyMessage = "This email address is already in use.";
               break;
@@ -95,6 +98,9 @@ export default function SignUpPage() {
           friendlyMessage = "CRITICAL: Your Firebase API Key is not valid. Please check your .env file and restart your server.";
       } else {
         switch (authError.code) {
+          case 'auth/unauthorized-domain':
+            friendlyMessage = "This domain is not authorized. Please add 'studio.firebase.google.com' to your Firebase project's authorized domains in the Authentication settings.";
+            break;
           case 'auth/operation-not-allowed':
             friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
             break;

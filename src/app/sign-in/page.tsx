@@ -92,6 +92,10 @@ export default function SignInPage() {
         friendlyMessage = "Sign-in cancelled. The sign-in window was closed before completion.";
       } else if (authError.code === 'auth/account-exists-with-different-credential') {
         friendlyMessage = "An account already exists with the same email address but different sign-in credentials. Try signing in with the original method."
+      } else if (authError.code === 'auth/popup-blocked-by-browser') {
+        friendlyMessage = "Your browser blocked the sign-in popup. Please allow popups for this site and try again.";
+      } else if (authError.code === 'auth/operation-not-allowed') {
+        friendlyMessage = `Sign-in with ${provider} is not enabled. Please contact the administrator.`;
       }
       toast({
         title: "Sign In Failed",
@@ -178,5 +182,3 @@ export default function SignInPage() {
     </div>
   );
 }
-
-    

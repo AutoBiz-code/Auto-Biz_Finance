@@ -23,14 +23,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isConfigValid, setIsConfigValid] = useState(true);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    // This effect runs only on the client, after initial render.
+    setIsClient(true);
+    
     console.log("AuthContext useEffect: firebaseAuthInstance is", firebaseAuthInstance);
 
     if (!firebaseAuthInstance) {
-      console.error("AuthContext: Firebase auth instance is NOT available. Authentication features will not work. This usually means Firebase initialization failed, likely due to missing .env configuration or an error during initialization. Check browser console and src/lib/firebase/config.ts logs.");
-      setLoading(false);
+      console.error("AuthContext: Firebase auth instance is NOT available. This usually means Firebase initialization failed, likely due to missing .env configuration or an error during initialization. Check browser console and src/lib/firebase/config.ts logs.");
       setIsConfigValid(false);
+      setLoading(false);
       return;
     }
 
@@ -101,7 +105,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signOut: handleSignOut,
   };
 
-  if (!isConfigValid) {
+  // On the server and first client render, `isClient` is false, so this block is skipped.
+  // After hydration, `isClient` becomes true, and this block can safely run on the client only.
+  if (isClient && !isConfigValid) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-background text-foreground p-8 text-center">
         <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-6" />
@@ -122,6 +128,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
   }
 
+  // The loading screen is rendered on the server and on the initial client render.
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-background">

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -10,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { Loader2, UserPlus } from "lucide-react";
+import { Loader2, UserPlus, AlertTriangle } from "lucide-react";
 import type { AuthError } from "firebase/auth";
 import { Separator } from "@/components/ui/separator";
 
@@ -25,12 +24,46 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+// A dedicated component to show the API key error.
+function ApiKeyErrorDisplay() {
+  return (
+    <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
+        <Card className="w-full max-w-lg shadow-2xl bg-card border-destructive">
+            <CardHeader className="text-center">
+                <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
+                <CardTitle className="text-2xl font-headline text-destructive">Configuration Error</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                    Could not connect to Firebase.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="text-left bg-destructive/10 p-6 rounded-md mx-6 mb-6 border border-destructive/50">
+                <h3 className="font-semibold text-lg text-destructive-foreground mb-3">Error: Invalid API Key</h3>
+                <p className="text-sm text-destructive-foreground/90 mb-4">Firebase is reporting that the provided API Key is not valid. This is the most common setup issue.</p>
+                <h3 className="font-semibold text-lg text-destructive-foreground mb-3">How to Fix</h3>
+                <ol className="list-decimal list-inside space-y-3 text-sm text-destructive-foreground/90">
+                    <li>
+                        <strong>Find your <code>.env</code> file</strong> in the root directory of your project. If it doesn't exist, create it.
+                    </li>
+                    <li>
+                        <strong>Check your Firebase credentials.</strong> Copy the entire <code>firebaseConfig</code> object from your Firebase project settings and paste the values into the <code>.env</code> file. Ensure there are no typos.
+                    </li>
+                    <li>
+                        <strong>Restart your development server.</strong> This is a required step. Stop your server (with <code>Ctrl + C</code>) and start it again (with <code>npm run dev</code>). Next.js only reads the <code>.env</code> file on startup.
+                    </li>
+                </ol>
+            </CardContent>
+        </Card>
+    </div>
+  );
+}
+
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState(false);
 
   const { signUp, signInWithGoogle } = useAuth(); 
   const router = useRouter();
@@ -54,12 +87,14 @@ export default function SignUpPage() {
     } catch (error) {
       const authError = error as AuthError;
       console.error("Sign up error:", authError.code);
+      
+      if (authError.code === 'auth/invalid-api-key') {
+        setApiKeyError(true);
+        return;
+      }
+      
       let friendlyMessage = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
-
       switch (authError.code) {
-        case 'auth/invalid-api-key':
-          friendlyMessage = "Firebase: Error (auth/api-key-not-valid). Please check your .env file and restart your development server.";
-          break;
         case 'auth/email-already-in-use':
           friendlyMessage = "This email address is already in use.";
           break;
@@ -88,14 +123,16 @@ export default function SignUpPage() {
       toast({ title: "Success", description: "Signed up and logged in successfully." });
       router.push("/");
     } catch (error: any) {
-      console.error(`Sign up with Google error:`, error.code);
-      let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
-
       const authError = error as AuthError;
+      console.error(`Sign up with Google error:`, error.code);
+      
+      if (authError.code === 'auth/invalid-api-key') {
+        setApiKeyError(true);
+        return;
+      }
+      
+      let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
       switch (authError.code) {
-        case 'auth/invalid-api-key':
-          friendlyMessage = "Firebase: Error (auth/api-key-not-valid). Please check your .env file and restart your development server.";
-          break;
         case 'auth/operation-not-allowed':
           friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
           break;
@@ -118,6 +155,10 @@ export default function SignUpPage() {
     } finally {
       setIsGoogleLoading(false);
     }
+  }
+
+  if (apiKeyError) {
+    return <ApiKeyErrorDisplay />;
   }
 
   return (

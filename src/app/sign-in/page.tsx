@@ -39,19 +39,20 @@ export default function SignInPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
+      // AuthContext will now handle the critical 'invalid-api-key' error by showing a full-page error.
+      // Other errors (like wrong password) will be thrown and caught here.
       await signIn(email, password);
       toast({ title: "Success", description: "Signed in successfully." });
       router.push("/"); 
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Sign in error:", authError);
+      console.error("Sign in error:", authError.code);
       let friendlyMessage = "An unexpected error occurred. Please try again.";
+      // Handle non-critical errors here
       if (authError.code === 'auth/invalid-credential' || authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password') {
         friendlyMessage = "Invalid email or password. Please try again.";
       } else if (authError.code === 'auth/invalid-email') {
         friendlyMessage = "The email address is not valid.";
-      } else if (authError.code === 'auth/invalid-api-key') {
-        friendlyMessage = "API Key is not valid. Please check your .env file and restart your development server.";
       }
       toast({
         title: "Sign In Failed",
@@ -70,31 +71,27 @@ export default function SignInPage() {
       toast({ title: "Success", description: "Signed in successfully." });
       router.push("/");
     } catch (error: any) {
-      console.error(`Sign in with Google error:`, error);
+      console.error(`Sign in with Google error:`, error.code);
       let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
-
-      if (error?.code) { 
-        const authError = error as AuthError;
-        switch (authError.code) {
-          case 'auth/invalid-api-key':
-             friendlyMessage = "API Key is not valid. Please check your .env file and restart your development server.";
-            break;
-          case 'auth/operation-not-allowed':
-            friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
-            break;
-          case 'auth/popup-blocked-by-browser':
-            friendlyMessage = "Your browser blocked the sign-in popup. Please allow popups for this site and try again.";
-            break;
-          case 'auth/popup-closed-by-user':
-            friendlyMessage = "Sign-in cancelled. The sign-in window was closed before completion.";
-            break;
-          case 'auth/account-exists-with-different-credential':
-            friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
-            break;
-          default:
-            friendlyMessage = `A sign-in error occurred: ${authError.message}`;
-            break;
-        }
+      
+      const authError = error as AuthError;
+      switch (authError.code) {
+        // The 'auth/invalid-api-key' is now handled globally in AuthContext.
+        case 'auth/operation-not-allowed':
+          friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
+          break;
+        case 'auth/popup-blocked-by-browser':
+          friendlyMessage = "Your browser blocked the sign-in popup. Please allow popups for this site and try again.";
+          break;
+        case 'auth/popup-closed-by-user':
+          friendlyMessage = "Sign-in cancelled. The sign-in window was closed before completion.";
+          break;
+        case 'auth/account-exists-with-different-credential':
+          friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
+          break;
+        default:
+          friendlyMessage = `A sign-in error occurred: ${authError.message}`;
+          break;
       }
       
       toast({

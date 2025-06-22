@@ -2,17 +2,16 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth, UserCredential, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth as firebaseAuthInstance, googleProvider } from '@/lib/firebase/config'; // aliased import
+import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth, UserCredential, signInWithPopup, GoogleAuthProvider, AuthError } from 'firebase/auth';
+import { auth as firebaseAuthInstance, googleProvider } from '@/lib/firebase/config';
 import { Loader2, AlertTriangle } from 'lucide-react';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  auth: Auth | null;
-  signUp: (email: string, password: string) => Promise<UserCredential>;
-  signIn: (email: string, password:string) => Promise<UserCredential>;
-  signInWithGoogle: () => Promise<UserCredential>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -21,16 +20,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isConfigValid, setIsConfigValid] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // This effect runs only on the client, after initial render.
     setIsClient(true);
     
-    // The check for firebaseAuthInstance happens here, only on the client
     if (!firebaseAuthInstance) {
-      setIsConfigValid(false);
+      setAuthError("CRITICAL: Firebase is not configured. This usually means your .env file is missing or has incorrect values.");
       setLoading(false);
       return;
     }
@@ -40,62 +37,73 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     });
 
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []); 
 
-  const handleSignUp = async (email: string, password: string): Promise<UserCredential> => {
-    if (!firebaseAuthInstance) {
-      throw new Error("Firebase Auth not initialized for signUp. Check Firebase configuration.");
+  const handleAuthError = (error: any) => {
+    console.error("Firebase Auth Error:", error);
+    // This is the most critical error. We will halt the app and show a specific message.
+    if (error.code === 'auth/invalid-api-key') {
+      setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
+    } else {
+      // For all other errors (e.g., wrong password, popup blocked), we re-throw them
+      // so the individual pages can handle them with a toast notification.
+      throw error;
     }
-    return createUserWithEmailAndPassword(firebaseAuthInstance, email, password);
   };
 
-  const handleSignIn = async (email: string, password: string): Promise<UserCredential> => {
-    if (!firebaseAuthInstance) {
-      throw new Error("Firebase Auth not initialized for signIn. Check Firebase configuration.");
-    }
-    return signInWithEmailAndPassword(firebaseAuthInstance, email, password);
-  };
-
-  const handleSignInWithGoogle = async (): Promise<UserCredential> => {
-    if (!firebaseAuthInstance || !googleProvider) {
-        throw new Error("Firebase Auth or Google Provider not initialized.");
-    }
-    return signInWithPopup(firebaseAuthInstance, googleProvider);
-  }
-
-  const handleSignOut = async () => {
-    if (!firebaseAuthInstance) {
-      throw new Error("Firebase Auth not initialized for signOut.");
-    }
+  const signUp = async (email: string, password: string) => {
+    if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
     try {
-      await firebaseSignOut(firebaseAuthInstance);
-      setUser(null); 
+      await createUserWithEmailAndPassword(firebaseAuthInstance, email, password);
+      setAuthError(null); // Clear config errors on success
     } catch (error) {
-      console.error("AuthContext: Error signing out: ", error);
+      handleAuthError(error);
     }
+  };
+
+  const signIn = async (email: string, password: string) => {
+    if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
+    try {
+      await signInWithEmailAndPassword(firebaseAuthInstance, email, password);
+      setAuthError(null);
+    } catch (error) {
+      handleAuthError(error);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    if (!firebaseAuthInstance || !googleProvider) throw new Error("Firebase Auth or Google Provider not initialized.");
+    try {
+      await signInWithPopup(firebaseAuthInstance, googleProvider);
+      setAuthError(null);
+    } catch (error) {
+      handleAuthError(error);
+    }
+  };
+
+  const signOut = async () => {
+    if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
+    await firebaseSignOut(firebaseAuthInstance);
+    setUser(null); 
   };
   
   const value: AuthContextType = {
     user,
     loading,
-    auth: firebaseAuthInstance || null, 
-    signUp: handleSignUp,
-    signIn: handleSignIn,
-    signInWithGoogle: handleSignInWithGoogle,
-    signOut: handleSignOut,
+    signUp,
+    signIn,
+    signInWithGoogle,
+    signOut,
   };
 
-  // This check now only runs on the client after hydration, preventing mismatches.
-  if (isClient && !isConfigValid) {
+  if (authError) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-background text-foreground p-8 text-center">
         <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-6" />
         <h1 className="text-2xl font-headline font-bold text-destructive mb-4">Firebase Configuration Error</h1>
         <p className="max-w-xl text-muted-foreground mb-4">
-          The application failed to connect to Firebase, most likely due to missing or incorrect credentials. This must be fixed to enable sign-in and sign-up.
+          {authError}
         </p>
         <div className="text-left bg-card p-6 rounded-lg border border-border max-w-2xl w-full">
             <h2 className="font-semibold text-lg text-card-foreground mb-3">How to Fix This:</h2>
@@ -104,21 +112,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                   <strong>Locate the `.env` file:</strong> Find this file in the **root directory** of your project (the same level as `package.json`). If it doesn't exist, create it.
                 </li>
                 <li>
-                  <strong>Fill in your Firebase credentials:</strong> Open the `.env` file and ensure all variables starting with `NEXT_PUBLIC_FIREBASE_` are filled in correctly from your Firebase project settings. Pay close attention to `NEXT_PUBLIC_FIREBASE_API_KEY`.
+                  <strong>Fill in your Firebase credentials:</strong> Open the `.env` file and ensure all variables starting with `NEXT_PUBLIC_FIREBASE_` are filled in correctly from your Firebase project settings.
                 </li>
                 <li>
-                  <strong>Restart your server:</strong> This is a critical step. After saving changes to the `.env` file, you **must stop and restart** your Next.js development server for the changes to be applied.
+                  <strong>Restart your server:</strong> This is the most critical step. After saving changes to the `.env` file, you **must stop and restart** your development server for the changes to be applied (`Control + C` then `npm run dev`).
                 </li>
             </ol>
-            <p className="text-xs text-muted-foreground mt-4">
-              Check your browser's developer console for more specific logs about which variables might be missing.
-            </p>
         </div>
       </div>
     );
   }
 
-  if (loading) {
+  if (loading && isClient) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-background">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />

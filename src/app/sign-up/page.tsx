@@ -53,7 +53,7 @@ export default function SignUpPage() {
       router.push("/"); 
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Sign up error:", authError);
+      console.error("Sign up error:", authError.code);
       let friendlyMessage = "An unexpected error occurred. Please try again.";
       if (authError.code === 'auth/email-already-in-use') {
         friendlyMessage = "This email address is already in use.";
@@ -61,8 +61,6 @@ export default function SignUpPage() {
         friendlyMessage = "The email address is not valid.";
       } else if (authError.code === 'auth/weak-password') {
         friendlyMessage = "The password is too weak.";
-      } else if (authError.code === 'auth/invalid-api-key') {
-        friendlyMessage = "API Key is not valid. Please check your .env file and restart your development server.";
       }
       toast({
         title: "Sign Up Failed",
@@ -81,31 +79,26 @@ export default function SignUpPage() {
       toast({ title: "Success", description: "Signed up and logged in successfully." });
       router.push("/");
     } catch (error: any) {
-      console.error(`Sign up with Google error:`, error);
+      console.error(`Sign up with Google error:`, error.code);
       let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
 
-      if (error?.code) { 
-        const authError = error as AuthError;
-        switch (authError.code) {
-          case 'auth/invalid-api-key':
-             friendlyMessage = "API Key is not valid. Please check your .env file and restart your development server.";
-            break;
-          case 'auth/operation-not-allowed':
-            friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
-            break;
-          case 'auth/popup-blocked-by-browser':
-            friendlyMessage = "Your browser blocked the sign-up popup. Please allow popups for this site and try again.";
-            break;
-          case 'auth/popup-closed-by-user':
-            friendlyMessage = "Sign-up cancelled. The sign-up window was closed before completion.";
-            break;
-          case 'auth/account-exists-with-different-credential':
-            friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
-            break;
-          default:
-            friendlyMessage = `A sign-up error occurred: ${authError.message}`;
-            break;
-        }
+      const authError = error as AuthError;
+      switch (authError.code) {
+        case 'auth/operation-not-allowed':
+          friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
+          break;
+        case 'auth/popup-blocked-by-browser':
+          friendlyMessage = "Your browser blocked the sign-up popup. Please allow popups for this site and try again.";
+          break;
+        case 'auth/popup-closed-by-user':
+          friendlyMessage = "Sign-up cancelled. The sign-up window was closed before completion.";
+          break;
+        case 'auth/account-exists-with-different-credential':
+          friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
+          break;
+        default:
+          friendlyMessage = `A sign-up error occurred: ${authError.message}`;
+          break;
       }
       
       toast({

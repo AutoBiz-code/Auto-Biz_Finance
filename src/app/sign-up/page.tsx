@@ -55,13 +55,17 @@ export default function SignUpPage() {
       const authError = error as AuthError;
       console.error("Sign up error:", authError.code);
       let friendlyMessage = "An unexpected error occurred. Please try again.";
-      if (authError.code === 'auth/email-already-in-use') {
+
+      if (authError.code === 'auth/invalid-api-key') {
+        friendlyMessage = "CRITICAL: Your Firebase API key is not valid. Please check your .env file, make sure all variables are correct, and then RESTART your development server.";
+      } else if (authError.code === 'auth/email-already-in-use') {
         friendlyMessage = "This email address is already in use.";
       } else if (authError.code === 'auth/invalid-email') {
         friendlyMessage = "The email address is not valid.";
       } else if (authError.code === 'auth/weak-password') {
         friendlyMessage = "The password is too weak.";
       }
+
       toast({
         title: "Sign Up Failed",
         description: friendlyMessage,
@@ -84,6 +88,9 @@ export default function SignUpPage() {
 
       const authError = error as AuthError;
       switch (authError.code) {
+        case 'auth/invalid-api-key':
+          friendlyMessage = "CRITICAL: Your Firebase API key is not valid. Please check your .env file, make sure all variables are correct, and then RESTART your development server.";
+          break;
         case 'auth/operation-not-allowed':
           friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
           break;
@@ -97,7 +104,7 @@ export default function SignUpPage() {
           friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
           break;
         default:
-          friendlyMessage = `A sign-up error occurred: ${authError.message}`;
+          friendlyMessage = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
           break;
       }
       
@@ -160,7 +167,7 @@ export default function SignUpPage() {
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
             </div>
-             <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-card-foreground">Confirm Password</Label>
               <Input
                 id="confirmPassword"

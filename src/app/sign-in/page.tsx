@@ -39,8 +39,6 @@ export default function SignInPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // AuthContext will now handle the critical 'invalid-api-key' error by showing a full-page error.
-      // Other errors (like wrong password) will be thrown and caught here.
       await signIn(email, password);
       toast({ title: "Success", description: "Signed in successfully." });
       router.push("/"); 
@@ -48,8 +46,9 @@ export default function SignInPage() {
       const authError = error as AuthError;
       console.error("Sign in error:", authError.code);
       let friendlyMessage = "An unexpected error occurred. Please try again.";
-      // Handle non-critical errors here
-      if (authError.code === 'auth/invalid-credential' || authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password') {
+      if (authError.code === 'auth/invalid-api-key') {
+        friendlyMessage = "CRITICAL: Your Firebase API key is not valid. Please check your .env file, make sure all variables are correct, and then RESTART your development server.";
+      } else if (authError.code === 'auth/invalid-credential' || authError.code === 'auth/user-not-found' || authError.code === 'auth/wrong-password') {
         friendlyMessage = "Invalid email or password. Please try again.";
       } else if (authError.code === 'auth/invalid-email') {
         friendlyMessage = "The email address is not valid.";
@@ -76,7 +75,9 @@ export default function SignInPage() {
       
       const authError = error as AuthError;
       switch (authError.code) {
-        // The 'auth/invalid-api-key' is now handled globally in AuthContext.
+        case 'auth/invalid-api-key':
+          friendlyMessage = "CRITICAL: Your Firebase API key is not valid. Please check your .env file, make sure all variables are correct, and then RESTART your development server.";
+          break;
         case 'auth/operation-not-allowed':
           friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
           break;
@@ -90,7 +91,7 @@ export default function SignInPage() {
           friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
           break;
         default:
-          friendlyMessage = `A sign-in error occurred: ${authError.message}`;
+          friendlyMessage = `A sign-in error occurred: ${authError.message || 'Please try again.'}`;
           break;
       }
       

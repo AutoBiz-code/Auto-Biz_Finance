@@ -1,3 +1,4 @@
+
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth, GoogleAuthProvider } from "firebase/auth";
@@ -16,36 +17,21 @@ let app: FirebaseApp | undefined = undefined;
 let auth: Auth | undefined = undefined;
 let googleProvider: GoogleAuthProvider | undefined = undefined;
 
-// This function now centralizes initialization and logging for client-side execution.
+// This function centralizes initialization for client-side execution.
 function initializeFirebaseOnClient() {
-  if (getApps().length > 0) {
-    app = getApps()[0];
-  } else {
-    // Log detailed warnings for each missing or placeholder key to help with debugging.
-    if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('your-api-key-here')) {
-      console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_API_KEY is missing or a placeholder in your .env file.");
-    }
-    if (!firebaseConfig.authDomain) {
-      console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is missing from your .env file.");
-    }
-    if (!firebaseConfig.projectId) {
-      console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing from your .env file.");
-    }
-
-    // Only attempt to initialize if the critical keys are present and not placeholders.
-    if (firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('your-api-key-here') && firebaseConfig.authDomain && firebaseConfig.projectId) {
+  if (getApps().length === 0) {
+    // Only attempt to initialize if the critical key seems present.
+    // This avoids a hard crash if the .env file is totally missing and allows AuthContext to show a friendly error.
+    if (firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('your-api-key-here')) {
       try {
         app = initializeApp(firebaseConfig);
-        console.log("Firebase app initialized successfully on the client with Project ID:", firebaseConfig.projectId);
       } catch (error) {
         console.error("CRITICAL: Firebase initialization failed with an error:", error);
-        // If initialization fails, 'app' remains undefined, and the AuthContext will show the error screen.
-        return; // Exit early if initialization fails.
+        // app will be undefined, and the AuthContext will handle this state.
       }
-    } else {
-      console.error("Firebase initialization SKIPPED due to missing or placeholder critical config values. Please check your .env file and restart your server.");
-      return; // Exit early if config is missing.
     }
+  } else {
+    app = getApps()[0];
   }
   
   // If app was successfully initialized or already exists, set up Auth and providers.

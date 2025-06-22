@@ -26,16 +26,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setIsClient(true);
     
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-
-    if (!apiKey || apiKey.includes('your-api-key-here')) {
-      setAuthError("CRITICAL: Your Firebase API Key is not configured. This usually means your .env file is missing or still has placeholder values.");
-      setLoading(false);
-      return;
-    }
-
+    // We now rely on firebaseAuthInstance being undefined if config is bad.
+    // The checks are simplified to catch this case.
     if (!firebaseAuthInstance) {
-      setAuthError("CRITICAL: Firebase is not configured properly. Check your `src/lib/firebase/config.ts` file and ensure your environment variables are loading correctly.");
+      setAuthError("CRITICAL: Firebase is not configured properly. This usually means your .env file is missing, has incorrect values, or you haven't restarted your server after editing it.");
       setLoading(false);
       return;
     }
@@ -66,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       const authError = error as AuthError;
       if (authError.code === 'auth/invalid-api-key') {
-        console.error("Firebase Auth Error due to invalid API key:", authError);
+        // This is the critical error. Set the state to show the full-page error.
         setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
         // Do NOT re-throw, let the context handle it by showing the full-page error.
       } else {
@@ -121,10 +115,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                   <strong>Locate the `.env` file:</strong> Find this file in the **root directory** of your project (the same level as `package.json`). If it doesn't exist, create it.
                 </li>
                 <li>
-                  <strong>Fill in your Firebase credentials:</strong> Open the `.env` file and ensure all variables starting with `NEXT_PUBLIC_FIREBASE_` are filled in correctly from your Firebase project settings. Do not leave placeholder values like `your-api-key-here`.
+                  <strong>Fill in your Firebase credentials:</strong> Open the `.env` file and ensure all variables starting with `NEXT_PUBLIC_FIREBASE_` are filled in correctly from your Firebase project settings. Do not leave placeholder values.
                 </li>
                 <li>
-                  <strong>Restart your server:</strong> This is the most critical step. After saving changes to the `.env` file, you **must stop and restart** your development server for the changes to be applied (`Control + C` then `npm run dev`).
+                  <strong>Restart your server:</strong> This is the most critical step. After saving changes to the `.env` file, you **must stop (`Control + C`) and restart (`npm run dev`)** your development server for the changes to be applied.
                 </li>
             </ol>
         </div>

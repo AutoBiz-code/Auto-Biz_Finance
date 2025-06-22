@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -26,27 +25,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setIsClient(true);
     
-    if (!firebaseAuthInstance) {
-      setAuthError("CRITICAL: Firebase is not configured. This usually means your .env file is missing or has incorrect values.");
+    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+
+    // This is the most robust check. If the API key isn't in the environment,
+    // there is no point in continuing. This will show the error screen immediately.
+    if (!apiKey || apiKey.includes('your-api-key-here')) {
+      setAuthError("CRITICAL: Your Firebase API Key is not configured. This usually means your .env file is missing or still has placeholder values.");
       setLoading(false);
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(firebaseAuthInstance, (currentUser) => {
-      setUser(currentUser);
+    if (!firebaseAuthInstance) {
+      setAuthError("CRITICAL: Firebase is not configured properly, even with an API key. Check firebase/config.ts.");
       setLoading(false);
-    });
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(firebaseAuthInstance, 
+      (currentUser) => {
+        setUser(currentUser);
+        setLoading(false);
+        setAuthError(null); // Clear any config errors on successful connection.
+      },
+      (error) => {
+        // This callback handles errors from the auth state listener itself.
+        console.error("Firebase onAuthStateChanged Error:", error);
+        if (error.code === 'auth/invalid-api-key') {
+          setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
+        } else {
+           setAuthError(`An unexpected authentication error occurred: ${error.message}`);
+        }
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
-  }, []); 
+  }, []);
 
   const handleAuthError = (error: any) => {
-    console.error("Firebase Auth Error:", error);
-    // This is the most critical error. We will halt the app and show a specific message.
+    console.error("Firebase Auth Error on action:", error);
+    // This handles errors from user actions like signIn, signUp
     if (error.code === 'auth/invalid-api-key') {
       setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
     } else {
-      // For all other errors (e.g., wrong password, popup blocked), we re-throw them
+      // For all other errors, we re-throw them
       // so the individual pages can handle them with a toast notification.
       throw error;
     }
@@ -56,7 +78,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
     try {
       await createUserWithEmailAndPassword(firebaseAuthInstance, email, password);
-      setAuthError(null); // Clear config errors on success
     } catch (error) {
       handleAuthError(error);
     }
@@ -66,7 +87,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
     try {
       await signInWithEmailAndPassword(firebaseAuthInstance, email, password);
-      setAuthError(null);
     } catch (error) {
       handleAuthError(error);
     }
@@ -76,7 +96,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!firebaseAuthInstance || !googleProvider) throw new Error("Firebase Auth or Google Provider not initialized.");
     try {
       await signInWithPopup(firebaseAuthInstance, googleProvider);
-      setAuthError(null);
     } catch (error) {
       handleAuthError(error);
     }
@@ -112,7 +131,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                   <strong>Locate the `.env` file:</strong> Find this file in the **root directory** of your project (the same level as `package.json`). If it doesn't exist, create it.
                 </li>
                 <li>
-                  <strong>Fill in your Firebase credentials:</strong> Open the `.env` file and ensure all variables starting with `NEXT_PUBLIC_FIREBASE_` are filled in correctly from your Firebase project settings.
+                  <strong>Fill in your Firebase credentials:</strong> Open the `.env` file and ensure all variables starting with `NEXT_PUBLIC_FIREBASE_` are filled in correctly from your Firebase project settings. Do not leave placeholder values like `your-api-key-here`.
                 </li>
                 <li>
                   <strong>Restart your server:</strong> This is the most critical step. After saving changes to the `.env` file, you **must stop and restart** your development server for the changes to be applied (`Control + C` then `npm run dev`).

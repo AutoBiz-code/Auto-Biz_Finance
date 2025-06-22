@@ -2,6 +2,11 @@
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth, GoogleAuthProvider } from "firebase/auth";
+import { config } from 'dotenv';
+
+// Force load environment variables from .env file.
+// This is a workaround to ensure keys are loaded in case the standard Next.js process fails.
+config();
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,

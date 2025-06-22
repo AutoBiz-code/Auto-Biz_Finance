@@ -69,19 +69,31 @@ export default function SignInPage() {
       await signInWithGoogle();
       toast({ title: "Success", description: "Signed in successfully." });
       router.push("/");
-    } catch (error) {
-      const authError = error as AuthError;
-      console.error(`Sign in with Google error:`, authError);
-      let friendlyMessage = `An error occurred while signing in with Google. Please try again.`;
-       if (authError.code === 'auth/popup-closed-by-user') {
-        friendlyMessage = "Sign-in cancelled. The sign-in window was closed before completion.";
-      } else if (authError.code === 'auth/account-exists-with-different-credential') {
-        friendlyMessage = "An account already exists with the same email address but different sign-in credentials. Try signing in with the original method."
-      } else if (authError.code === 'auth/popup-blocked-by-browser') {
-        friendlyMessage = "Your browser blocked the sign-in popup. Please allow popups for this site and try again.";
-      } else if (authError.code === 'auth/operation-not-allowed') {
-        friendlyMessage = `Sign-in with Google is not enabled. Please contact the administrator.`;
+    } catch (error: any) {
+      console.error(`Sign in with Google error:`, error);
+      let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
+
+      if (error?.code) { // Check if it's a Firebase AuthError
+        const authError = error as AuthError;
+        switch (authError.code) {
+          case 'auth/operation-not-allowed':
+            friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
+            break;
+          case 'auth/popup-blocked-by-browser':
+            friendlyMessage = "Your browser blocked the sign-in popup. Please allow popups for this site and try again.";
+            break;
+          case 'auth/popup-closed-by-user':
+            friendlyMessage = "Sign-in cancelled. The sign-in window was closed before completion.";
+            break;
+          case 'auth/account-exists-with-different-credential':
+            friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
+            break;
+          default:
+            friendlyMessage = `A sign-in error occurred: ${authError.message}`;
+            break;
+        }
       }
+      
       toast({
         title: "Sign In Failed",
         description: friendlyMessage,

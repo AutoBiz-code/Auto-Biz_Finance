@@ -46,18 +46,20 @@ export default function SignInPage() {
       const authError = error as AuthError;
       console.error("Sign in error:", authError.code);
       
-      // The critical 'auth/invalid-api-key' error is handled by AuthContext, which shows a full-page error.
-      // We only need to handle user-facing errors here.
       let friendlyMessage = "An unexpected error occurred. Please try again.";
-      switch (authError.code) {
-        case 'auth/invalid-credential':
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-          friendlyMessage = "Invalid email or password. Please try again.";
-          break;
-        case 'auth/invalid-email':
-          friendlyMessage = "The email address is not valid.";
-          break;
+      if (authError.code === 'auth/invalid-api-key') {
+        friendlyMessage = "CRITICAL: Your Firebase API Key is not valid. Please check your .env file and restart your server.";
+      } else {
+        switch (authError.code) {
+          case 'auth/invalid-credential':
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+            friendlyMessage = "Invalid email or password. Please try again.";
+            break;
+          case 'auth/invalid-email':
+            friendlyMessage = "The email address is not valid.";
+            break;
+        }
       }
       
       toast({
@@ -80,21 +82,24 @@ export default function SignInPage() {
       const authError = error as AuthError;
       console.error(`Sign in with Google error:`, error.code);
 
-      // The critical 'auth/invalid-api-key' error is handled by AuthContext.
       let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
-      switch (authError.code) {
-        case 'auth/operation-not-allowed':
-          friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
-          break;
-        case 'auth/popup-blocked-by-browser':
-          friendlyMessage = "Your browser blocked the sign-in popup. Please allow popups for this site and try again.";
-          break;
-        case 'auth/popup-closed-by-user':
-          friendlyMessage = "Sign-in cancelled. The sign-in window was closed before completion.";
-          break;
-        case 'auth/account-exists-with-different-credential':
-          friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
-          break;
+      if (authError.code === 'auth/invalid-api-key') {
+          friendlyMessage = "CRITICAL: Your Firebase API Key is not valid. Please check your .env file and restart your server.";
+      } else {
+        switch (authError.code) {
+          case 'auth/operation-not-allowed':
+            friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
+            break;
+          case 'auth/popup-blocked-by-browser':
+            friendlyMessage = "Your browser blocked the sign-in popup. Please allow popups for this site and try again.";
+            break;
+          case 'auth/popup-closed-by-user':
+            friendlyMessage = "Sign-in cancelled. The sign-in window was closed before completion.";
+            break;
+          case 'auth/account-exists-with-different-credential':
+            friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
+            break;
+        }
       }
       
       toast({

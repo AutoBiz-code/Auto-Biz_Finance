@@ -2,16 +2,18 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth, UserCredential } from 'firebase/auth';
-import { auth as firebaseAuthInstance } from '@/lib/firebase/config'; // aliased import
+import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, Auth, UserCredential, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
+import { auth as firebaseAuthInstance, googleProvider, appleProvider } from '@/lib/firebase/config'; // aliased import
 import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  auth: Auth | null; // Make Auth instance available, can be null if not initialized
+  auth: Auth | null;
   signUp: (email: string, password: string) => Promise<UserCredential>;
   signIn: (email: string, password: string) => Promise<UserCredential>;
+  signInWithGoogle: () => Promise<UserCredential>;
+  signInWithApple: () => Promise<UserCredential>;
   signOut: () => Promise<void>;
 }
 
@@ -58,6 +60,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return signInWithEmailAndPassword(firebaseAuthInstance, email, password);
   };
 
+  const handleSignInWithGoogle = async (): Promise<UserCredential> => {
+    if (!firebaseAuthInstance || !googleProvider) {
+        throw new Error("Firebase Auth or Google Provider not initialized.");
+    }
+    return signInWithPopup(firebaseAuthInstance, googleProvider);
+  }
+
+  const handleSignInWithApple = async (): Promise<UserCredential> => {
+    if (!firebaseAuthInstance || !appleProvider) {
+        throw new Error("Firebase Auth or Apple Provider not initialized.");
+    }
+    return signInWithPopup(firebaseAuthInstance, appleProvider);
+  }
+
   const handleSignOut = async () => {
     if (!firebaseAuthInstance) {
       console.error("Attempted to call signOut but Firebase Auth is not initialized.");
@@ -78,6 +94,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     auth: firebaseAuthInstance || null, 
     signUp: handleSignUp,
     signIn: handleSignIn,
+    signInWithGoogle: handleSignInWithGoogle,
+    signInWithApple: handleSignInWithApple,
     signOut: handleSignOut,
   };
 

@@ -21,9 +21,9 @@ function initializeFirebaseOnClient() {
   if (getApps().length > 0) {
     app = getApps()[0];
   } else {
-    // Log detailed warnings for each missing key to help with debugging.
-    if (!firebaseConfig.apiKey) {
-      console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_API_KEY is missing from your .env file.");
+    // Log detailed warnings for each missing or placeholder key to help with debugging.
+    if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('your-api-key-here')) {
+      console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_API_KEY is missing or a placeholder in your .env file.");
     }
     if (!firebaseConfig.authDomain) {
       console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is missing from your .env file.");
@@ -32,8 +32,8 @@ function initializeFirebaseOnClient() {
       console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing from your .env file.");
     }
 
-    // Only attempt to initialize if the critical keys are present.
-    if (firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId) {
+    // Only attempt to initialize if the critical keys are present and not placeholders.
+    if (firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('your-api-key-here') && firebaseConfig.authDomain && firebaseConfig.projectId) {
       try {
         app = initializeApp(firebaseConfig);
         console.log("Firebase app initialized successfully on the client with Project ID:", firebaseConfig.projectId);
@@ -43,7 +43,7 @@ function initializeFirebaseOnClient() {
         return; // Exit early if initialization fails.
       }
     } else {
-      console.error("Firebase initialization SKIPPED due to missing critical config values. Please check your .env file and restart your server.");
+      console.error("Firebase initialization SKIPPED due to missing or placeholder critical config values. Please check your .env file and restart your server.");
       return; // Exit early if config is missing.
     }
   }

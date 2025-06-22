@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     if (!firebaseAuthInstance) {
-      setAuthError("CRITICAL: Firebase is not configured properly, even with an API key. Check firebase/config.ts.");
+      setAuthError("CRITICAL: Firebase is not configured properly. Check your `src/lib/firebase/config.ts` file and ensure your environment variables are loading correctly.");
       setLoading(false);
       return;
     }
@@ -60,50 +60,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
-    if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
+  const handleAuthAction = async (action: Promise<any>) => {
     try {
-      await createUserWithEmailAndPassword(firebaseAuthInstance, email, password);
+      await action;
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Firebase SignUp Error:", authError);
       if (authError.code === 'auth/invalid-api-key') {
+        console.error("Firebase Auth Error due to invalid API key:", authError);
         setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
+        // Do NOT re-throw, let the context handle it by showing the full-page error.
       } else {
-        // Re-throw other errors to be handled by the calling page component (e.g., for toasts).
+        // Re-throw other user-facing errors (wrong password, etc.) to be handled by the calling page component's toast.
         throw error;
       }
     }
+  };
+
+  const signUp = async (email: string, password: string) => {
+    if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
+    await handleAuthAction(createUserWithEmailAndPassword(firebaseAuthInstance, email, password));
   };
 
   const signIn = async (email: string, password: string) => {
     if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
-    try {
-      await signInWithEmailAndPassword(firebaseAuthInstance, email, password);
-    } catch (error) {
-      const authError = error as AuthError;
-      console.error("Firebase SignIn Error:", authError);
-      if (authError.code === 'auth/invalid-api-key') {
-        setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
-      } else {
-        throw error;
-      }
-    }
+    await handleAuthAction(signInWithEmailAndPassword(firebaseAuthInstance, email, password));
   };
 
   const signInWithGoogle = async () => {
     if (!firebaseAuthInstance || !googleProvider) throw new Error("Firebase Auth or Google Provider not initialized.");
-    try {
-      await signInWithPopup(firebaseAuthInstance, googleProvider);
-    } catch (error) {
-      const authError = error as AuthError;
-      console.error("Firebase Google SignIn Error:", authError);
-      if (authError.code === 'auth/invalid-api-key') {
-        setAuthError("CRITICAL: Your Firebase API Key is not valid. Please copy the correct value into your .env file and restart your development server.");
-      } else {
-        throw error;
-      }
-    }
+    await handleAuthAction(signInWithPopup(firebaseAuthInstance, googleProvider));
   };
 
   const signOut = async () => {

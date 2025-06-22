@@ -13,51 +13,54 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Log if critical keys are missing (for debugging in the browser)
-if (typeof window !== 'undefined') {
-  if (!firebaseConfig.apiKey) {
-    console.error(
-      "CRITICAL: Firebase config key NEXT_PUBLIC_FIREBASE_API_KEY is missing or undefined. " +
-      "Please check your .env file at the ROOT of your project and ensure it's correctly formatted. " +
-      "This .env file should be at the same level as your package.json file. " +
-      "After updating .env, YOU MUST RESTART your Next.js development server."
-    );
-  }
-  if (!firebaseConfig.authDomain) {
-    console.warn("Firebase config key NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is missing. Authentication might not work as expected. Check your .env file at the project root.");
-  }
-  if (!firebaseConfig.projectId) {
-    console.warn("Firebase config key NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing. Firestore and other project-specific services might not work. Check your .env file at the project root.");
-  }
-}
-
 let app: FirebaseApp | undefined = undefined;
 let auth: Auth | undefined = undefined;
 let googleProvider: GoogleAuthProvider | undefined = undefined;
 let appleProvider: OAuthProvider | undefined = undefined;
 
-try {
-  if (typeof window !== 'undefined') { // Ensure this only runs on the client
-    if (getApps().length === 0) {
-      if (firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId) {
+// This function now centralizes initialization and logging for client-side execution.
+function initializeFirebaseOnClient() {
+  if (getApps().length > 0) {
+    app = getApps()[0];
+  } else {
+    // Log detailed warnings for each missing key to help with debugging.
+    if (!firebaseConfig.apiKey) {
+      console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_API_KEY is missing from your .env file.");
+    }
+    if (!firebaseConfig.authDomain) {
+      console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is missing from your .env file.");
+    }
+    if (!firebaseConfig.projectId) {
+      console.error("Firebase Config Error: NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing from your .env file.");
+    }
+
+    // Only attempt to initialize if the critical keys are present.
+    if (firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId) {
+      try {
         app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        googleProvider = new GoogleAuthProvider();
-        appleProvider = new OAuthProvider('apple.com');
-        console.log("Firebase app initialized successfully with Project ID:", firebaseConfig.projectId);
-      } else {
-        console.error("Firebase initialization SKIPPED due to missing critical config values (API Key, Auth Domain, or Project ID). Check your .env file at the project root and browser console for details. Remember to restart your Next.js server after .env changes.");
+        console.log("Firebase app initialized successfully on the client with Project ID:", firebaseConfig.projectId);
+      } catch (error) {
+        console.error("CRITICAL: Firebase initialization failed with an error:", error);
+        // If initialization fails, 'app' remains undefined, and the AuthContext will show the error screen.
+        return; // Exit early if initialization fails.
       }
     } else {
-      app = getApps()[0];
-      auth = getAuth(app);
-      googleProvider = new GoogleAuthProvider();
-      appleProvider = new OAuthProvider('apple.com');
-      console.log("Firebase app already initialized.");
+      console.error("Firebase initialization SKIPPED due to missing critical config values. Please check your .env file and restart your server.");
+      return; // Exit early if config is missing.
     }
   }
-} catch (error) {
-  console.error("CRITICAL: Firebase initialization failed with an error:", error, "This often means there is an issue with the values provided in your .env file at the project root or with your Firebase project setup itself. Please verify your credentials and restart your Next.js server.");
+  
+  // If app was successfully initialized or already exists, set up Auth and providers.
+  if (app) {
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+    appleProvider = new OAuthProvider('apple.com');
+  }
+}
+
+// Ensure Firebase is only initialized on the client-side.
+if (typeof window !== 'undefined') {
+  initializeFirebaseOnClient();
 }
 
 export { app, auth, googleProvider, appleProvider };

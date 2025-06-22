@@ -70,7 +70,7 @@ export default function SignUpPage() {
         friendlyMessage = "The email address is not valid.";
       } else if (authError.code === 'auth/weak-password') {
         friendlyMessage = "The password is too weak.";
-      } else if (authError.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+      } else if (authError.code === 'auth/invalid-api-key') {
         friendlyMessage = "API Key not valid. Please ensure Firebase is configured correctly by the administrator.";
       }
       toast({
@@ -200,3 +200,5 @@ export default function SignUpPage() {
     </div>
   );
 }
+
+    

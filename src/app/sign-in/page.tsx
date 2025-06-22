@@ -59,7 +59,7 @@ export default function SignInPage() {
         friendlyMessage = "Invalid email or password. Please try again.";
       } else if (authError.code === 'auth/invalid-email') {
         friendlyMessage = "The email address is not valid.";
-      } else if (authError.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+      } else if (authError.code === 'auth/invalid-api-key') {
         friendlyMessage = "API Key not valid. Please ensure Firebase is configured correctly by the administrator.";
       }
       toast({
@@ -178,3 +178,5 @@ export default function SignInPage() {
     </div>
   );
 }
+
+    

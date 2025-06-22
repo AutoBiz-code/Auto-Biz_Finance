@@ -53,7 +53,6 @@ export default function SignUpPage() {
       router.push("/"); 
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Sign up error:", authError.code);
       
       let friendlyMessage = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
        if (authError.code === 'auth/invalid-api-key') {
@@ -90,7 +89,6 @@ export default function SignUpPage() {
       router.push("/");
     } catch (error: any) {
       const authError = error as AuthError;
-      console.error(`Sign up with Google error:`, error.code);
       
       let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
       if (authError.code === 'auth/invalid-api-key') {

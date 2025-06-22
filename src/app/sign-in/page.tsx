@@ -44,7 +44,6 @@ export default function SignInPage() {
       router.push("/"); 
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Sign in error:", authError.code);
       
       let friendlyMessage = "An unexpected error occurred. Please try again.";
       if (authError.code === 'auth/invalid-api-key') {
@@ -80,7 +79,6 @@ export default function SignInPage() {
       router.push("/");
     } catch (error: any) {
       const authError = error as AuthError;
-      console.error(`Sign in with Google error:`, error.code);
 
       let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
       if (authError.code === 'auth/invalid-api-key') {

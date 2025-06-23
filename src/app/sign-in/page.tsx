@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { Loader2, LogIn } from "lucide-react";
+import { Loader2, LogIn, AlertCircle } from "lucide-react";
 import type { AuthError } from "firebase/auth";
 import { Separator } from "@/components/ui/separator";
 
@@ -30,6 +30,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const { signIn, signInWithGoogle } = useAuth(); 
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function SignInPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setAuthError(null);
     try {
       await signIn(email, password);
       toast({ title: "Success", description: "Signed in successfully." });
@@ -50,7 +52,7 @@ export default function SignInPage() {
         case 'auth/invalid-credential':
         case 'auth/user-not-found':
         case 'auth/wrong-password':
-          friendlyMessage = "Invalid email or password. Please try again.";
+          friendlyMessage = "Invalid email or password. Please check your credentials or sign up.";
           break;
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
@@ -59,12 +61,7 @@ export default function SignInPage() {
              friendlyMessage = "The provided Firebase API key is invalid. Please check your .env file and restart the server.";
              break;
       }
-      
-      toast({
-        title: "Sign In Failed",
-        description: friendlyMessage,
-        variant: "destructive",
-      });
+      setAuthError(friendlyMessage);
     } finally {
       setIsLoading(false);
     }
@@ -72,14 +69,14 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
+    setAuthError(null);
     try {
       await signInWithGoogle();
+      // On successful redirect, the user will be brought back and AuthContext will handle it.
     } catch (error) {
-      // The error is already handled and toasted by AuthContext.
-      // We just catch it here to stop the loading spinner on the button.
+      // The error is already handled and toasted by AuthContext. We just need to stop the loading spinner.
       setIsGoogleLoading(false);
     }
-    // On successful redirect, setIsGoogleLoading is not called, which is correct.
   };
 
   return (
@@ -101,7 +98,10 @@ export default function SignInPage() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setAuthError(null)
+                }}
                 required
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
@@ -113,7 +113,10 @@ export default function SignInPage() {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setAuthError(null)
+                }}
                 required
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
@@ -132,6 +135,15 @@ export default function SignInPage() {
             </p>
           </CardFooter>
         </form>
+
+        {authError && (
+          <CardContent className="pb-4">
+            <div className="flex items-center justify-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <p className="text-center">{authError}</p>
+            </div>
+          </CardContent>
+        )}
 
         <CardContent className="space-y-4">
             <div className="flex items-center">

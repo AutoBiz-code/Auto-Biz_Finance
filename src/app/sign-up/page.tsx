@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { Loader2, UserPlus } from "lucide-react";
+import { Loader2, UserPlus, AlertCircle } from "lucide-react";
 import type { AuthError } from "firebase/auth";
 import { Separator } from "@/components/ui/separator";
 
@@ -31,6 +31,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const { signUp, signInWithGoogle } = useAuth(); 
   const router = useRouter();
@@ -38,12 +39,14 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
+
     if (password !== confirmPassword) {
-      toast({ title: "Error", description: "Passwords do not match.", variant: "destructive" });
+      setAuthError("Passwords do not match.");
       return;
     }
     if (password.length < 6) {
-      toast({ title: "Error", description: "Password should be at least 6 characters.", variant: "destructive" });
+      setAuthError("Password should be at least 6 characters.");
       return;
     }
     setIsLoading(true);
@@ -70,11 +73,7 @@ export default function SignUpPage() {
              break;
       }
 
-      toast({
-        title: "Sign Up Failed",
-        description: friendlyMessage,
-        variant: "destructive",
-      });
+      setAuthError(friendlyMessage);
     } finally {
       setIsLoading(false);
     }
@@ -82,6 +81,7 @@ export default function SignUpPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
+    setAuthError(null);
     try {
       await signInWithGoogle();
     } catch (error) {
@@ -91,6 +91,12 @@ export default function SignUpPage() {
     }
     // On successful redirect, setIsGoogleLoading is not called, which is correct.
   };
+  
+  const clearError = () => {
+    if (authError) {
+      setAuthError(null);
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
@@ -111,7 +117,7 @@ export default function SignUpPage() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {setEmail(e.target.value); clearError();}}
                 required
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
@@ -123,7 +129,7 @@ export default function SignUpPage() {
                 type="password"
                 placeholder="•••••••• (min. 6 characters)"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {setPassword(e.target.value); clearError();}}
                 required
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
@@ -135,7 +141,7 @@ export default function SignUpPage() {
                 type="password"
                 placeholder="••••••••"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {setConfirmPassword(e.target.value); clearError();}}
                 required
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
@@ -154,6 +160,15 @@ export default function SignUpPage() {
             </p>
           </CardFooter>
         </form>
+        
+        {authError && (
+          <CardContent className="pb-4">
+            <div className="flex items-center justify-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <p className="text-center">{authError}</p>
+            </div>
+          </CardContent>
+        )}
         
         <CardContent className="space-y-4">
             <div className="flex items-center">

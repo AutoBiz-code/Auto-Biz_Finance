@@ -69,20 +69,17 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    // signInWithGoogle will redirect the page. Errors are caught by AuthContext.
-    // The try/catch here is a fallback for immediate errors during redirect initiation.
     try {
-        await signInWithGoogle();
+      // AuthContext now handles errors and shows a toast.
+      await signInWithGoogle();
     } catch (error) {
-        console.error("Error initiating Google Sign-In redirect:", error);
-        toast({
-            title: "Sign In Failed",
-            description: "Could not start the Google Sign-In process. Please check your connection and try again.",
-            variant: "destructive"
-        });
-        setIsGoogleLoading(false);
+      // The error is already handled, but we catch it here to stop the loading spinner.
+      console.error("Google Sign-In initiation failed on page.");
+      setIsGoogleLoading(false);
     }
-  }
+    // If the redirect is successful, the page will navigate away,
+    // and setIsGoogleLoading(false) won't be called, which is fine.
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">

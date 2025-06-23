@@ -12,7 +12,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string) => Promise<UserCredential>;
   signIn: (email: string, password: string) => Promise<UserCredential>;
-  signInWithGoogle: () => Promise<void>; // No longer returns UserCredential directly
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -21,12 +21,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isHandlingRedirect, setIsHandlingRedirect] = useState(true); // Start true to handle initial load
+  const [isHandlingRedirect, setIsHandlingRedirect] = useState(true);
   const { toast } = useToast();
 
-  // Handles redirect result from Google Sign-In on page load
   useEffect(() => {
-    // This check prevents Firebase from being initialized on the server.
     if (typeof window === 'undefined' || !firebaseAuthInstance) {
         setIsHandlingRedirect(false);
         return;
@@ -35,7 +33,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     getRedirectResult(firebaseAuthInstance)
       .then((result) => {
         if (result) {
-          // This is the successfully signed-in user
           setUser(result.user);
           toast({ title: "Success", description: "Signed in successfully." });
         }
@@ -58,14 +55,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
       })
       .finally(() => {
-        setIsHandlingRedirect(false); // Finished processing redirect
+        setIsHandlingRedirect(false);
       });
   }, [toast]);
 
-
-  // Listens for general auth state changes (e.g., email sign-in, sign-out, session restore)
   useEffect(() => {
-    // This check prevents Firebase from being initialized on the server.
     if (typeof window === 'undefined' || !firebaseAuthInstance) {
         setLoading(false);
         return;
@@ -91,12 +85,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return signInWithEmailAndPassword(firebaseAuthInstance, email, password);
   };
 
-  // Changed to use signInWithRedirect
   const signInWithGoogle = async () => {
-    if (!firebaseAuthInstance || !googleProvider) throw new Error("Firebase Auth or Google Provider not initialized.");
-    // This will navigate the user away and they will come back to the page
-    // The result is handled by the getRedirectResult useEffect
-    await signInWithRedirect(firebaseAuthInstance, googleProvider);
+    if (!firebaseAuthInstance || !googleProvider) {
+      toast({ title: "Initialization Error", description: "Firebase is not ready.", variant: "destructive" });
+      return;
+    }
+    try {
+      await signInWithRedirect(firebaseAuthInstance, googleProvider);
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Error initiating Google Sign-In redirect:", authError.code, authError.message);
+      
+      let friendlyMessage = `Could not start the Google Sign-In process: ${authError.message}`;
+      if (authError.code === 'auth/unauthorized-domain') {
+          friendlyMessage = "This domain is not authorized. Please go to your Firebase Console -> Authentication -> Settings -> Authorized domains, and add 'studio.firebase.google.com'. It may take a few minutes for this setting to take effect.";
+      }
+
+      toast({
+          title: "Google Sign In Failed",
+          description: friendlyMessage,
+          variant: "destructive",
+          duration: 9000,
+      });
+      // Rethrow the error so the calling page can stop its loading indicator.
+      throw error;
+    }
   };
 
   const signOut = async () => {
@@ -107,14 +120,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const value: AuthContextType = {
     user,
-    loading: loading || isHandlingRedirect, // App is loading if either auth state or redirect is being processed
+    loading: loading || isHandlingRedirect,
     signUp,
     signIn,
     signInWithGoogle,
     signOut,
   };
 
-  // The global loading screen
   if (loading || isHandlingRedirect) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-background">

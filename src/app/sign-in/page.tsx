@@ -55,6 +55,9 @@ export default function SignInPage() {
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
           break;
+        case 'auth/invalid-api-key':
+             friendlyMessage = "The provided Firebase API key is invalid. Please check your .env file and restart the server.";
+             break;
       }
       
       toast({
@@ -88,20 +91,7 @@ export default function SignInPage() {
             Access your automated finance dashboard.
           </CardDescription>
         </CardHeader>
-
-        <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
-                {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
-                Sign in with Google
-            </Button>
-
-            <div className="flex items-center">
-                <Separator className="flex-1" />
-                <span className="px-4 text-xs text-muted-foreground">OR</span>
-                <Separator className="flex-1" />
-            </div>
-        </CardContent>
-
+        
         <form onSubmit={handleSignIn}>
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -142,6 +132,19 @@ export default function SignInPage() {
             </p>
           </CardFooter>
         </form>
+
+        <CardContent className="space-y-4">
+            <div className="flex items-center">
+                <Separator className="flex-1" />
+                <span className="px-4 text-xs text-muted-foreground">OR</span>
+                <Separator className="flex-1" />
+            </div>
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
+                {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
+                Sign in with Google
+            </Button>
+        </CardContent>
+
       </Card>
     </div>
   );

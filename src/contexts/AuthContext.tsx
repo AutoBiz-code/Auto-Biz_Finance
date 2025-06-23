@@ -42,9 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
         
-        if (error.code === 'auth/unauthorized-domain') {
-          friendlyMessage = "Authorization Error: This domain is not authorized. Please double-check that 'studio.firebase.google.com' is in your Firebase project's list of authorized domains. It can take a few minutes for this setting to take effect.";
-        } else if (error.code === 'auth/account-exists-with-different-credential') {
+        if (error.code === 'auth/account-exists-with-different-credential') {
           friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
         }
         
@@ -88,24 +86,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithGoogle = async () => {
     if (!firebaseAuthInstance || !googleProvider) {
       toast({ title: "Initialization Error", description: "Firebase is not ready.", variant: "destructive" });
-      return;
+      throw new Error("Firebase not initialized");
     }
     try {
       await signInWithRedirect(firebaseAuthInstance, googleProvider);
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Error initiating Google Sign-In redirect:", authError.code, authError.message);
       
       let friendlyMessage = `Could not start the Google Sign-In process: ${authError.message}`;
       if (authError.code === 'auth/unauthorized-domain') {
-          friendlyMessage = "This domain is not authorized. Please go to your Firebase Console -> Authentication -> Settings -> Authorized domains, and add 'studio.firebase.google.com'. It may take a few minutes for this setting to take effect.";
+          friendlyMessage = "This domain is not authorized. If you already added 'studio.firebase.google.com' to your Firebase project's authorized domains, please wait a few minutes for the setting to apply, then perform a hard refresh (Cmd+Shift+R or Ctrl+F5) and try again.";
       }
 
       toast({
           title: "Google Sign In Failed",
           description: friendlyMessage,
           variant: "destructive",
-          duration: 9000,
+          duration: 15000,
       });
       // Rethrow the error so the calling page can stop its loading indicator.
       throw error;

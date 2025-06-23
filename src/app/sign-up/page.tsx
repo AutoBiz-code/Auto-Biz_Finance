@@ -55,24 +55,17 @@ export default function SignUpPage() {
       const authError = error as AuthError;
       
       let friendlyMessage = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
-       if (authError.code === 'auth/invalid-api-key') {
-          friendlyMessage = "CRITICAL: Your Firebase API Key is not valid. Please check your .env file and restart your server.";
-       } else {
-          switch (authError.code) {
-            case 'auth/unauthorized-domain':
-              friendlyMessage = "Authorization Error: Firebase reports this domain is not authorized, even though your settings appear correct. This is often a caching issue. Please try a hard refresh (Cmd+Shift+R or Ctrl+F5) or waiting 5 minutes for the settings to sync.";
-              break;
-            case 'auth/email-already-in-use':
-              friendlyMessage = "This email address is already in use.";
-              break;
-            case 'auth/invalid-email':
-              friendlyMessage = "The email address is not valid.";
-              break;
-            case 'auth/weak-password':
-              friendlyMessage = "The password is too weak.";
-              break;
-          }
-       }
+      switch (authError.code) {
+        case 'auth/email-already-in-use':
+          friendlyMessage = "This email address is already in use.";
+          break;
+        case 'auth/invalid-email':
+          friendlyMessage = "The email address is not valid.";
+          break;
+        case 'auth/weak-password':
+          friendlyMessage = "The password is too weak.";
+          break;
+      }
 
       toast({
         title: "Sign Up Failed",
@@ -86,43 +79,18 @@ export default function SignUpPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
+    // signInWithGoogle will redirect the page. Errors are caught by AuthContext.
+    // The try/catch here is a fallback for immediate errors during redirect initiation.
     try {
-      await signInWithGoogle();
-      toast({ title: "Success", description: "Signed up and logged in successfully." });
-      router.push("/");
-    } catch (error: any) {
-      const authError = error as AuthError;
-      
-      let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
-      if (authError.code === 'auth/invalid-api-key') {
-          friendlyMessage = "CRITICAL: Your Firebase API Key is not valid. Please check your .env file and restart your server.";
-      } else {
-        switch (authError.code) {
-          case 'auth/unauthorized-domain':
-            friendlyMessage = "Authorization Error: Firebase reports this domain is not authorized, even though your settings appear correct. This is often a caching issue. Please try a hard refresh (Cmd+Shift+R or Ctrl+F5) or waiting 5 minutes for the settings to sync.";
-            break;
-          case 'auth/operation-not-allowed':
-            friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
-            break;
-          case 'auth/popup-blocked-by-browser':
-            friendlyMessage = "Your browser blocked the sign-up popup. Please allow popups for this site and try again.";
-            break;
-          case 'auth/popup-closed-by-user':
-            friendlyMessage = "Sign-up cancelled. The sign-up window was closed before completion.";
-            break;
-          case 'auth/account-exists-with-different-credential':
-            friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
-            break;
-        }
-      }
-      
-      toast({
-        title: "Sign Up Failed",
-        description: friendlyMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsGoogleLoading(false);
+        await signInWithGoogle();
+    } catch (error) {
+        console.error("Error initiating Google Sign-Up redirect:", error);
+        toast({
+            title: "Sign Up Failed",
+            description: "Could not start the Google Sign-Up process. Please check your connection and try again.",
+            variant: "destructive"
+        });
+        setIsGoogleLoading(false);
     }
   }
 

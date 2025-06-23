@@ -51,7 +51,7 @@ export default function SignInPage() {
       } else {
         switch (authError.code) {
           case 'auth/unauthorized-domain':
-            friendlyMessage = "This domain is not authorized. Please add 'studio.firebase.google.com' to your Firebase project's authorized domains in the Authentication settings.";
+            friendlyMessage = "Authorization Error: Firebase reports this domain is not authorized, even though your settings appear correct. This is often a caching issue. Please try a hard refresh (Cmd+Shift+R or Ctrl+F5) or waiting 5 minutes for the settings to sync.";
             break;
           case 'auth/invalid-credential':
           case 'auth/user-not-found':
@@ -89,7 +89,7 @@ export default function SignInPage() {
       } else {
         switch (authError.code) {
           case 'auth/unauthorized-domain':
-            friendlyMessage = "This domain is not authorized. Please add 'studio.firebase.google.com' to your Firebase project's authorized domains in the Authentication settings.";
+            friendlyMessage = "Authorization Error: Firebase reports this domain is not authorized, even though your settings appear correct. This is often a caching issue. Please try a hard refresh (Cmd+Shift+R or Ctrl+F5) or waiting 5 minutes for the settings to sync.";
             break;
           case 'auth/operation-not-allowed':
             friendlyMessage = "Google Sign-In is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.";

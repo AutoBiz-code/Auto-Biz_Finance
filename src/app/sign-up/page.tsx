@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { Loader2, UserPlus, AlertCircle } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
 import type { AuthError } from "firebase/auth";
 import { Separator } from "@/components/ui/separator";
 
@@ -31,22 +31,20 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [authError, setAuthError] = useState<React.ReactNode | null>(null);
-
+  
   const { signUp, signInWithGoogle } = useAuth(); 
   const router = useRouter();
   const { toast } = useToast();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAuthError(null);
 
     if (password !== confirmPassword) {
-      setAuthError("Passwords do not match.");
+      toast({ title: "Sign Up Error", description: "Passwords do not match.", variant: "destructive" });
       return;
     }
     if (password.length < 6) {
-      setAuthError("Password should be at least 6 characters.");
+      toast({ title: "Sign Up Error", description: "Password should be at least 6 characters.", variant: "destructive" });
       return;
     }
     setIsLoading(true);
@@ -57,19 +55,20 @@ export default function SignUpPage() {
     } catch (error) {
       const authError = error as AuthError;
       
-      let friendlyMessage: React.ReactNode = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
+      // Special handling for existing account: redirect to sign-in
+      if (authError.code === 'auth/email-already-in-use') {
+        toast({
+          title: "Account Already Exists",
+          description: "Redirecting you to the Sign In page.",
+          variant: "destructive",
+          duration: 5000,
+        });
+        router.push('/sign-in');
+        return; // Stop further execution
+      }
+
+      let friendlyMessage = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
       switch (authError.code) {
-        case 'auth/email-already-in-use':
-          friendlyMessage = (
-            <span>
-              An account with this email already exists. Please{' '}
-              <Link href="/sign-in" className="font-medium text-primary hover:underline">
-                Sign In
-              </Link>{' '}
-              instead.
-            </span>
-          );
-          break;
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
           break;
@@ -80,8 +79,12 @@ export default function SignUpPage() {
              friendlyMessage = "The provided Firebase API key is invalid. Please check your .env file and restart the server.";
              break;
       }
+       toast({
+        title: "Sign Up Failed",
+        description: friendlyMessage,
+        variant: "destructive",
+      });
 
-      setAuthError(friendlyMessage);
     } finally {
       setIsLoading(false);
     }
@@ -89,19 +92,12 @@ export default function SignUpPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    setAuthError(null);
     try {
       await signInWithGoogle();
     } catch (error) {
       setIsGoogleLoading(false);
     }
   };
-  
-  const clearError = () => {
-    if (authError) {
-      setAuthError(null);
-    }
-  }
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
@@ -122,7 +118,7 @@ export default function SignUpPage() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => {setEmail(e.target.value); clearError();}}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
@@ -134,7 +130,7 @@ export default function SignUpPage() {
                 type="password"
                 placeholder="•••••••• (min. 6 characters)"
                 value={password}
-                onChange={(e) => {setPassword(e.target.value); clearError();}}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
@@ -146,7 +142,7 @@ export default function SignUpPage() {
                 type="password"
                 placeholder="••••••••"
                 value={confirmPassword}
-                onChange={(e) => {setConfirmPassword(e.target.value); clearError();}}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
@@ -165,15 +161,6 @@ export default function SignUpPage() {
             </p>
           </CardFooter>
         </form>
-        
-        {authError && (
-          <CardContent className="pb-4">
-            <div className="flex items-start justify-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-              <div className="text-center">{authError}</div>
-            </div>
-          </CardContent>
-        )}
         
         <CardContent className="space-y-4">
             <div className="flex items-center">

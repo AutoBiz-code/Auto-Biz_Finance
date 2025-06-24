@@ -60,13 +60,13 @@ export default function SignUpPage() {
       let friendlyMessage = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
       switch (authError.code) {
         case 'auth/email-already-in-use':
-          friendlyMessage = "This email address is already in use.";
+          friendlyMessage = "An account with this email already exists. Please go to the Sign In page to log in.";
           break;
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
           break;
         case 'auth/weak-password':
-          friendlyMessage = "The password is too weak.";
+          friendlyMessage = "The password is too weak. It must be at least 6 characters long.";
           break;
         case 'auth/invalid-api-key':
              friendlyMessage = "The provided Firebase API key is invalid. Please check your .env file and restart the server.";
@@ -102,7 +102,7 @@ export default function SignUpPage() {
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-primary/30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-headline text-primary">Create Account</CardTitle>
+          <CardTitle className="text-3xl font-headline text-primary">Create an Account</CardTitle>
           <CardDescription className="text-muted-foreground">
             Join AutoBiz Finance to automate your workflows.
           </CardDescription>

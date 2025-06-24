@@ -52,7 +52,7 @@ export default function SignInPage() {
         case 'auth/invalid-credential':
         case 'auth/user-not-found':
         case 'auth/wrong-password':
-          friendlyMessage = "Invalid email or password. Please check your credentials or sign up.";
+          friendlyMessage = "The email or password you entered is incorrect. If you are a new user, you must create an account first. Please click the 'Sign Up' link below. If you previously used Google, please use the 'Sign in with Google' button.";
           break;
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
@@ -83,7 +83,7 @@ export default function SignInPage() {
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-primary/30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-headline text-primary">Sign In to AutoBiz</CardTitle>
+          <CardTitle className="text-3xl font-headline text-primary">Sign In</CardTitle>
           <CardDescription className="text-muted-foreground">
             Access your automated finance dashboard.
           </CardDescription>

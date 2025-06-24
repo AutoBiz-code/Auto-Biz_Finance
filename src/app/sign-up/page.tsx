@@ -31,7 +31,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<React.ReactNode | null>(null);
 
   const { signUp, signInWithGoogle } = useAuth(); 
   const router = useRouter();
@@ -57,10 +57,18 @@ export default function SignUpPage() {
     } catch (error) {
       const authError = error as AuthError;
       
-      let friendlyMessage = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
+      let friendlyMessage: React.ReactNode = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
       switch (authError.code) {
         case 'auth/email-already-in-use':
-          friendlyMessage = "An account with this email already exists. Please go to the Sign In page to log in.";
+          friendlyMessage = (
+            <span>
+              An account with this email already exists. Please{' '}
+              <Link href="/sign-in" className="font-medium text-primary hover:underline">
+                Sign In
+              </Link>{' '}
+              instead.
+            </span>
+          );
           break;
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
@@ -85,11 +93,8 @@ export default function SignUpPage() {
     try {
       await signInWithGoogle();
     } catch (error) {
-      // The error is already handled and toasted by AuthContext.
-      // We just catch it here to stop the loading spinner on the button.
       setIsGoogleLoading(false);
     }
-    // On successful redirect, setIsGoogleLoading is not called, which is correct.
   };
   
   const clearError = () => {
@@ -163,9 +168,9 @@ export default function SignUpPage() {
         
         {authError && (
           <CardContent className="pb-4">
-            <div className="flex items-center justify-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              <p className="text-center">{authError}</p>
+            <div className="flex items-start justify-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+              <div className="text-center">{authError}</div>
             </div>
           </CardContent>
         )}

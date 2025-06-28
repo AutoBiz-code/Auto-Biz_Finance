@@ -65,13 +65,13 @@ export default function SignUpPage() {
       const authError = error as AuthError;
 
       if (authError.code === 'auth/email-already-in-use') {
+        setTimeout(() => router.push('/sign-in'), 2000);
         setError(
           <span>
-            An account with this email already exists. Please{" "}
+            An account with this email already exists. Redirecting you to{" "}
             <Link href="/sign-in" className="font-bold text-primary hover:underline">
               Sign In
-            </Link>{" "}
-            instead.
+            </Link>...
           </span>
         );
       } else {
@@ -98,7 +98,6 @@ export default function SignUpPage() {
       await signInWithGoogle();
     } catch (error) {
       setIsGoogleLoading(false);
-      setError("Failed to start Google sign-up. Please try again.");
     }
   };
 
@@ -109,7 +108,6 @@ export default function SignUpPage() {
       await signInWithApple();
     } catch (error) {
       setIsAppleLoading(false);
-      setError("Failed to start Apple sign-up. Please try again.");
     }
   };
 
@@ -117,9 +115,9 @@ export default function SignUpPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
-      <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-primary/30">
+      <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-border/30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-headline" style={{ color: 'white' }}>Create an Account</CardTitle>
+          <CardTitle className="text-3xl font-headline">Create an Account</CardTitle>
           <CardDescription className="text-muted-foreground">
             Join AutoBiz Finance to automate your workflows.
           </CardDescription>

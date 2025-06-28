@@ -28,33 +28,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (typeof window === 'undefined' || !firebaseAuthInstance) {
         setIsHandlingRedirect(false);
+        setLoading(false);
         return;
     }
     
     getRedirectResult(firebaseAuthInstance)
       .then((result) => {
         if (result) {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          // const credential = result.providerId === 'google.com' 
-          //   ? GoogleAuthProvider.credentialFromResult(result) 
-          //   : AppleAuthProvider.credentialFromResult(result);
           setUser(result.user);
           toast({ title: "Success", description: "Signed in successfully." });
         }
       })
       .catch((error: AuthError) => {
-        console.error("Sign-In Redirect Error:", error.code, error.message);
-        
         let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
         
         if (error.code === 'auth/account-exists-with-different-credential') {
           friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
+        } else if (error.code === 'auth/unauthorized-domain') {
+           friendlyMessage = "This domain is not authorized. If you've already added it to your Firebase project, please wait a few minutes and perform a hard refresh (Cmd+Shift+R or Ctrl+F5).";
         }
         
         toast({
           title: "Sign In Failed",
           description: friendlyMessage,
           variant: "destructive",
+          duration: 15000,
         });
       })
       .finally(() => {
@@ -134,7 +132,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return (
       <div className="flex justify-center items-center min-h-screen bg-transparent">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        <p className="ml-4 text-foreground">Initializing Authentication...</p>
       </div>
     );
   }

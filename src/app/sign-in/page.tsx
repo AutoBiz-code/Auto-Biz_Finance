@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { Loader2, LogIn } from "lucide-react";
 import type { AuthError } from "firebase/auth";
 import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -40,7 +39,7 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isAppleLoading, setIsAppleLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode | null>(null);
 
   const { signIn, signInWithGoogle, signInWithApple } = useAuth(); 
   const router = useRouter();
@@ -55,12 +54,20 @@ export default function SignInPage() {
     } catch (error) {
       const authError = error as AuthError;
       
-      let friendlyMessage = "An unexpected error occurred. Please try again.";
+      let friendlyMessage: React.ReactNode = "An unexpected error occurred. Please try again.";
       switch (authError.code) {
         case 'auth/invalid-credential':
         case 'auth/user-not-found':
         case 'auth/wrong-password':
-          friendlyMessage = "Incorrect email or password. Please try again.";
+          friendlyMessage = (
+            <span>
+              Invalid email or password. Have you signed up? Try{" "}
+              <Link href="/sign-up" className="font-bold text-primary hover:underline">
+                creating an account
+              </Link>
+              .
+            </span>
+          );
           break;
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
@@ -80,7 +87,6 @@ export default function SignInPage() {
       // On successful redirect, the user will be brought back and AuthContext will handle it.
     } catch (error) {
       setIsGoogleLoading(false);
-      setError("Failed to start Google sign-in. Please try again.");
     }
   };
 
@@ -91,7 +97,6 @@ export default function SignInPage() {
       await signInWithApple();
     } catch (error) {
       setIsAppleLoading(false);
-      setError("Failed to start Apple sign-in. Please try again.");
     }
   };
 
@@ -99,9 +104,9 @@ export default function SignInPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
-      <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-primary/30">
+      <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-border/30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-headline" style={{ color: 'white' }}>Sign In</CardTitle>
+          <CardTitle className="text-3xl font-headline">Sign In</CardTitle>
           <CardDescription className="text-muted-foreground">
             Access your automated finance dashboard.
           </CardDescription>
@@ -164,7 +169,7 @@ export default function SignInPage() {
                 Sign in with Google
             </Button>
             <Button variant="outline" className="w-full" onClick={handleAppleSignIn} disabled={anyLoading}>
-                {isAppleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5" />}
+                {isAppleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5 fill-current" />}
                 Sign in with Apple
             </Button>
         </CardContent>

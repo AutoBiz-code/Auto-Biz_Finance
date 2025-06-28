@@ -81,7 +81,7 @@ export default function CommunicationPreferencesPage() {
     return (
       <div className="flex flex-col justify-center items-center h-64 text-center">
         <p className="text-lg text-muted-foreground mb-4">Please sign in to manage your communication preferences.</p>
-        <Button onClick={() => router.push('/sign-in')} className="btn-metamask">Sign In</Button>
+        <Button onClick={() => router.push('/sign-in')} className="btn-tally-gradient">Sign In</Button>
       </div>
     );
   }
@@ -166,7 +166,7 @@ export default function CommunicationPreferencesPage() {
           </div>
           
           <div className="pt-4">
-            <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto btn-metamask hover-scale">
+            <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto btn-tally-gradient hover-scale">
               {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
               {isSaving ? "Saving..." : "Save Changes"}
             </Button>

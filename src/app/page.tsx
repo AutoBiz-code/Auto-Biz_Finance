@@ -91,7 +91,7 @@ export default function DashboardPage() {
         <Card className="mb-8 shadow-lg bg-card text-card-foreground fade-in p-6 text-center" style={{ animationDelay: '0.1s' }}>
           <CardTitle className="text-card-foreground mb-2">Welcome to AutoBiz Finance!</CardTitle>
           <CardDescription className="text-muted-foreground mb-4">Please sign in to access your automated finance dashboard and tools.</CardDescription>
-          <Button onClick={() => router.push('/sign-in')} className="btn-metamask">Sign In</Button>
+          <Button onClick={() => router.push('/sign-in')} className="btn-tally-gradient">Sign In</Button>
         </Card>
       )}
 
@@ -116,16 +116,16 @@ export default function DashboardPage() {
       <section aria-labelledby="quick-actions">
         <h2 id="quick-actions" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.4s'}}>Quick Actions</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Button onClick={() => router.push('/gst-billing')} className="btn-metamask hover-scale py-6 text-base justify-start">
+          <Button onClick={() => router.push('/gst-billing')} className="btn-tally-gradient hover-scale py-6 text-base justify-start">
             <FileText className="mr-3 h-6 w-6"/> Generate GST Bill
           </Button>
-          <Button onClick={() => router.push('/whatsapp-auto-reply')} className="btn-metamask hover-scale py-6 text-base justify-start">
+          <Button onClick={() => router.push('/whatsapp-auto-reply')} className="btn-tally-gradient hover-scale py-6 text-base justify-start">
             <MessageSquareText className="mr-3 h-6 w-6"/> AI WhatsApp Reply
           </Button>
-          <Button onClick={() => router.push('/stock-management')} className="btn-metamask hover-scale py-6 text-base justify-start">
+          <Button onClick={() => router.push('/stock-management')} className="btn-tally-gradient hover-scale py-6 text-base justify-start">
             <Package className="mr-3 h-6 w-6"/> Manage Stock
           </Button>
-          <Button onClick={() => router.push('/business-analysis')} className="btn-metamask hover-scale py-6 text-base justify-start">
+          <Button onClick={() => router.push('/business-analysis')} className="btn-tally-gradient hover-scale py-6 text-base justify-start">
             <BarChart3 className="mr-3 h-6 w-6"/> Analyze Business
           </Button>
         </div>

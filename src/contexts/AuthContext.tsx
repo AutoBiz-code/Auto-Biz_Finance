@@ -2,8 +2,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, signInWithRedirect, getRedirectResult, GoogleAuthProvider, AuthError } from 'firebase/auth';
-import { auth as firebaseAuthInstance, googleProvider } from '@/lib/firebase/config';
+import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, signInWithRedirect, getRedirectResult, GoogleAuthProvider, AuthError, OAuthProvider } from 'firebase/auth';
+import { auth as firebaseAuthInstance, googleProvider, appleProvider } from '@/lib/firebase/config';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -13,6 +13,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<UserCredential>;
   signIn: (email: string, password: string) => Promise<UserCredential>;
   signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -33,12 +34,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     getRedirectResult(firebaseAuthInstance)
       .then((result) => {
         if (result) {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          // const credential = result.providerId === 'google.com' 
+          //   ? GoogleAuthProvider.credentialFromResult(result) 
+          //   : AppleAuthProvider.credentialFromResult(result);
           setUser(result.user);
           toast({ title: "Success", description: "Signed in successfully." });
         }
       })
       .catch((error: AuthError) => {
-        console.error("Google Sign-In Redirect Error:", error.code, error.message);
+        console.error("Sign-In Redirect Error:", error.code, error.message);
         
         let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
         
@@ -47,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         
         toast({
-          title: "Google Sign In Failed",
+          title: "Sign In Failed",
           description: friendlyMessage,
           variant: "destructive",
         });
@@ -83,31 +88,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return signInWithEmailAndPassword(firebaseAuthInstance, email, password);
   };
 
-  const signInWithGoogle = async () => {
-    if (!firebaseAuthInstance || !googleProvider) {
-      toast({ title: "Initialization Error", description: "Firebase is not ready.", variant: "destructive" });
-      throw new Error("Firebase not initialized");
+  const signInWithProvider = async (provider: GoogleAuthProvider | OAuthProvider) => {
+    if (!firebaseAuthInstance) {
+        toast({ title: "Initialization Error", description: "Firebase is not ready.", variant: "destructive" });
+        throw new Error("Firebase not initialized");
     }
     try {
-      await signInWithRedirect(firebaseAuthInstance, googleProvider);
+        await signInWithRedirect(firebaseAuthInstance, provider);
     } catch (error) {
-      const authError = error as AuthError;
-      
-      let friendlyMessage = `Could not start the Google Sign-In process: ${authError.message}`;
-      if (authError.code === 'auth/unauthorized-domain') {
-          friendlyMessage = "This domain is not authorized. If you already added 'studio.firebase.google.com' to your Firebase project's authorized domains, please wait a few minutes for the setting to apply, then perform a hard refresh (Cmd+Shift+R or Ctrl+F5) and try again.";
-      }
-
-      toast({
-          title: "Google Sign In Failed",
-          description: friendlyMessage,
-          variant: "destructive",
-          duration: 15000,
-      });
-      // Rethrow the error so the calling page can stop its loading indicator.
-      throw error;
+        const authError = error as AuthError;
+        let friendlyMessage = `Could not start the sign-in process: ${authError.message}`;
+        if (authError.code === 'auth/unauthorized-domain') {
+            friendlyMessage = "This domain is not authorized. If you've already added it to your Firebase project, please wait a few minutes and perform a hard refresh (Cmd+Shift+R or Ctrl+F5).";
+        }
+        toast({
+            title: "Sign In Failed",
+            description: friendlyMessage,
+            variant: "destructive",
+            duration: 15000,
+        });
+        throw error;
     }
   };
+
+  const signInWithGoogle = () => signInWithProvider(googleProvider);
+  const signInWithApple = () => signInWithProvider(appleProvider);
 
   const signOut = async () => {
     if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
@@ -121,12 +126,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signUp,
     signIn,
     signInWithGoogle,
+    signInWithApple,
     signOut,
   };
 
   if (loading || isHandlingRedirect) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-background">
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
         <p className="ml-4 text-foreground">Initializing Authentication...</p>
       </div>

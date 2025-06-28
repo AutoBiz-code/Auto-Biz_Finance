@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Loader2, LogIn } from "lucide-react";
 import type { AuthError } from "firebase/auth";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -25,22 +26,31 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function AppleIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path d="M19.143 14.302c-.08 3.65-2.52 5.568-4.938 5.586-1.07.02-2.12-.47-3.15-.47-.96 0-2.12.47-3.21.5-.22 0-.43-.02-.64-.04-1.33-.09-2.73-.74-3.75-2.26-.01 0-.01 0 0 0-2.1-3.21-.8-7.3 1.5-9.52 1.14-1.08 2.58-1.74 4.12-1.74 1.13 0 2.25.43 3.19.43.9-.01 2.2-.5 3.32-.43.58.02 1.16.14 1.7.35 1.13.43 2.14 1.28 2.14 1.28s-1.14.73-2.2 1.43c-1.12.73-2.3 1.5-2.3 2.65.02 1.34 1.3 1.93 2.45 1.21.22-.15.45-.33.68-.54.2-.18.38-.36.54-.53a.28.28 0 01.3-.1c.07 0 .1.03.1.04.02.03-.04.06 -1.1 1.05zM15.58 6.16c.92-.99 1.48-2.28 1.34-3.55-.96.06-2.21.64-3.13 1.63-.82.88-1.5 2.2-1.34 3.42.3.02 1.05-.18 2.05-.62s1.02-.7 1.08-.88z"/>
+        </svg>
+    )
+}
+
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const { signIn, signInWithGoogle } = useAuth(); 
+  const { signIn, signInWithGoogle, signInWithApple } = useAuth(); 
   const router = useRouter();
-  const { toast } = useToast();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     try {
       await signIn(email, password);
-      toast({ title: "Success", description: "Signed in successfully." });
       router.push("/"); 
     } catch (error) {
       const authError = error as AuthError;
@@ -50,20 +60,13 @@ export default function SignInPage() {
         case 'auth/invalid-credential':
         case 'auth/user-not-found':
         case 'auth/wrong-password':
-          friendlyMessage = "Incorrect email or password. Please try again, or sign up if you're a new user.";
+          friendlyMessage = "Incorrect email or password. Please try again.";
           break;
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
           break;
-        case 'auth/invalid-api-key':
-             friendlyMessage = "The provided Firebase API key is invalid. Please check your .env file and restart the server.";
-             break;
       }
-      toast({
-        title: "Sign In Failed",
-        description: friendlyMessage,
-        variant: "destructive",
-      });
+      setError(friendlyMessage);
     } finally {
       setIsLoading(false);
     }
@@ -71,27 +74,46 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
+    setError(null);
     try {
       await signInWithGoogle();
       // On successful redirect, the user will be brought back and AuthContext will handle it.
     } catch (error) {
-      // The error is already handled and toasted by AuthContext. We just need to stop the loading spinner.
       setIsGoogleLoading(false);
+      setError("Failed to start Google sign-in. Please try again.");
     }
   };
+
+  const handleAppleSignIn = async () => {
+    setIsAppleLoading(true);
+    setError(null);
+    try {
+      await signInWithApple();
+    } catch (error) {
+      setIsAppleLoading(false);
+      setError("Failed to start Apple sign-in. Please try again.");
+    }
+  };
+
+  const anyLoading = isLoading || isGoogleLoading || isAppleLoading;
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-primary/30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-headline text-primary">Sign In</CardTitle>
+          <CardTitle className="text-3xl font-headline" style={{ color: 'white' }}>Sign In</CardTitle>
           <CardDescription className="text-muted-foreground">
             Access your automated finance dashboard.
           </CardDescription>
         </CardHeader>
         
         <form onSubmit={handleSignIn}>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
+             {error && (
+              <Alert variant="destructive" className="fade-in">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-card-foreground">Email</Label>
               <Input
@@ -118,7 +140,7 @@ export default function SignInPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full btn-metamask hover-scale" disabled={isLoading || isGoogleLoading}>
+            <Button type="submit" className="w-full btn-tally-gradient hover-scale" disabled={anyLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
               Sign In with Email
             </Button>
@@ -137,9 +159,13 @@ export default function SignInPage() {
                 <span className="px-4 text-xs text-muted-foreground">OR</span>
                 <Separator className="flex-1" />
             </div>
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={anyLoading}>
                 {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
                 Sign in with Google
+            </Button>
+            <Button variant="outline" className="w-full" onClick={handleAppleSignIn} disabled={anyLoading}>
+                {isAppleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5" />}
+                Sign in with Apple
             </Button>
         </CardContent>
 

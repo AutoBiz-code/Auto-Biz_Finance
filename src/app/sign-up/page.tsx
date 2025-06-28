@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Loader2, UserPlus } from "lucide-react";
 import type { AuthError } from "firebase/auth";
-import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -25,66 +25,67 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function AppleIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path d="M19.143 14.302c-.08 3.65-2.52 5.568-4.938 5.586-1.07.02-2.12-.47-3.15-.47-.96 0-2.12.47-3.21.5-.22 0-.43-.02-.64-.04-1.33-.09-2.73-.74-3.75-2.26-.01 0-.01 0 0 0-2.1-3.21-.8-7.3 1.5-9.52 1.14-1.08 2.58-1.74 4.12-1.74 1.13 0 2.25.43 3.19.43.9-.01 2.2-.5 3.32-.43.58.02 1.16.14 1.7.35 1.13.43 2.14 1.28 2.14 1.28s-1.14.73-2.2 1.43c-1.12.73-2.3 1.5-2.3 2.65.02 1.34 1.3 1.93 2.45 1.21.22-.15.45-.33.68-.54.2-.18.38-.36.54-.53a.28.28 0 01.3-.1c.07 0 .1.03.1.04.02.03-.04.06-1.1 1.05zM15.58 6.16c.92-.99 1.48-2.28 1.34-3.55-.96.06-2.21.64-3.13 1.63-.82.88-1.5 2.2-1.34 3.42.3.02 1.05-.18 2.05-.62s1.02-.7 1.08-.88z"/>
+        </svg>
+    )
+}
+
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  
-  const { signUp, signInWithGoogle } = useAuth(); 
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
+  const [error, setError] = useState<React.ReactNode | null>(null);
+
+  const { signUp, signInWithGoogle, signInWithApple } = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
 
     if (password !== confirmPassword) {
-      toast({ title: "Sign Up Error", description: "Passwords do not match.", variant: "destructive" });
+      setError("Passwords do not match.");
       return;
     }
     if (password.length < 6) {
-      toast({ title: "Sign Up Error", description: "Password should be at least 6 characters.", variant: "destructive" });
+      setError("Password should be at least 6 characters.");
       return;
     }
     setIsLoading(true);
     try {
-      await signUp(email, password); 
-      toast({ title: "Success", description: "Account created successfully! Redirecting..." });
-      router.push("/"); 
+      await signUp(email, password);
+      router.push("/");
     } catch (error) {
       const authError = error as AuthError;
-      
-      // Special handling for existing account: redirect to sign-in
+
       if (authError.code === 'auth/email-already-in-use') {
-        toast({
-          title: "Account Already Exists",
-          description: "Redirecting you to the Sign In page.",
-          variant: "destructive",
-          duration: 5000,
-        });
-        router.push('/sign-in');
-        return; // Stop further execution
+        setError(
+          <span>
+            An account with this email already exists. Please{" "}
+            <Link href="/sign-in" className="font-bold text-primary hover:underline">
+              Sign In
+            </Link>{" "}
+            instead.
+          </span>
+        );
+      } else {
+        let friendlyMessage = "A sign-up error occurred. Please try again.";
+        switch (authError.code) {
+          case 'auth/invalid-email':
+            friendlyMessage = "The email address is not valid.";
+            break;
+          case 'auth/weak-password':
+            friendlyMessage = "The password is too weak. It must be at least 6 characters long.";
+            break;
+        }
+        setError(friendlyMessage);
       }
-
-      let friendlyMessage = `A sign-up error occurred: ${authError.message || 'Please try again.'}`;
-      switch (authError.code) {
-        case 'auth/invalid-email':
-          friendlyMessage = "The email address is not valid.";
-          break;
-        case 'auth/weak-password':
-          friendlyMessage = "The password is too weak. It must be at least 6 characters long.";
-          break;
-        case 'auth/invalid-api-key':
-             friendlyMessage = "The provided Firebase API key is invalid. Please check your .env file and restart the server.";
-             break;
-      }
-       toast({
-        title: "Sign Up Failed",
-        description: friendlyMessage,
-        variant: "destructive",
-      });
-
     } finally {
       setIsLoading(false);
     }
@@ -92,25 +93,45 @@ export default function SignUpPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
+    setError(null);
     try {
       await signInWithGoogle();
     } catch (error) {
       setIsGoogleLoading(false);
+      setError("Failed to start Google sign-up. Please try again.");
     }
   };
+
+   const handleAppleSignIn = async () => {
+    setIsAppleLoading(true);
+    setError(null);
+    try {
+      await signInWithApple();
+    } catch (error) {
+      setIsAppleLoading(false);
+      setError("Failed to start Apple sign-up. Please try again.");
+    }
+  };
+
+  const anyLoading = isLoading || isGoogleLoading || isAppleLoading;
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-primary/30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-headline text-primary">Create an Account</CardTitle>
+          <CardTitle className="text-3xl font-headline" style={{ color: 'white' }}>Create an Account</CardTitle>
           <CardDescription className="text-muted-foreground">
             Join AutoBiz Finance to automate your workflows.
           </CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSignUp}>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
+             {error && (
+              <Alert variant="destructive" className="fade-in">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-card-foreground">Email</Label>
               <Input
@@ -149,7 +170,7 @@ export default function SignUpPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full btn-metamask hover-scale" disabled={isLoading || isGoogleLoading}>
+            <Button type="submit" className="w-full btn-tally-gradient hover-scale" disabled={anyLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
               Sign Up with Email
             </Button>
@@ -168,9 +189,13 @@ export default function SignUpPage() {
                 <span className="px-4 text-xs text-muted-foreground">OR</span>
                 <Separator className="flex-1" />
             </div>
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={anyLoading}>
                 {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
                 Sign up with Google
+            </Button>
+            <Button variant="outline" className="w-full" onClick={handleAppleSignIn} disabled={anyLoading}>
+                {isAppleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5 fill-current" />}
+                Sign up with Apple
             </Button>
         </CardContent>
         

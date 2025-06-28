@@ -99,7 +99,7 @@ export default function WhatsappAutoReplyPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full btn-metamask" disabled={isLoading || authLoading}>
+            <Button type="submit" className="w-full btn-tally-gradient" disabled={isLoading || authLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
               Generate Reply
             </Button>

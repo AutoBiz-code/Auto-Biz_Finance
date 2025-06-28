@@ -50,7 +50,7 @@ export default function UpiReconciliationPageRedirect() {
           </p>
         </CardContent>
         <CardFooter>
-          <Button asChild className="w-full sm:w-auto btn-metamask hover-scale">
+          <Button asChild className="w-full sm:w-auto btn-tally-gradient hover-scale">
             <Link href="/business-analysis">
               Go to Business Analysis
             </Link>

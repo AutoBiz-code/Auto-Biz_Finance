@@ -147,7 +147,7 @@ export function AppSidebar() {
                 <UserIcon className="h-6 w-6 text-sidebar-primary" />
                 <span className="text-sm text-sidebar-foreground truncate" title={user.email || ""}>{user.email || "User"}</span>
               </div>
-              <Button onClick={handleSignOut} variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground btn-metamask">
+              <Button onClick={handleSignOut} variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                 <LogOut className="mr-2 h-4 w-4" /> Sign Out
               </Button>
             </div>
@@ -158,7 +158,7 @@ export function AppSidebar() {
                   <LogIn className="mr-2 h-4 w-4" /> Sign In
                 </Link>
               </Button>
-              <Button asChild className="w-full btn-metamask">
+              <Button asChild className="w-full btn-tally-gradient">
                 <Link href="/sign-up">
                   <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                 </Link>

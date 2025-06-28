@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, type FormEvent, useEffect } from "react";
@@ -7,10 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Loader2, PlusCircle, Trash2, Building } from "lucide-react";
+import { FileText, Loader2, PlusCircle, Trash2, Building, RefreshCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateGstPdfAction, type GstPdfItem } from "@/actions/autobiz-features";
 import { DatePicker } from "@/components/ui/date-picker";
+import { Switch } from "@/components/ui/switch";
 
 interface BillItem extends GstPdfItem {
   id: string; // For React key prop
@@ -31,6 +33,7 @@ export default function GstBillingPage() {
   const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(undefined);
   const [itemsList, setItemsList] = useState<BillItem[]>([]);
   const [notes, setNotes] = useState("");
+  const [isRecurring, setIsRecurring] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
@@ -122,6 +125,7 @@ export default function GstBillingPage() {
         invoiceDate: invoiceDate.toISOString(),
         items: itemsToSubmit,
         notes,
+        recurring: isRecurring,
       });
       
       toast({
@@ -222,9 +226,18 @@ export default function GstBillingPage() {
                   <Label htmlFor="customerAddress" className="text-card-foreground">Customer Address *</Label>
                   <Textarea id="customerAddress" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} placeholder="e.g., 123 Main St, Anytown" required />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="invoiceDate" className="text-card-foreground">Invoice Date *</Label>
-                  <DatePicker date={invoiceDate} setDate={setInvoiceDate} className="bg-input border-border text-foreground focus:ring-primary" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="invoiceDate" className="text-card-foreground">Invoice Date *</Label>
+                      <DatePicker date={invoiceDate} setDate={setInvoiceDate} className="bg-input border-border text-foreground focus:ring-primary" />
+                    </div>
+                    <div className="flex items-center space-x-2 pt-8">
+                        <Switch id="recurring-invoice" checked={isRecurring} onCheckedChange={setIsRecurring} />
+                        <Label htmlFor="recurring-invoice" className="flex items-center gap-2 cursor-pointer">
+                            <RefreshCw className={`h-4 w-4 ${isRecurring ? 'text-primary' : 'text-muted-foreground'}`}/>
+                             Recurring Invoice
+                        </Label>
+                    </div>
                 </div>
               </div>
             </section>

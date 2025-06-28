@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -9,12 +10,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Users, Loader2, PlusCircle, Trash2, DollarSign } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { addEmployeeAction, processPayrollAction } from "@/actions/autobiz-features"; // Placeholder
+import { addEmployeeAction, processPayrollAction } from "@/actions/autobiz-features";
 
 interface Employee {
   id: string;
   name: string;
   email: string;
+  phoneNumber: string;
   department: string;
   salary: number;
 }
@@ -30,12 +32,13 @@ export default function PayrollPage() {
   // Form state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [department, setDepartment] = useState("");
   const [salary, setSalary] = useState("");
 
   const handleAddEmployee = async (e: FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !department || !salary) {
+    if (!name || !email || !department || !salary || !phoneNumber) {
       toast({ title: "Missing Information", description: "Please fill out all employee details.", variant: "destructive" });
       return;
     }
@@ -51,6 +54,7 @@ export default function PayrollPage() {
         id: crypto.randomUUID(), // Temp ID for client-side
         name,
         email,
+        phoneNumber,
         department,
         salary: salaryNum
       };
@@ -63,6 +67,7 @@ export default function PayrollPage() {
       // Reset form
       setName("");
       setEmail("");
+      setPhoneNumber("");
       setDepartment("");
       setSalary("");
 
@@ -76,8 +81,10 @@ export default function PayrollPage() {
   const handleProcessPayroll = async (employeeId: string, employeeName: string) => {
     setIsProcessing(employeeId);
     try {
-      await processPayrollAction({ employeeId });
-      toast({ title: "Payroll Processed", description: `Payroll for ${employeeName} has been processed.` });
+      // Simulate standard deductions
+      const standardDeductions = { PF: 1800, ESI: 750 };
+      await processPayrollAction({ employeeId, deductions: standardDeductions });
+      toast({ title: "Payroll Processed", description: `Payroll for ${employeeName} has been processed with standard deductions.` });
     } catch (error: any) {
       toast({ title: "Error", description: error.message || "Failed to process payroll.", variant: "destructive" });
     } finally {
@@ -86,6 +93,7 @@ export default function PayrollPage() {
   };
 
   const handleRemoveEmployee = (employeeId: string) => {
+    // In a real app, this would also call a server action to delete the employee
     setEmployees(prev => prev.filter(emp => emp.id !== employeeId));
     toast({ title: "Employee Removed", description: "The employee has been removed from the list." });
   };
@@ -121,10 +129,16 @@ export default function PayrollPage() {
                     <Label htmlFor="employeeName">Full Name</Label>
                     <Input id="employeeName" value={name} onChange={e => setName(e.target.value)} placeholder="e.g., Rohan Sharma" required/>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="employeeEmail">Email</Label>
-                    <Input id="employeeEmail" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g., rohan@example.com" required/>
-                  </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="employeeEmail">Email</Label>
+                            <Input id="employeeEmail" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g., rohan@example.com" required/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="employeePhone">Phone Number</Label>
+                            <Input id="employeePhone" type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="e.g., 9876543210" required/>
+                        </div>
+                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="employeeDept">Department</Label>
                     <Input id="employeeDept" value={department} onChange={e => setDepartment(e.target.value)} placeholder="e.g., Sales" required/>
@@ -170,7 +184,7 @@ export default function PayrollPage() {
                   <TableBody>
                     {employees.map((emp) => (
                       <TableRow key={emp.id}>
-                        <TableCell className="font-medium">{emp.name}<br/><span className="text-xs text-muted-foreground">{emp.email}</span></TableCell>
+                        <TableCell className="font-medium">{emp.name}<br/><span className="text-xs text-muted-foreground">{emp.email} | {emp.phoneNumber}</span></TableCell>
                         <TableCell>{emp.department}</TableCell>
                         <TableCell className="text-right">{emp.salary.toLocaleString('en-IN')}</TableCell>
                         <TableCell className="flex items-center justify-center gap-2">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -6,14 +7,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Package, Loader2 } from "lucide-react";
+import { Package, Loader2, CalendarClock, MapPin } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { updateStockAction } from "@/actions/autobiz-features"; // Placeholder
+import { updateStockAction } from "@/actions/autobiz-features";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export default function StockManagementPage() {
   const [itemName, setItemName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
+  const [batchNumber, setBatchNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState<Date | undefined>(undefined);
+  const [location, setLocation] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
@@ -23,7 +29,7 @@ export default function StockManagementPage() {
     // No longer checking for user sign-in
 
     if (!itemName || !quantity || !price) {
-      toast({ title: "Missing Information", description: "Please fill out all fields.", variant: "destructive" });
+      toast({ title: "Missing Information", description: "Please fill out at least Item Name, Quantity, and Price.", variant: "destructive" });
       return;
     }
     const numQuantity = parseInt(quantity, 10);
@@ -41,7 +47,15 @@ export default function StockManagementPage() {
     setIsLoading(true);
     try {
       // In a real app, this would call a server action that saves/updates data in Firestore
-      const result = await updateStockAction({ userId: user?.uid || "guest-user", itemName, quantity: numQuantity, price: numPrice });
+      const result = await updateStockAction({ 
+        userId: user?.uid || "guest-user", 
+        itemName, 
+        quantity: numQuantity, 
+        price: numPrice,
+        batchNumber,
+        expiryDate: expiryDate?.toISOString(),
+        location,
+      });
       
       toast({
         title: "Stock Updated (Simulated)",
@@ -50,6 +64,10 @@ export default function StockManagementPage() {
       setItemName("");
       setQuantity("");
       setPrice("");
+      setBatchNumber("");
+      setExpiryDate(undefined);
+      setLocation("");
+
     } catch (error: any) {
       console.error("Stock update error:", error);
       toast({ title: "Error", description: error.message || "Failed to update stock.", variant: "destructive" });
@@ -69,24 +87,24 @@ export default function StockManagementPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold text-foreground">Stock Management</h1>
-        <p className="mt-2 text-muted-foreground">Add or update items in your inventory.</p>
+        <h1 className="text-3xl font-headline font-semibold text-foreground">Inventory Management</h1>
+        <p className="mt-2 text-muted-foreground">Add or update items in your inventory with batch and expiry tracking.</p>
       </header>
 
-      <Card className="max-w-lg mx-auto shadow-xl bg-card text-card-foreground border-primary/20 hover-scale">
+      <Card className="max-w-xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20 hover-scale">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-card-foreground">
             <Package className="h-6 w-6 text-primary" />
             Update Stock Item
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Enter item details to add to or update your stock records in Firestore.
+            Enter item details to add to or update your stock records.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="itemName" className="text-card-foreground">Item Name</Label>
+              <Label htmlFor="itemName" className="text-card-foreground">Item Name *</Label>
               <Input
                 id="itemName"
                 type="text"
@@ -98,7 +116,7 @@ export default function StockManagementPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="quantity" className="text-card-foreground">Quantity</Label>
+                <Label htmlFor="quantity" className="text-card-foreground">Quantity *</Label>
                 <Input
                   id="quantity"
                   type="number"
@@ -110,7 +128,7 @@ export default function StockManagementPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="price" className="text-card-foreground">Price per Item (INR)</Label>
+                <Label htmlFor="price" className="text-card-foreground">Price per Item (INR) *</Label>
                 <Input
                   id="price"
                   type="number"
@@ -123,6 +141,38 @@ export default function StockManagementPage() {
                 />
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="batchNumber" className="text-card-foreground flex items-center gap-1">
+                  Batch Number
+                </Label>
+                <Input
+                  id="batchNumber"
+                  type="text"
+                  placeholder="e.g., B-103-C"
+                  value={batchNumber}
+                  onChange={(e) => setBatchNumber(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="expiryDate" className="text-card-foreground flex items-center gap-1">
+                   <CalendarClock className="h-4 w-4"/> Expiry Date
+                </Label>
+                 <DatePicker date={expiryDate} setDate={setExpiryDate} placeholder="Select expiry date" />
+              </div>
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="location" className="text-card-foreground flex items-center gap-1">
+                  <MapPin className="h-4 w-4"/> Location
+                </Label>
+                <Input
+                  id="location"
+                  type="text"
+                  placeholder="e.g., Warehouse A, Shelf 3"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full btn-tally-gradient" disabled={isLoading || authLoading}>

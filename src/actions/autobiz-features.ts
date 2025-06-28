@@ -26,6 +26,7 @@ interface GstPdfParams {
   invoiceDate: string; // ISO string date
   items: GstPdfItem[];
   notes?: string;
+  recurring?: boolean;
 }
 
 export async function generateGstPdfAction(params: GstPdfParams) {
@@ -44,6 +45,9 @@ interface StockUpdateParams {
   itemName: string;
   quantity: number;
   price: number;
+  batchNumber?: string;
+  expiryDate?: string;
+  location?: string;
 }
 
 export async function updateStockAction(params: StockUpdateParams) {
@@ -84,6 +88,7 @@ interface EmployeeParams {
   id: string;
   name: string;
   email: string;
+  phoneNumber: string;
   department: string;
   salary: number;
 }
@@ -97,13 +102,14 @@ export async function addEmployeeAction(params: EmployeeParams) {
 
 interface ProcessPayrollParams {
   employeeId: string;
+  deductions: Record<string, number>;
 }
 
 export async function processPayrollAction(params: ProcessPayrollParams) {
-  console.log("Server Action: Processing payroll for employee:", params.employeeId);
+  console.log("Server Action: Processing payroll for employee:", params.employeeId, "with deductions:", params.deductions);
   await new Promise(resolve => setTimeout(resolve, 1500));
   if (Math.random() < 0.1) throw new Error("Simulated error processing payroll.");
-  return { success: true, message: "Payroll processed." };
+  return { success: true, message: "Payroll processed with deductions." };
 }
 
 interface CreateBackupParams {

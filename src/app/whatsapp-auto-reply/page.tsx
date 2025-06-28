@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -10,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { MessageCircleCode, Loader2, Wand2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
 import { generateWhatsAppReply } from "@/ai/flows/generate-whatsapp-reply-flow";
 
 export default function WhatsappAutoReplyPage() {
@@ -19,16 +17,12 @@ export default function WhatsappAutoReplyPage() {
   const [generatedReply, setGeneratedReply] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const { loading: authLoading } = useAuth();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast({ title: "Authentication Required", description: "Please sign in to generate replies.", variant: "destructive" });
-      router.push("/sign-in");
-      return;
-    }
+    // No longer checking for user sign-in
+
     if (!businessCategory || !customerMessage) {
       toast({ title: "Missing Information", description: "Please provide business category and customer message.", variant: "destructive" });
       return;

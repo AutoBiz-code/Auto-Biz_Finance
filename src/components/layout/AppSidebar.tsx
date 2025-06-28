@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -145,52 +144,23 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarHeader className="p-4 mt-auto border-t border-sidebar-border">
-        {!loading && (
-          user ? (
-            <div className="flex flex-col gap-2 items-start group-data-[state=collapsed]:hidden fade-in" style={{ animationDelay: '0.5s' }}>
-              <div className="flex items-center gap-2 w-full mb-2 p-2 rounded-md bg-sidebar-accent/30">
-                <UserIcon className="h-6 w-6 text-sidebar-primary" />
-                <span className="text-sm text-sidebar-foreground truncate" title={user.email || ""}>{user.email || "User"}</span>
-              </div>
-              <Button onClick={handleSignOut} variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                <LogOut className="mr-2 h-4 w-4" /> Sign Out
-              </Button>
+        {/* Authentication section temporarily removed to allow guest access */}
+        {user && !loading && (
+          <div className="flex flex-col gap-2 items-start group-data-[state=collapsed]:hidden fade-in" style={{ animationDelay: '0.5s' }}>
+            <div className="flex items-center gap-2 w-full mb-2 p-2 rounded-md bg-sidebar-accent/30">
+              <UserIcon className="h-6 w-6 text-sidebar-primary" />
+              <span className="text-sm text-sidebar-foreground truncate" title={user.email || ""}>{user.email || "User"}</span>
             </div>
-          ) : (
-            <div className="flex flex-col gap-2 items-center group-data-[state=collapsed]:hidden fade-in" style={{ animationDelay: '0.5s' }}>
-              <Button asChild variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                <Link href="/sign-in">
-                  <LogIn className="mr-2 h-4 w-4" /> Sign In
-                </Link>
-              </Button>
-              <Button asChild className="w-full btn-tally-gradient">
-                <Link href="/sign-up">
-                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
-                </Link>
-              </Button>
-            </div>
-          )
+            <Button onClick={handleSignOut} variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+              <LogOut className="mr-2 h-4 w-4" /> Sign Out
+            </Button>
+          </div>
         )}
-        {!loading && (
+        {user && !loading && (
           <div className="hidden group-data-[state=collapsed]:flex flex-col gap-2 items-center">
-            {user ? (
-              <Button onClick={handleSignOut} variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign Out">
-                <LogOut />
-              </Button>
-            ) : (
-              <>
-                <Link href="/sign-in" passHref>
-                  <Button asChild variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign In">
-                    <LogIn />
-                  </Button>
-                </Link>
-                <Link href="/sign-up" passHref>
-                  <Button asChild variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign Up">
-                    <UserPlus />
-                  </Button>
-                </Link>
-              </>
-            )}
+            <Button onClick={handleSignOut} variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign Out">
+              <LogOut />
+            </Button>
           </div>
         )}
          {loading && (

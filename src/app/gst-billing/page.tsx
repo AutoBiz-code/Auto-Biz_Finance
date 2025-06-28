@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type FormEvent, useEffect } from "react";
@@ -10,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Loader2, PlusCircle, Trash2, Building } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
 import { generateGstPdfAction, type GstPdfItem } from "@/actions/autobiz-features";
 import { DatePicker } from "@/components/ui/date-picker";
 
@@ -36,7 +34,6 @@ export default function GstBillingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
 
   // Populate initial values on client-side mount to avoid hydration errors
   useEffect(() => {
@@ -95,11 +92,8 @@ export default function GstBillingPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast({ title: "Authentication Required", description: "Please sign in to generate GST bills.", variant: "destructive" });
-      router.push("/sign-in");
-      return;
-    }
+    // No longer checking for user sign-in
+
     if (!companyName || !companyAddress || !companyGstin || !companyEmail || !customerName || !customerAddress || !customerPhone || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0 || item.taxRate < 0)) {
       toast({ title: "Missing Information", description: "Please fill out all required company, customer, and item details correctly. Ensure item quantity and rate are positive, and tax rate is non-negative.", variant: "destructive" });
       return;
@@ -116,7 +110,7 @@ export default function GstBillingPage() {
       }));
 
       const result = await generateGstPdfAction({
-        userId: user.uid,
+        userId: user?.uid || "guest-user",
         companyName,
         companyAddress,
         companyGstin,

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -24,14 +23,12 @@ export default function DashboardPage() {
   const [conversationCount, setConversationCount] = React.useState(0);
 
   React.useEffect(() => {
-    if (user) {
-      // Placeholder: In a real app, fetch from Firestore using user.uid
-      // e.g., fetchUserAppData(user.uid).then(data => { setUserPlan(data.plan); setConversationCount(data.conversationCount); });
-      setTimeout(() => {
-        setUserPlan("Basic");
-        setConversationCount(120); // Example conversation count
-      }, 500);
-    }
+    // This now fetches data for guest users too, showing default values.
+    // Placeholder: In a real app, you might fetch different data for guests.
+    setTimeout(() => {
+      setUserPlan(user ? "Pro" : "Basic"); // Example logic
+      setConversationCount(user ? 120 : 0); // Example logic
+    }, 500);
   }, [user]);
 
   const getConversationLimit = () => {
@@ -61,39 +58,31 @@ export default function DashboardPage() {
     <div className="space-y-8 fade-in">
       <h1 className="text-3xl font-headline font-semibold text-foreground">AutoBiz Finance Dashboard</h1>
 
-      {user && (
-        <Card className="mb-8 shadow-lg bg-card text-card-foreground fade-in" style={{ animationDelay: '0.1s' }}>
-          <CardHeader>
-            <CardTitle className="text-card-foreground flex items-center gap-2">
-              <UserIcon className="h-7 w-7 text-primary" />
-              User Details
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Welcome back, {user.email || "User"}!
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p><span className="font-medium text-card-foreground">Email:</span> <span className="text-muted-foreground">{user.email}</span></p>
-            <p><span className="font-medium text-card-foreground">Current Plan:</span> <span className="text-muted-foreground">{userPlan}</span></p>
-            <div>
-              <p className="font-medium text-card-foreground mb-1">Conversation Usage (Botpress/Gemini):</p>
-              <div className="flex items-center gap-2">
-                <Progress value={conversationProgress} aria-label={`Conversation usage ${conversationProgress.toFixed(0)}%`} className="h-3 flex-1 [&>div]:bg-primary" />
-                <span className="text-sm text-muted-foreground">{conversationCount} / {conversationLimit === Infinity ? 'Unlimited' : conversationLimit}</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">{conversationProgress.toFixed(0)}% used ({conversationLimit === Infinity ? 'Unlimited' : conversationLimit - conversationCount} remaining)</p>
+      <Card className="mb-8 shadow-lg bg-card text-card-foreground fade-in" style={{ animationDelay: '0.1s' }}>
+        <CardHeader>
+          <CardTitle className="text-card-foreground flex items-center gap-2">
+            <UserIcon className="h-7 w-7 text-primary" />
+            User Details
+          </CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Welcome back, {user?.email || "Guest"}!
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p><span className="font-medium text-card-foreground">Email:</span> <span className="text-muted-foreground">{user?.email || "Not signed in"}</span></p>
+          <p><span className="font-medium text-card-foreground">Current Plan:</span> <span className="text-muted-foreground">{userPlan}</span></p>
+          <div>
+            <p className="font-medium text-card-foreground mb-1">Conversation Usage (Botpress/Gemini):</p>
+            <div className="flex items-center gap-2">
+              <Progress value={conversationProgress} aria-label={`Conversation usage ${conversationProgress.toFixed(0)}%`} className="h-3 flex-1 [&>div]:bg-primary" />
+              <span className="text-sm text-muted-foreground">{conversationCount} / {conversationLimit === Infinity ? 'Unlimited' : conversationLimit}</span>
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <p className="text-xs text-muted-foreground mt-1">{conversationProgress.toFixed(0)}% used ({conversationLimit === Infinity ? 'Unlimited' : conversationLimit - conversationCount} remaining)</p>
+          </div>
+        </CardContent>
+      </Card>
 
-      {!user && !authLoading && (
-        <Card className="mb-8 shadow-lg bg-card text-card-foreground fade-in p-6 text-center" style={{ animationDelay: '0.1s' }}>
-          <CardTitle className="text-card-foreground mb-2">Welcome to AutoBiz Finance!</CardTitle>
-          <CardDescription className="text-muted-foreground mb-4">Please sign in to access your automated finance dashboard and tools.</CardDescription>
-          <Button onClick={() => router.push('/sign-in')} className="btn-tally-gradient">Sign In</Button>
-        </Card>
-      )}
+      {/* The sign in prompt is removed to allow guest access */}
 
       <section aria-labelledby="key-financial-metrics">
         <h2 id="key-financial-metrics" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{ animationDelay: '0.2s' }}>Key Metrics</h2>

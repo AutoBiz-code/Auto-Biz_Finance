@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -9,7 +8,6 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast"; 
 import { BellRing, Mail, MessageCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
 
 interface Preferences {
   emailPaymentAlerts: boolean;
@@ -20,7 +18,6 @@ interface Preferences {
 
 export default function CommunicationPreferencesPage() {
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
   const [preferences, setPreferences] = useState<Preferences>({
     emailPaymentAlerts: false,
     whatsappPaymentAlerts: true,
@@ -32,23 +29,13 @@ export default function CommunicationPreferencesPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/sign-in"); 
-    }
-  }, [user, authLoading, router]);
-
-  useEffect(() => {
-    if (user) {
-      setIsLoading(true);
-      // Simulate fetching preferences (replace with actual Firestore fetch for user.uid)
-      setTimeout(() => {
-        // Example: setPreferences(fetchedPreferencesFromFirestore); 
-        setIsLoading(false);
-      }, 500);
-    } else if (!authLoading && !user) {
-        setIsLoading(false); 
-    }
-  }, [user, authLoading]);
+    // Simulate fetching preferences. This will now run for guests too.
+    setIsLoading(true);
+    setTimeout(() => {
+      // Example: setPreferences(fetchedPreferencesFromFirestore); 
+      setIsLoading(false);
+    }, 500);
+  }, [user]);
 
 
   const handlePreferenceChange = (key: keyof Preferences, value: boolean) => {
@@ -56,15 +43,11 @@ export default function CommunicationPreferencesPage() {
   };
 
   const handleSaveChanges = async () => {
-    if (!user) {
-      toast({ title: "Error", description: "You must be signed in to save preferences.", variant: "destructive" });
-      router.push("/sign-in");
-      return;
-    }
+    // No longer checking for user sign-in
     setIsSaving(true);
     // Simulate saving to backend (e.g., Firestore via a server action or API call for user.uid)
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log("Preferences saved for user:", user.uid, preferences);
+    console.log("Preferences saved for user:", user?.uid || 'guest-user', preferences);
     toast({ title: "Success", description: "Communication preferences updated." });
     setIsSaving(false);
   };
@@ -73,15 +56,6 @@ export default function CommunicationPreferencesPage() {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex flex-col justify-center items-center h-64 text-center">
-        <p className="text-lg text-muted-foreground mb-4">Please sign in to manage your communication preferences.</p>
-        <Button onClick={() => router.push('/sign-in')} className="btn-tally-gradient">Sign In</Button>
       </div>
     );
   }

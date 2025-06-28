@@ -1,15 +1,11 @@
-
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Users, Construction } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 export default function PayrollPage() {
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const { loading: authLoading } = useAuth();
 
   if (authLoading) {
     return (
@@ -19,14 +15,7 @@ export default function PayrollPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex flex-col justify-center items-center h-64 text-center">
-        <p className="text-lg text-muted-foreground mb-4">Please sign in to manage payroll.</p>
-        <Button onClick={() => router.push('/sign-in')} className="btn-tally-gradient">Sign In</Button>
-      </div>
-    );
-  }
+  // No longer checking for user to allow guest access
 
   return (
     <div className="space-y-8 fade-in">

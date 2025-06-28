@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -9,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { BarChartHorizontalBig, Loader2, KeyRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
 import { analyzeBusinessDataAction } from "@/actions/autobiz-features"; // Placeholder
 
 export default function BusinessAnalysisPage() {
@@ -20,15 +18,11 @@ export default function BusinessAnalysisPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast({ title: "Authentication Required", description: "Please sign in to analyze business data.", variant: "destructive" });
-      router.push("/sign-in");
-      return;
-    }
+    // No longer checking for user sign-in
+
     // Basic validation for key presence, real validation would be more complex
     if (!razorpayKey && !whatsappKey && !botpressKey) {
       toast({ title: "API Key Required", description: "Please enter at least one API key.", variant: "destructive" });
@@ -42,7 +36,7 @@ export default function BusinessAnalysisPage() {
       // The Cloud Function would use these keys to fetch data from the respective APIs.
       // IMPORTANT: Handling API keys client-side like this is NOT secure for production.
       // They should be managed server-side (e.g., stored securely per user and used by Cloud Functions).
-      const result = await analyzeBusinessDataAction({ userId: user.uid, razorpayKey, whatsappKey, botpressKey });
+      const result = await analyzeBusinessDataAction({ userId: user?.uid || "guest-user", razorpayKey, whatsappKey, botpressKey });
       
       setAnalysisResult(result.analysisData); // Assuming result has analysisData
       toast({

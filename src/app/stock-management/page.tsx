@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -9,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Package, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
 import { updateStockAction } from "@/actions/autobiz-features"; // Placeholder
 
 export default function StockManagementPage() {
@@ -19,15 +17,11 @@ export default function StockManagementPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast({ title: "Authentication Required", description: "Please sign in to manage stock.", variant: "destructive" });
-      router.push("/sign-in");
-      return;
-    }
+    // No longer checking for user sign-in
+
     if (!itemName || !quantity || !price) {
       toast({ title: "Missing Information", description: "Please fill out all fields.", variant: "destructive" });
       return;
@@ -47,7 +41,7 @@ export default function StockManagementPage() {
     setIsLoading(true);
     try {
       // In a real app, this would call a server action that saves/updates data in Firestore
-      const result = await updateStockAction({ userId: user.uid, itemName, quantity: numQuantity, price: numPrice });
+      const result = await updateStockAction({ userId: user?.uid || "guest-user", itemName, quantity: numQuantity, price: numPrice });
       
       toast({
         title: "Stock Updated (Simulated)",

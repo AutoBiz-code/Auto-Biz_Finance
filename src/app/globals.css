@@ -136,5 +136,4 @@
 }
 .btn-tally-gradient:hover {
   opacity: 0.9;
-  box-shadow: 0 0 15px hsla(var(--primary), 0.5); /* Optional glow effect */
 }

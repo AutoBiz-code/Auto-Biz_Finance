@@ -62,7 +62,6 @@ export default function GstBillingPage() {
            else if (field === 'rate') currentItem.rate = 0;
            else if (field === 'taxRate') currentItem.taxRate = 0;
         }
-        // If value is non-numeric and not empty (e.g. "abc"), the field retains its previous value due to the conditions above.
     }
     
     // Defensively calculate total, ensuring inputs are numbers
@@ -95,7 +94,6 @@ export default function GstBillingPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // No longer checking for user sign-in
 
     if (!companyName || !companyAddress || !companyGstin || !companyEmail || !customerName || !customerAddress || !customerPhone || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0 || item.taxRate < 0)) {
       toast({ title: "Missing Information", description: "Please fill out all required company, customer, and item details correctly. Ensure item quantity and rate are positive, and tax rate is non-negative.", variant: "destructive" });
@@ -132,12 +130,6 @@ export default function GstBillingPage() {
         title: "GST Bill PDF Generation Initiated (Simulated)",
         description: `PDF for ${customerName} is being generated. ${result.message}`,
       });
-      // Reset form (optional - consider user experience)
-      // setCompanyName(""); setCompanyAddress(""); setCompanyGstin(""); setCompanyEmail(""); setCompanyPhone("");
-      // setCustomerName(""); setCustomerAddress(""); setCustomerPhone("");
-      // setInvoiceDate(new Date());
-      // setItemsList([{ id: crypto.randomUUID(), name: "", quantity: 1, rate: 0, taxRate: 0, total: 0 }]);
-      // setNotes("");
     } catch (error: any) {
       console.error("GST Bill generation error:", error);
       toast({ title: "Error", description: error.message || "Failed to initiate PDF generation.", variant: "destructive" });
@@ -161,7 +153,7 @@ export default function GstBillingPage() {
         <p className="mt-2 text-muted-foreground">Create and generate detailed GST-compliant bills as PDFs.</p>
       </header>
 
-      <Card className="max-w-4xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20 hover-scale">
+      <Card className="max-w-4xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-card-foreground">
             <FileText className="h-6 w-6 text-primary" />

@@ -1,26 +1,14 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, IndianRupee, BarChartHorizontalBig } from "lucide-react";
-// import { reconcileUPITransactions } from "@/actions/autobiz"; // Old action
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Loader2, BarChartHorizontalBig } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext"; 
-import { useRouter } from "next/navigation"; 
 import Link from "next/link";
 
-
-// This page might be deprecated. UPI Reconciliation is now part of Business Analysis.
-// It can be removed or updated to redirect/point to the Business Analysis feature.
-
 export default function UpiReconciliationPageRedirect() {
-  const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth(); 
-  const router = useRouter(); 
+  const { loading: authLoading } = useAuth(); 
 
   if (authLoading) {
     return (
@@ -38,10 +26,10 @@ export default function UpiReconciliationPageRedirect() {
         <CardHeader>
           <CardTitle className="text-card-foreground flex items-center gap-2">
             <BarChartHorizontalBig className="h-6 w-6 text-primary" />
-            Advanced Business Insights
+            Feature Integrated
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            UPI transaction reconciliation is now integrated into our comprehensive Business Analysis feature. Connect your Razorpay and other service API keys to get a holistic view of your finances and operations.
+            UPI transaction reconciliation is now integrated into our comprehensive **Business Analysis** feature. Connect your Razorpay and other service API keys to get a holistic view of your finances and operations.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

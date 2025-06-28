@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { MessageCircleCode, Settings2 } from "lucide-react"; // Updated icon
+import { MessageCircleCode, Settings2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -10,9 +10,6 @@ export const metadata: Metadata = {
   title: "AI WhatsApp Reply Automation | AutoBiz Finance",
   description: "Streamline customer communication with Gemini-powered AI WhatsApp replies by AutoBiz Finance.",
 };
-
-// This page might be deprecated in favor of /whatsapp-auto-reply.
-// If so, it can be removed or redirected. For now, it's updated to point to the new page.
 
 export default function WhatsappAutomationPageRedirect() {
   return (
@@ -35,12 +32,12 @@ export default function WhatsappAutomationPageRedirect() {
             <CardHeader className="p-0 mb-4">
               <CardTitle className="text-2xl font-headline text-card-foreground flex items-center gap-2">
                 <MessageCircleCode className="h-7 w-7 text-primary" />
-                Intelligent Messaging with Gemini AI
+                Feature Integrated
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <CardDescription className="text-base text-muted-foreground mb-6">
-                AutoBiz Finance now uses Gemini AI to help you generate contextual and professional replies to customer WhatsApp messages. Enhance customer satisfaction and operational efficiency for your SME in Gurugram.
+                This feature is now part of the **AI WhatsApp Assistant**. Use Gemini AI to generate contextual and professional replies to customer messages, enhancing customer satisfaction and operational efficiency.
               </CardDescription>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-2">

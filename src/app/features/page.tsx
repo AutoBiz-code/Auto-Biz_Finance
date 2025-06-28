@@ -1,6 +1,18 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Package, BarChartHorizontalBig, Users, DatabaseBackup, MessageCircleCode } from "lucide-react";
+import { 
+  FileText, 
+  Package, 
+  BarChartHorizontalBig, 
+  Users, 
+  DatabaseBackup, 
+  MessageCircleCode,
+  BookOpenCheck,
+  Landmark,
+  Banknote,
+  ShieldCheck,
+  Plug
+} from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -24,12 +36,12 @@ const features = [
     link: "/stock-management",
     dataAiHint: "inventory boxes"
   },
-  {
-    icon: <BarChartHorizontalBig className="h-10 w-10 text-primary mb-4" />,
-    title: "Business Reporting",
-    description: "Generate Balance Sheets, P&L statements, and analyze cash flow in real-time.",
-    link: "/business-analysis",
-    dataAiHint: "data analytics"
+   {
+    icon: <BookOpenCheck className="h-10 w-10 text-primary mb-4" />,
+    title: "Accounting & Ledger",
+    description: "Manage your chart of accounts, journal entries, and ledgers with double-entry precision.",
+    link: "/accounting",
+    dataAiHint: "accounting ledger"
   },
   {
     icon: <Users className="h-10 w-10 text-primary mb-4" />,
@@ -39,11 +51,46 @@ const features = [
     dataAiHint: "team employee"
   },
   {
+    icon: <Landmark className="h-10 w-10 text-primary mb-4" />,
+    title: "Taxation & Compliance",
+    description: "Handle GST returns, TDS/TCS, and stay compliant with automated tax calculations.",
+    link: "/taxation",
+    dataAiHint: "tax government"
+  },
+  {
+    icon: <Banknote className="h-10 w-10 text-primary mb-4" />,
+    title: "Banking & Payments",
+    description: "Reconcile bank statements, manage cheques, and track digital payments seamlessly.",
+    link: "/banking",
+    dataAiHint: "bank money"
+  },
+  {
+    icon: <BarChartHorizontalBig className="h-10 w-10 text-primary mb-4" />,
+    title: "Business Reporting",
+    description: "Generate Balance Sheets, P&L statements, and analyze cash flow in real-time.",
+    link: "/business-analysis",
+    dataAiHint: "data analytics"
+  },
+  {
     icon: <DatabaseBackup className="h-10 w-10 text-primary mb-4" />,
     title: "Data Backup & Restore",
     description: "Securely back up your company data to the cloud and restore it anytime.",
     link: "/data-backup",
     dataAiHint: "server database"
+  },
+  {
+    icon: <ShieldCheck className="h-10 w-10 text-primary mb-4" />,
+    title: "Security & Access",
+    description: "Control user roles and permissions, and view audit logs to keep your data secure.",
+    link: "/security",
+    dataAiHint: "security shield"
+  },
+  {
+    icon: <Plug className="h-10 w-10 text-primary mb-4" />,
+    title: "Integrations",
+    description: "Connect with third-party apps, export data, and extend your functionality.",
+    link: "/integrations",
+    dataAiHint: "api integration"
   },
   {
     icon: <MessageCircleCode className="h-10 w-10 text-primary mb-4" />,

@@ -31,6 +31,11 @@ import {
   Users,
   DatabaseBackup,
   Loader2,
+  BookOpenCheck,
+  Landmark,
+  Banknote,
+  ShieldCheck,
+  Plug
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,9 +51,14 @@ const mainNavItems = [
 const featureNavItems = [
   { href: "/gst-billing", label: "GST Billing", icon: FileText },
   { href: "/stock-management", label: "Inventory", icon: Package },
-  { href: "/business-analysis", label: "Reporting", icon: BarChartHorizontalBig },
+  { href: "/accounting", label: "Accounting", icon: BookOpenCheck },
   { href: "/payroll", label: "Payroll", icon: Users },
+  { href: "/taxation", label: "Taxation", icon: Landmark },
+  { href: "/banking", label: "Banking", icon: Banknote },
+  { href: "/business-analysis", label: "Reporting", icon: BarChartHorizontalBig },
   { href: "/data-backup", label: "Data Backup", icon: DatabaseBackup },
+  { href: "/security", label: "Security", icon: ShieldCheck },
+  { href: "/integrations", label: "Integrations", icon: Plug },
   { href: "/whatsapp-auto-reply", label: "AI Assistant", icon: MessageCircleCode },
 ];
 

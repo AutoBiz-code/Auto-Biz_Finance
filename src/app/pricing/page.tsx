@@ -59,11 +59,6 @@ const pricingPlans = [
 ];
 
 export default function PricingPage() {
-  const [currentDate, setCurrentDate] = useState('');
-
-  useEffect(() => {
-    setCurrentDate(new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
-  }, []);
 
   return (
     <div className="space-y-12 fade-in">
@@ -110,11 +105,6 @@ export default function PricingPage() {
         ))}
       </div>
       
-      {currentDate && (
-        <p className="text-center text-xs text-muted-foreground/70 mt-8">
-          Pricing effective as of: {currentDate}.
-        </p>
-      )}
     </div>
   );
 }

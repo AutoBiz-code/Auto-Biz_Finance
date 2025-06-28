@@ -24,10 +24,12 @@ import {
   UserPlus,
   UserCircle as UserIcon,
   PanelLeft,
-  FileText, // GST Billing
-  MessageCircleCode, // WhatsApp Auto-Reply (AI)
-  Package, // Stock Management
-  BarChartHorizontalBig, // Business Analysis
+  FileText,
+  MessageCircleCode,
+  Package,
+  BarChartHorizontalBig,
+  Users,
+  DatabaseBackup,
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,15 +38,18 @@ import { useToast } from "@/hooks/use-toast";
 
 const mainNavItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/features", label: "Features", icon: Rocket },
   { href: "/pricing", label: "Pricing", icon: DollarSign },
   { href: "/communication-preferences", label: "Preferences", icon: Settings },
 ];
 
 const featureNavItems = [
   { href: "/gst-billing", label: "GST Billing", icon: FileText },
-  { href: "/whatsapp-auto-reply", label: "AI WhatsApp Reply", icon: MessageCircleCode },
-  { href: "/stock-management", label: "Stock Management", icon: Package },
-  { href: "/business-analysis", label: "Business Analysis", icon: BarChartHorizontalBig },
+  { href: "/stock-management", label: "Inventory", icon: Package },
+  { href: "/business-analysis", label: "Reporting", icon: BarChartHorizontalBig },
+  { href: "/payroll", label: "Payroll", icon: Users },
+  { href: "/data-backup", label: "Data Backup", icon: DatabaseBackup },
+  { href: "/whatsapp-auto-reply", label: "AI Assistant", icon: MessageCircleCode },
 ];
 
 export function AppSidebar() {

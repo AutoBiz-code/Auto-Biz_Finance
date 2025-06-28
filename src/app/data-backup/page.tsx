@@ -1,11 +1,69 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { DatabaseBackup, Loader2, HardDriveDownload, History } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, DatabaseBackup, Construction } from "lucide-react";
+import { createBackupAction, restoreBackupAction } from "@/actions/autobiz-features";
+import { format } from 'date-fns';
+
+interface Backup {
+  id: string;
+  createdAt: Date;
+  size: string; // e.g. "15.2 MB"
+}
 
 export default function DataBackupPage() {
   const { loading: authLoading } = useAuth();
+  const { toast } = useToast();
+
+  const [backups, setBackups] = useState<Backup[]>([]);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isRestoring, setIsRestoring] = useState<string | null>(null);
+
+  // Load initial backups (simulation)
+  useEffect(() => {
+    // In a real app, you'd fetch this list from Firestore
+    const mockBackups: Backup[] = [
+      { id: crypto.randomUUID(), createdAt: new Date(new Date().setDate(new Date().getDate() - 7)), size: "14.8 MB" },
+      { id: crypto.randomUUID(), createdAt: new Date(new Date().setDate(new Date().getDate() - 1)), size: "15.1 MB" },
+    ];
+    setBackups(mockBackups);
+  }, []);
+
+  const handleCreateBackup = async () => {
+    setIsBackingUp(true);
+    try {
+      const newBackupData = await createBackupAction({ userId: "guest-user" });
+      const newBackup: Backup = {
+        id: newBackupData.backupId,
+        createdAt: new Date(newBackupData.createdAt),
+        size: newBackupData.size
+      };
+      setBackups(prev => [newBackup, ...prev]);
+      toast({ title: "Backup Created", description: `Successfully created backup ${newBackup.id}.` });
+    } catch (error: any) {
+       toast({ title: "Error", description: error.message || "Failed to create backup.", variant: "destructive" });
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  const handleRestoreBackup = async (backupId: string) => {
+    setIsRestoring(backupId);
+    try {
+      await restoreBackupAction({ backupId });
+      toast({ title: "Restore Initiated", description: `Restoring data from backup ${backupId}. The application may be temporarily unavailable.` });
+      // In a real app, you might poll for status or refresh the page after a delay
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to restore backup.", variant: "destructive" });
+    } finally {
+      setIsRestoring(null);
+    }
+  };
+
 
   if (authLoading) {
     return (
@@ -15,8 +73,6 @@ export default function DataBackupPage() {
     );
   }
   
-  // No longer checking for user to allow guest access
-  
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
@@ -24,26 +80,60 @@ export default function DataBackupPage() {
         <p className="mt-2 text-muted-foreground">Securely back up your company data to the cloud and restore it anytime.</p>
       </header>
 
-      <Card className="max-w-2xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-card-foreground">
-            <DatabaseBackup className="h-6 w-6 text-primary" />
-            Backup & Restore
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            This section is currently under development.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center text-center py-12">
-            <Construction className="h-24 w-24 text-primary/50 mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">
-                Coming Soon!
-            </p>
-            <p className="text-sm text-muted-foreground mt-2 max-w-md">
-                This feature will allow you to perform secure, one-click backups of your critical financial data to the cloud. You'll also be able to restore your data from a previous backup point with ease.
-            </p>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Card className="shadow-xl bg-card text-card-foreground border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-card-foreground">
+              <DatabaseBackup className="h-6 w-6 text-primary" />
+              Create Backup
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Create a secure, point-in-time backup of all your company data.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                  This will save a snapshot of all your current invoices, customers, products, and transactions. It's recommended to do this regularly.
+              </p>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={handleCreateBackup} className="w-full btn-tally-gradient" disabled={isBackingUp}>
+                {isBackingUp ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                {isBackingUp ? "Backing up..." : "Backup Now"}
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Card className="shadow-xl bg-card text-card-foreground border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-card-foreground">
+              <History className="h-6 w-6 text-primary" />
+              Backup History
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Restore your data from a previous backup point.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {backups.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">No backups found.</p>
+            ) : (
+              backups.map(backup => (
+                <div key={backup.id} className="flex items-center justify-between p-3 rounded-md border bg-input/50">
+                  <div>
+                    <p className="font-medium text-foreground">{format(backup.createdAt, 'PPP p')}</p>
+                    <p className="text-xs text-muted-foreground">Size: {backup.size} | ID: ...{backup.id.slice(-6)}</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => handleRestoreBackup(backup.id)} disabled={isRestoring === backup.id}>
+                    {isRestoring === backup.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <HardDriveDownload className="mr-2 h-4 w-4"/>}
+                    Restore
+                  </Button>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

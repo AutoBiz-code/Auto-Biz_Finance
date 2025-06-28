@@ -77,3 +77,55 @@ export async function analyzeBusinessDataAction(params: BusinessAnalysisParams) 
   };
   return { success: true, message: "Business data analysis completed.", analysisData };
 }
+
+// --- NEW ACTIONS for Payroll and Backup ---
+
+interface EmployeeParams {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  salary: number;
+}
+
+export async function addEmployeeAction(params: EmployeeParams) {
+  console.log("Server Action: Adding new employee:", params);
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  if (Math.random() < 0.1) throw new Error("Simulated error adding employee.");
+  return { success: true, message: "Employee added." };
+}
+
+interface ProcessPayrollParams {
+  employeeId: string;
+}
+
+export async function processPayrollAction(params: ProcessPayrollParams) {
+  console.log("Server Action: Processing payroll for employee:", params.employeeId);
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  if (Math.random() < 0.1) throw new Error("Simulated error processing payroll.");
+  return { success: true, message: "Payroll processed." };
+}
+
+interface CreateBackupParams {
+  userId: string;
+}
+
+export async function createBackupAction(params: CreateBackupParams) {
+  console.log("Server Action: Creating backup for user:", params.userId);
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  if (Math.random() < 0.1) throw new Error("Simulated backup creation error.");
+  const newId = `bkp_${crypto.randomUUID()}`;
+  const size = (Math.random() * 5 + 12).toFixed(1); // 12.0 - 17.0 MB
+  return { success: true, backupId: newId, createdAt: new Date().toISOString(), size: `${size} MB` };
+}
+
+interface RestoreBackupParams {
+  backupId: string;
+}
+
+export async function restoreBackupAction(params: RestoreBackupParams) {
+  console.log("Server Action: Restoring from backup:", params.backupId);
+  await new Promise(resolve => setTimeout(resolve, 3000));
+  if (Math.random() < 0.1) throw new Error("Simulated backup restore error.");
+  return { success: true, message: "Restore process started successfully." };
+}

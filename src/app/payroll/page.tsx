@@ -1,11 +1,95 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, type FormEvent } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Users, Loader2, PlusCircle, Trash2, DollarSign } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Users, Construction } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { addEmployeeAction, processPayrollAction } from "@/actions/autobiz-features"; // Placeholder
+
+interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  salary: number;
+}
 
 export default function PayrollPage() {
   const { loading: authLoading } = useAuth();
+  const { toast } = useToast();
+  
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
+
+  // Form state
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [department, setDepartment] = useState("");
+  const [salary, setSalary] = useState("");
+
+  const handleAddEmployee = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!name || !email || !department || !salary) {
+      toast({ title: "Missing Information", description: "Please fill out all employee details.", variant: "destructive" });
+      return;
+    }
+    const salaryNum = parseFloat(salary);
+    if (isNaN(salaryNum) || salaryNum <= 0) {
+      toast({ title: "Invalid Salary", description: "Please enter a valid positive salary.", variant: "destructive" });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const newEmployee = {
+        id: crypto.randomUUID(), // Temp ID for client-side
+        name,
+        email,
+        department,
+        salary: salaryNum
+      };
+      
+      await addEmployeeAction({ ...newEmployee });
+      
+      setEmployees(prev => [...prev, newEmployee]);
+      toast({ title: "Employee Added", description: `${name} has been added successfully.` });
+      
+      // Reset form
+      setName("");
+      setEmail("");
+      setDepartment("");
+      setSalary("");
+
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to add employee.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  const handleProcessPayroll = async (employeeId: string, employeeName: string) => {
+    setIsProcessing(employeeId);
+    try {
+      await processPayrollAction({ employeeId });
+      toast({ title: "Payroll Processed", description: `Payroll for ${employeeName} has been processed.` });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to process payroll.", variant: "destructive" });
+    } finally {
+      setIsProcessing(null);
+    }
+  };
+
+  const handleRemoveEmployee = (employeeId: string) => {
+    setEmployees(prev => prev.filter(emp => emp.id !== employeeId));
+    toast({ title: "Employee Removed", description: "The employee has been removed from the list." });
+  };
+
 
   if (authLoading) {
     return (
@@ -15,8 +99,6 @@ export default function PayrollPage() {
     );
   }
 
-  // No longer checking for user to allow guest access
-
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
@@ -24,26 +106,90 @@ export default function PayrollPage() {
         <p className="mt-2 text-muted-foreground">Manage your employees, process salaries, and handle compliance.</p>
       </header>
 
-      <Card className="max-w-2xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-card-foreground">
-            <Users className="h-6 w-6 text-primary" />
-            Payroll Features
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            This section is currently under development.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center text-center py-12">
-            <Construction className="h-24 w-24 text-primary/50 mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">
-                Coming Soon!
-            </p>
-            <p className="text-sm text-muted-foreground mt-2 max-w-md">
-                We're hard at work building a comprehensive payroll management system. Soon, you'll be able to manage employee records, process salaries, and generate compliance reports right from here.
-            </p>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
+           <Card className="shadow-xl bg-card text-card-foreground border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-card-foreground">
+                <PlusCircle className="h-6 w-6 text-primary" />
+                Add New Employee
+              </CardTitle>
+            </CardHeader>
+            <form onSubmit={handleAddEmployee}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="employeeName">Full Name</Label>
+                    <Input id="employeeName" value={name} onChange={e => setName(e.target.value)} placeholder="e.g., Rohan Sharma" required/>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="employeeEmail">Email</Label>
+                    <Input id="employeeEmail" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g., rohan@example.com" required/>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="employeeDept">Department</Label>
+                    <Input id="employeeDept" value={department} onChange={e => setDepartment(e.target.value)} placeholder="e.g., Sales" required/>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="employeeSalary">Salary (Monthly, INR)</Label>
+                    <Input id="employeeSalary" type="number" value={salary} onChange={e => setSalary(e.target.value)} placeholder="e.g., 50000" required/>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" className="w-full btn-tally-gradient" disabled={isSaving}>
+                      {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                      {isSaving ? "Saving..." : "Add Employee"}
+                  </Button>
+                </CardFooter>
+            </form>
+           </Card>
+        </div>
+        <div className="lg:col-span-2">
+            <Card className="shadow-xl bg-card text-card-foreground border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-card-foreground">
+                <Users className="h-6 w-6 text-primary" />
+                Employee List
+              </CardTitle>
+              <CardDescription>
+                View and manage payroll for all your employees.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {employees.length === 0 ? (
+                 <p className="text-muted-foreground text-center py-8">No employees added yet. Use the form to add your first employee.</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Department</TableHead>
+                      <TableHead className="text-right">Salary (INR)</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {employees.map((emp) => (
+                      <TableRow key={emp.id}>
+                        <TableCell className="font-medium">{emp.name}<br/><span className="text-xs text-muted-foreground">{emp.email}</span></TableCell>
+                        <TableCell>{emp.department}</TableCell>
+                        <TableCell className="text-right">{emp.salary.toLocaleString('en-IN')}</TableCell>
+                        <TableCell className="flex items-center justify-center gap-2">
+                            <Button size="sm" onClick={() => handleProcessPayroll(emp.id, emp.name)} disabled={isProcessing === emp.id} className="btn-tally-gradient">
+                                {isProcessing === emp.id ? <Loader2 className="h-4 w-4 animate-spin"/> : <DollarSign className="h-4 w-4"/>}
+                            </Button>
+                            <Button variant="destructive" size="sm" onClick={() => handleRemoveEmployee(emp.id)} disabled={!!isProcessing}>
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

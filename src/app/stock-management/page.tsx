@@ -26,7 +26,6 @@ export default function StockManagementPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // No longer checking for user sign-in
 
     if (!itemName || !quantity || !price) {
       toast({ title: "Missing Information", description: "Please fill out at least Item Name, Quantity, and Price.", variant: "destructive" });
@@ -46,7 +45,6 @@ export default function StockManagementPage() {
 
     setIsLoading(true);
     try {
-      // In a real app, this would call a server action that saves/updates data in Firestore
       const result = await updateStockAction({ 
         userId: user?.uid || "guest-user", 
         itemName, 
@@ -58,9 +56,10 @@ export default function StockManagementPage() {
       });
       
       toast({
-        title: "Stock Updated (Simulated)",
-        description: `${itemName} stock details saved. Message: ${result.message}`,
+        title: "Stock Updated",
+        description: result.message,
       });
+      // Clear form on success
       setItemName("");
       setQuantity("");
       setPrice("");
@@ -98,7 +97,7 @@ export default function StockManagementPage() {
             Update Stock Item
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Enter item details to add to or update your stock records.
+            Enter item details to add to or update your stock records. Fields with * are required.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>

@@ -1,6 +1,8 @@
+
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth, GoogleAuthProvider, OAuthProvider, PhoneAuthProvider } from "firebase/auth";
+import { getPerformance, Performance } from "firebase/performance";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,6 +19,7 @@ let auth: Auth;
 let googleProvider: GoogleAuthProvider;
 let appleProvider: OAuthProvider;
 let phoneProvider: PhoneAuthProvider;
+let performance: Performance;
 
 
 // This check is important to avoid server-side initialization
@@ -32,8 +35,9 @@ if (typeof window !== "undefined") {
   googleProvider = new GoogleAuthProvider();
   appleProvider = new OAuthProvider('apple.com');
   phoneProvider = new PhoneAuthProvider(auth);
+  performance = getPerformance(app);
 
 }
 
 // @ts-ignore
-export { app, auth, googleProvider, appleProvider, phoneProvider };
+export { app, auth, googleProvider, appleProvider, phoneProvider, performance };

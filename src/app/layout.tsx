@@ -52,6 +52,8 @@ export default function RootLayout({
       <head>
         <title>AutoBiz Finance</title>
         <meta name="description" content="Automate your business finances with AI-powered tools for Indian SMEs." />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#ff6200" />
       </head>
       <body className="font-body antialiased">
         <AuthProvider>

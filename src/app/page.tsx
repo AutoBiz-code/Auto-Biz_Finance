@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { FileText, MessageSquareText, Package, UserCircle as UserIcon, Loader2, Banknote, Clock, Zap, BarChartHorizontalBig, Lightbulb } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import React from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import React, { Suspense, lazy } from "react";
+
+const RevenueChart = lazy(() => import('@/components/features/RevenueChart'));
 
 interface Metric {
   title: string;
@@ -18,22 +18,6 @@ interface Metric {
   description?: string;
   actionPath?: string;
 }
-
-const chartData = [
-  { month: 'Jan', revenue: 4000 },
-  { month: 'Feb', revenue: 3000 },
-  { month: 'Mar', revenue: 5000 },
-  { month: 'Apr', revenue: 4500 },
-  { month: 'May', revenue: 6000 },
-  { month: 'Jun', revenue: 5500 },
-];
-
-const chartConfig = {
-  revenue: {
-    label: "Revenue",
-    color: "hsl(var(--chart-1))",
-  },
-};
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -147,30 +131,13 @@ export default function DashboardPage() {
 
       <section aria-labelledby="revenue-overview">
          <h2 id="revenue-overview" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.3s'}}>Revenue Overview</h2>
-         <Card className="shadow-lg bg-card text-card-foreground fade-in" style={{ animationDelay: '0.4s' }}>
-          <CardHeader>
-            <CardTitle>Monthly Revenue</CardTitle>
-            <CardDescription>A look at your revenue over the past 6 months.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-              <BarChart accessibilityLayer data={chartData}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" />}
-                />
-                <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-         </Card>
+         <Suspense fallback={
+            <Card className="shadow-lg bg-card text-card-foreground flex justify-center items-center min-h-[348px]">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </Card>
+         }>
+           <RevenueChart />
+         </Suspense>
       </section>
 
       <section aria-labelledby="quick-actions">

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   FileText, 
@@ -18,7 +17,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Features | AutoBiz Finance",
-  description: "Discover the powerful accounting and management features of AutoBiz Finance, inspired by TallyPrime.",
+  description: "Discover the powerful accounting and management features of AutoBiz Finance for Indian SMEs.",
 };
 
 const features = [
@@ -105,7 +104,7 @@ export default function FeaturesPage() {
   return (
     <div className="space-y-12 fade-in">
       <div className="text-center">
-        <h1 className="text-4xl font-headline font-bold text-foreground">A TallyPrime Alternative, Reimagined</h1>
+        <h1 className="text-4xl font-headline font-bold text-foreground">All-in-One Financial Platform</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
           AutoBiz Finance provides a suite of intelligent tools designed for Indian SMEs, covering everything from accounting and GST to payroll and inventory.
         </p>

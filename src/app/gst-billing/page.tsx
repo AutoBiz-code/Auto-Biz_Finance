@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Loader2, PlusCircle, Trash2, Building, RefreshCw } from "lucide-react";
+import { FileText, Loader2, PlusCircle, Trash2, Building, RefreshCw, Landmark } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateGstPdfAction, type GstPdfItem } from "@/actions/autobiz-features";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -25,6 +25,11 @@ export default function GstBillingPage() {
   const [companyGstin, setCompanyGstin] = useState("");
   const [companyEmail, setCompanyEmail] = useState("");
   const [companyPhone, setCompanyPhone] = useState("");
+
+  // Bank Details
+  const [bankName, setBankName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
 
   // Customer Details
   const [customerName, setCustomerName] = useState("");
@@ -117,6 +122,9 @@ export default function GstBillingPage() {
         companyGstin,
         companyEmail,
         companyPhone,
+        bankName,
+        accountNumber,
+        ifscCode,
         customerName,
         customerAddress,
         customerPhone,
@@ -204,6 +212,31 @@ export default function GstBillingPage() {
 
             <hr className="border-border/50" />
 
+            {/* Bank Details */}
+            <section>
+              <h3 className="text-xl font-medium text-card-foreground mb-4 flex items-center gap-2">
+                <Landmark className="h-5 w-5 text-primary" /> Bank Details (Optional)
+              </h3>
+              <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="bankName" className="text-card-foreground">Bank Name</Label>
+                      <Input id="bankName" value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g., HDFC Bank" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="ifscCode" className="text-card-foreground">IFSC Code</Label>
+                      <Input id="ifscCode" value={ifscCode} onChange={(e) => setIfscCode(e.target.value)} placeholder="e.g., HDFC0000001" />
+                    </div>
+                  </div>
+                   <div className="space-y-2">
+                      <Label htmlFor="accountNumber" className="text-card-foreground">Account Number</Label>
+                      <Input id="accountNumber" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder="Your Company's Bank Account Number" />
+                    </div>
+              </div>
+            </section>
+
+            <hr className="border-border/50" />
+
             {/* Customer Details */}
             <section>
               <h3 className="text-xl font-medium text-card-foreground mb-4">Customer Details</h3>
@@ -249,7 +282,7 @@ export default function GstBillingPage() {
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                       <div className="md:col-span-2 space-y-1">
                         <Label htmlFor={`itemName-${index}`} className="text-xs">Item Name</Label>
-                        <Input id={`itemName-${index}`} value={item.name} onChange={(e) => handleItemChange(index, "name", e.target.value)} placeholder="Product/Service Name" required />
+                        <Input id={`itemName-${index}`} value={item.name} onChange={(e) => handleItemchange(index, "name", e.target.value)} placeholder="Product/Service Name" required />
                       </div>
                       <div className="space-y-1">
                         <Label htmlFor={`quantity-${index}`} className="text-xs">Quantity</Label>

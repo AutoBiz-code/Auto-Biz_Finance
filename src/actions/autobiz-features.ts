@@ -21,6 +21,10 @@ interface GstPdfParams {
   companyGstin: string;
   companyEmail: string; // Made mandatory
   companyPhone?: string;
+  // Bank Details
+  bankName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
   // Customer Details
   customerName: string;
   customerAddress: string;

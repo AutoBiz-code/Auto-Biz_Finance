@@ -1,53 +1,60 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpenCheck, DollarSign, FileClock, Scale, TrendingUp } from "lucide-react";
 import type { Metadata } from "next";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DollarSign, FileClock, Scale, TrendingUp, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GeneralLedger } from "@/components/features/GeneralLedger";
 
 export const metadata: Metadata = {
   title: "Accounting & Ledger | AutoBiz Finance",
   description: "Manage your chart of accounts, journal entries, ledgers, and financial statements.",
 };
 
-const accountingFeatures = [
-    { icon: <BookOpenCheck className="h-6 w-6 text-primary" />, name: "General Ledger", description: "The master record of all financial transactions." },
-    { icon: <DollarSign className="h-6 w-6 text-primary" />, name: "Accounts Receivable & Payable", description: "Track money owed to you and money you owe." },
-    { icon: <Scale className="h-6 w-6 text-primary" />, name: "Budgeting & Forecasting", description: "Plan and project your financial future." },
-    { icon: <TrendingUp className="h-6 w-6 text-primary" />, name: "Profitability Analysis", description: "Analyze performance by cost centers." },
-    { icon: <FileClock className="h-6 w-6 text-primary" />, name: "Financial Statements", description: "Generate Balance Sheets, P&L, and Cash Flow statements." },
+const otherFeatures = [
+    { icon: <DollarSign className="h-6 w-6 text-primary" />, name: "Accounts Receivable & Payable" },
+    { icon: <Scale className="h-6 w-6 text-primary" />, name: "Budgeting & Forecasting" },
+    { icon: <TrendingUp className="h-6 w-6 text-primary" />, name: "Profitability Analysis" },
+    { icon: <FileClock className="h-6 w-6 text-primary" />, name: "Financial Statements" },
 ];
+
 
 export default function AccountingPage() {
   return (
     <div className="space-y-8 fade-in">
-      <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold text-foreground">Accounting & Financial Management</h1>
-        <p className="mt-2 text-muted-foreground">The core of your financial operations. This module is under active development.</p>
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-headline font-semibold text-foreground">Accounting & Financial Management</h1>
+          <p className="mt-2 text-muted-foreground">The core of your financial operations, featuring the General Ledger.</p>
+        </div>
+        <Button className="btn-tally-gradient">
+            <Filter className="mr-2 h-4 w-4" />
+            Filter by Date
+        </Button>
       </header>
       
-      <Card className="shadow-lg bg-card text-card-foreground">
-        <CardHeader>
-          <CardTitle className="text-card-foreground">
-            Core Accounting Features
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            We are building a robust, double-entry accounting system to ensure accuracy and compliance.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {accountingFeatures.map(feature => (
-                    <div key={feature.name} className="flex items-start gap-4 p-4 rounded-lg border bg-input/50">
-                        {feature.icon}
-                        <div>
-                            <h3 className="font-semibold text-card-foreground">{feature.name}</h3>
-                            <p className="text-sm text-muted-foreground">{feature.description}</p>
-                        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* General Ledger takes up the full width on mobile, and 2/3 on desktop */}
+        <GeneralLedger />
+
+        {/* Other features sidebar */}
+        <div className="space-y-6 lg:col-span-1">
+            <Card className="shadow-lg bg-card text-card-foreground">
+                <CardHeader>
+                    <CardTitle className="text-card-foreground">Other Modules</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                    <div className="space-y-4">
+                        {otherFeatures.map(feature => (
+                            <div key={feature.name} className="flex items-center gap-4 p-3 rounded-lg border bg-input/50 hover:bg-accent transition-colors cursor-pointer">
+                                {feature.icon}
+                                <h3 className="font-semibold text-card-foreground">{feature.name}</h3>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
-             <p className="mt-6 text-center text-sm text-primary font-medium">Full functionality for these features is coming soon!</p>
-        </CardContent>
-      </Card>
+                </CardContent>
+            </Card>
+        </div>
+      </div>
     </div>
   );
 }

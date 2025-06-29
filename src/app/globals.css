@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    /* Blue, Green, Orange Theme (Light) */
-    --background: 216 33% 98%; /* #F9FAFB */
+    /* Orange Theme (Light) */
+    --background: 25 95% 95%; /* #FFF6F2 */
     --foreground: 215 28% 21%; /* #1F2937 */
 
-    --card: 0 0% 100%; /* #FFFFFF */
-    --card-foreground: 215 28% 21%; /* #1F2937 */
+    --card: 25 95% 98%; /* #FFFCFA */
+    --card-foreground: 215 28% 21%;
 
-    --popover: 0 0% 100%;
+    --popover: 25 95% 98%;
     --popover-foreground: 215 28% 21%;
 
     --primary: 224 82% 57%; /* Blue */
@@ -23,26 +23,26 @@
     --accent: 25 95% 53%; /* Orange */
     --accent-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 25 90% 92%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 25 80% 88%;
+    --input: 25 80% 88%;
     --ring: 224 82% 57%; /* Blue */
 
     --radius: 0.5rem; /* 8px */
 
     /* Sidebar specific theme (aligned with main theme) */
-    --sidebar-background: 0 0% 100%;
+    --sidebar-background: 25 95% 98%;
     --sidebar-foreground: 215 28% 21%;
     --sidebar-primary: 224 82% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent: 25 90% 92%;
     --sidebar-accent-foreground: 215 28% 21%;
-    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-border: 25 80% 88%;
     --sidebar-ring: 224 82% 57%;
 
     /* Chart Colors */

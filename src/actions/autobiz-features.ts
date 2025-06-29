@@ -135,3 +135,19 @@ export async function restoreBackupAction(params: RestoreBackupParams) {
   if (Math.random() < 0.1) throw new Error("Simulated backup restore error.");
   return { success: true, message: "Restore process started successfully." };
 }
+
+// --- NEW ACTION for GST Filing ---
+interface FileGstReturnParams {
+  gstin: string;
+  period: string; // e.g. "10-2023" for Oct 2023
+}
+
+export async function fileGstReturnAction(params: FileGstReturnParams) {
+  console.log("Server Action: Filing GSTR-1 for:", params.gstin, "for period:", params.period);
+  // Simulate filing with a government portal
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  if (Math.random() < 0.1) throw new Error("Simulated GSTN communication error.");
+  
+  const arn = `ARN${Date.now()}${Math.floor(Math.random() * 100)}`;
+  return { success: true, message: `GSTR-1 successfully filed. Acknowledgement Reference Number (ARN): ${arn}` };
+}

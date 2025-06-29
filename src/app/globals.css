@@ -4,15 +4,15 @@
 
 @layer base {
   :root {
-    /* Darker Yellow Theme (Light) */
-    --background: 45 50% 96%; /* Cream/Beige */
-    --foreground: 215 28% 21%; /* #1F2937 */
+    /* Vibrant Yellow Theme (Light) based on #f7f05c */
+    --background: 56 90% 96%; /* Very Light Yellow */
+    --foreground: 215 28% 17%; /* Darker Blue/Grey for contrast */
 
-    --card: 45 50% 98%; /* Lighter Cream */
-    --card-foreground: 215 28% 21%;
+    --card: 56 90% 98%; /* Even Lighter Yellow/White */
+    --card-foreground: 215 28% 17%;
 
-    --popover: 45 50% 98%;
-    --popover-foreground: 215 28% 21%;
+    --popover: 56 90% 98%;
+    --popover-foreground: 215 28% 17%;
 
     --primary: 224 82% 57%; /* Blue */
     --primary-foreground: 0 0% 100%; /* White */
@@ -20,35 +20,35 @@
     --secondary: 174 80% 39%; /* Green */
     --secondary-foreground: 0 0% 100%;
     
-    --accent: 45 95% 51%; /* Darker/Rich Yellow */
-    --accent-foreground: 215 28% 15%; /* Darker text for better contrast */
+    --accent: 56 90% 67%; /* #f7f05c */
+    --accent-foreground: 215 28% 15%; /* Dark text for better contrast */
 
-    --muted: 45 45% 92%;
+    --muted: 56 85% 92%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 45 40% 88%;
-    --input: 45 40% 88%;
+    --border: 56 80% 88%;
+    --input: 56 80% 88%;
     --ring: 224 82% 57%; /* Blue */
 
     --radius: 0.5rem; /* 8px */
 
     /* Sidebar specific theme (aligned with main theme) */
-    --sidebar-background: 45 50% 98%;
-    --sidebar-foreground: 215 28% 21%;
+    --sidebar-background: 56 90% 98%;
+    --sidebar-foreground: 215 28% 17%;
     --sidebar-primary: 224 82% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 45 45% 92%;
-    --sidebar-accent-foreground: 215 28% 21%;
-    --sidebar-border: 45 40% 88%;
+    --sidebar-accent: 56 85% 92%;
+    --sidebar-accent-foreground: 215 28% 17%;
+    --sidebar-border: 56 80% 88%;
     --sidebar-ring: 224 82% 57%;
 
     /* Chart Colors */
     --chart-1: 224 82% 57%; /* Blue */
     --chart-2: 174 80% 39%; /* Green */
-    --chart-3: 45 95% 51%;  /* Darker Yellow */
+    --chart-3: 56 90% 67%;  /* Vibrant Yellow */
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }

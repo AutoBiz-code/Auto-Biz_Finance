@@ -60,8 +60,8 @@ const prompt = ai.definePrompt({
 Generate a single, self-contained HTML5 document based on the provided JSON data.
 
 **Key Requirements:**
-1.  **Structure:** Use a standard HTML5 boilerplate (`<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`).
-2.  **Styling:** All CSS must be contained within a single `<style>` tag in the `<head>`. Do not use external stylesheets or inline `style` attributes on elements.
+1.  **Structure:** Use a standard HTML5 boilerplate ('<!DOCTYPE html>', '<html>', '<head>', '<body>').
+2.  **Styling:** All CSS must be contained within a single '<style>' tag in the '<head>'. Do not use external stylesheets or inline 'style' attributes on elements.
 3.  **Layout:** Create a clean, modern, two-column layout where company and customer details are clearly separated. Use flexbox or grid for layout. The design should be print-friendly (A4 size).
 4.  **Content:**
     *   Clearly label and display "TAX INVOICE".

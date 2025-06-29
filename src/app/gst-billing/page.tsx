@@ -13,8 +13,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { generateGstPdfAction, type GstPdfItem } from "@/actions/autobiz-features";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Switch } from "@/components/ui/switch";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 
 
 interface BillItem extends GstPdfItem {
@@ -139,6 +137,9 @@ export default function GstBillingPage() {
       
       if (result.success && result.htmlContent) {
         toast({ title: "Generating PDF...", description: "Please wait while we prepare your download." });
+
+        const { default: jsPDF } = await import('jspdf');
+        const { default: html2canvas } = await import('html2canvas');
 
         const invoiceElement = document.createElement('div');
         // Set a fixed width corresponding to A4 paper for accurate rendering

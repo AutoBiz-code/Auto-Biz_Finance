@@ -55,7 +55,7 @@ const featureNavItems = [
   { href: "/payroll", label: "Payroll", icon: Users },
   { href: "/taxation", label: "Taxation", icon: Landmark },
   { href: "/banking", label: "Banking", icon: Banknote },
-  { href: "/business-analysis", label: "Reporting", icon: BarChartHorizontalBig },
+  { href: "/business-analysis", label: "Business Reporting", icon: BarChartHorizontalBig },
   { href: "/data-backup", label: "Data Backup", icon: DatabaseBackup },
   { href: "/security", label: "Security", icon: ShieldCheck },
   { href: "/integrations", label: "Integrations", icon: Plug },

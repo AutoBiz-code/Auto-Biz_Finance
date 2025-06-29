@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { BarChartHorizontalBig, Loader2, KeyRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { analyzeBusinessDataAction } from "@/actions/autobiz-features"; // Placeholder
+import { analyzeBusinessDataAction } from "@/actions/autobiz-features";
 
 export default function BusinessAnalysisPage() {
   const [razorpayKey, setRazorpayKey] = useState("");
@@ -22,7 +22,7 @@ export default function BusinessAnalysisPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // No longer checking for user sign-in
+    setAnalysisResult(null);
 
     // Basic validation for key presence, real validation would be more complex
     if (!razorpayKey && !whatsappKey && !botpressKey) {
@@ -31,22 +31,19 @@ export default function BusinessAnalysisPage() {
     }
 
     setIsLoading(true);
-    setAnalysisResult(null);
     try {
       // In a real app, this server action would securely trigger a Cloud Function.
       // The Cloud Function would use these keys to fetch data from the respective APIs.
-      // IMPORTANT: Handling API keys client-side like this is NOT secure for production.
-      // They should be managed server-side (e.g., stored securely per user and used by Cloud Functions).
       const result = await analyzeBusinessDataAction({ userId: user?.uid || "guest-user", razorpayKey, whatsappKey, botpressKey });
       
-      setAnalysisResult(result.analysisData); // Assuming result has analysisData
+      setAnalysisResult(result.analysisData);
       toast({
-        title: "Business Analysis Initiated (Simulated)",
-        description: `Data processing started. ${result.message}`,
+        title: "Business Analysis Completed (Simulated)",
+        description: `Data processing finished. ${result.message}`,
       });
     } catch (error: any) {
       console.error("Business analysis error:", error);
-      toast({ title: "Error", description: error.message || "Failed to initiate business analysis.", variant: "destructive" });
+      toast({ title: "Error", description: error.message || "Failed to run business analysis.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -63,11 +60,11 @@ export default function BusinessAnalysisPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold text-foreground">Business Performance Analysis</h1>
+        <h1 className="text-3xl font-headline font-semibold text-foreground">Business Reporting & Analysis</h1>
         <p className="mt-2 text-muted-foreground">Connect your services to analyze payments and business data.</p>
       </header>
 
-      <Card className="max-w-xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20 hover-scale">
+      <Card className="max-w-xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-card-foreground">
             <KeyRound className="h-6 w-6 text-primary" />
@@ -83,7 +80,7 @@ export default function BusinessAnalysisPage() {
               <Label htmlFor="razorpayKey" className="text-card-foreground">Razorpay API Key (Illustrative)</Label>
               <Input
                 id="razorpayKey"
-                type="password" // Use password type for sensitive-looking fields
+                type="password"
                 placeholder="Enter Razorpay Key"
                 value={razorpayKey}
                 onChange={(e) => setRazorpayKey(e.target.value)}
@@ -111,7 +108,7 @@ export default function BusinessAnalysisPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full btn-metamask" disabled={isLoading || authLoading}>
+            <Button type="submit" className="w-full btn-tally-gradient" disabled={isLoading || authLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BarChartHorizontalBig className="mr-2 h-4 w-4" />}
               Analyze Business Data
             </Button>

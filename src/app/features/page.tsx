@@ -121,13 +121,6 @@ export default function FeaturesPage() {
                 </Link>
             </Button>
         </div>
-        <div className="pt-6">
-            <p className="text-sm text-muted-foreground font-semibold tracking-wider">TRUSTED BY 500+ SMEs</p>
-            <div className="flex justify-center items-center gap-12 mt-4">
-                <Image src="https://placehold.co/120x40.png" width={120} height={40} alt="Razorpay Logo" data-ai-hint="logo company" className="grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
-                <Image src="https://placehold.co/120x40.png" width={120} height={40} alt="WhatsApp Business Logo" data-ai-hint="logo company" className="grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all"/>
-            </div>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-12">

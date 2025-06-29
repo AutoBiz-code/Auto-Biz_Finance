@@ -36,13 +36,19 @@ interface GstPdfParams {
 }
 
 export async function generateGstPdfAction(params: GstPdfParams) {
-  console.info("Server Action: Attempting to generate GST PDF.", { userId: params.userId, company: params.companyName });
+  const logPayload = {
+    userId: params.userId,
+    company: params.companyName,
+    customer: params.customerName,
+    bankDetailsProvided: !!(params.bankName && params.accountNumber && params.ifscCode),
+  };
+  console.info("Server Action: Attempting to generate GST PDF.", logPayload);
   try {
     await new Promise(resolve => setTimeout(resolve, 1500));
     if (Math.random() < 0.1) throw new Error("Simulated PDF Generation Error");
     return { success: true, message: "PDF generation process started.", pdfUrl: `https://example.com/pdfs/${params.userId}_${Date.now()}.pdf` };
   } catch (error: any) {
-    console.error("Error in generateGstPdfAction", { errorMessage: error.message, stack: error.stack, params: { userId: params.userId }});
+    console.error("Error in generateGstPdfAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred during PDF generation." };
   }
 }
@@ -65,7 +71,7 @@ export async function updateStockAction(params: StockUpdateParams) {
     if (Math.random() < 0.1) throw new Error("Simulated Firestore Error during stock update");
     return { success: true, message: `Stock for ${params.itemName} updated successfully.` };
   } catch (error: any) {
-    console.error("Error in updateStockAction", { errorMessage: error.message, stack: error.stack, params: { userId: params.userId, item: params.itemName }});
+    console.error("Error in updateStockAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred during stock update." };
   }
 }
@@ -92,7 +98,7 @@ export async function analyzeBusinessDataAction(params: BusinessAnalysisParams) 
     };
     return { success: true, message: "Business data analysis completed.", analysisData };
   } catch (error: any) {
-    console.error("Error in analyzeBusinessDataAction", { errorMessage: error.message, stack: error.stack, params: { userId: params.userId }});
+    console.error("Error in analyzeBusinessDataAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred during business analysis." };
   }
 }
@@ -115,7 +121,7 @@ export async function addEmployeeAction(params: EmployeeParams) {
     if (Math.random() < 0.1) throw new Error("Simulated error adding employee.");
     return { success: true, message: "Employee added." };
   } catch (error: any) {
-    console.error("Error in addEmployeeAction", { errorMessage: error.message, stack: error.stack, params: { name: params.name }});
+    console.error("Error in addEmployeeAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred while adding employee." };
   }
 }
@@ -217,7 +223,7 @@ export async function saveApiKeysAction(params: ApiKeyParams) {
     if (Math.random() < 0.1) throw new Error("Simulated error saving API keys.");
     return { success: true, message: "API connections saved successfully." };
   } catch (error: any) {
-    console.error("Error in saveApiKeysAction", { errorMessage: error.message, stack: error.stack, userId: params.userId });
+    console.error("Error in saveApiKeysAction", { errorMessage: error.message, stack: error.stack, params });
     return { success: false, error: error.message || "An unknown error occurred while saving API keys." };
   }
 }

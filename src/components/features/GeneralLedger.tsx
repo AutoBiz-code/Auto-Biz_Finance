@@ -14,13 +14,13 @@ const ledgerEntries = [
   { id: 6, date: "2023-10-25", particulars: "Salaries Paid", debit: 25000.00, credit: 0.00, balance: 37500.00 },
 ];
 
-export function GeneralLedger() {
+export default function GeneralLedger() {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
   };
 
   return (
-    <Card className="shadow-lg bg-card text-card-foreground col-span-1 lg:col-span-3">
+    <Card className="shadow-lg bg-card text-card-foreground col-span-1 lg:col-span-2">
       <CardHeader>
         <CardTitle className="text-card-foreground">General Ledger</CardTitle>
         <CardDescription className="text-muted-foreground">

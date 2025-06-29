@@ -269,3 +269,19 @@ export async function exportReportAction(params: ExportParams) {
         return { success: false, error: error.message || "An unknown error occurred during report export." };
     }
 }
+
+// --- NEW ACTION for Bulk Reconciliation ---
+interface ReconcileTransactionsParams {
+    transactionIds: string[];
+}
+export async function reconcileTransactionsAction(params: ReconcileTransactionsParams) {
+    console.info("Server Action: Reconciling multiple transactions.", { count: params.transactionIds.length });
+    try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        if (Math.random() < 0.1) throw new Error("Simulated bulk reconciliation error.");
+        return { success: true, message: `${params.transactionIds.length} transactions have been reconciled.` };
+    } catch (error: any) {
+        console.error("Error in reconcileTransactionsAction", { errorMessage: error.message, stack: error.stack, params });
+        return { success: false, error: error.message || "An unknown error occurred during bulk reconciliation." };
+    }
+}

@@ -3,12 +3,13 @@
 
 import type { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, FileClock, Scale, TrendingUp, Filter, Download } from "lucide-react";
+import { DollarSign, FileClock, Scale, TrendingUp, Filter, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GeneralLedger } from "@/components/features/GeneralLedger";
 import { useToast } from "@/hooks/use-toast";
 import { exportReportAction } from "@/actions/autobiz-features";
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
+
+const GeneralLedger = lazy(() => import('@/components/features/GeneralLedger'));
 
 // export const metadata: Metadata = {
 //   title: "Accounting & Ledger | AutoBiz Finance",
@@ -76,8 +77,13 @@ export default function AccountingPage() {
       </header>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* General Ledger takes up the full width on mobile, and 2/3 on desktop */}
-        <GeneralLedger />
+        <Suspense fallback={
+          <div className="lg:col-span-2 flex justify-center items-center min-h-[300px]">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          </div>
+        }>
+          <GeneralLedger />
+        </Suspense>
 
         {/* Other features sidebar */}
         <div className="space-y-6 lg:col-span-1">

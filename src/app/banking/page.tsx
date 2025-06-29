@@ -6,8 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, Loader2, Scale } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { reconcileTransactionsAction } from "@/actions/autobiz-features";
 
 const mockTransactions = [
   { id: 'txn1', date: '2023-10-28', particulars: 'Cheque Deposit #123', type: 'Credit', amount: 5000, reconciled: true },
@@ -22,14 +24,19 @@ const mockTransactions = [
 async function reconcileSingleTransaction(id: string) {
   console.log("Simulating reconciliation for transaction:", id);
   await new Promise(resolve => setTimeout(resolve, 750));
-  if (Math.random() < 0.1) throw new Error("Simulated API error during reconciliation.");
-  return { success: true };
+  const result = await reconcileTransactionsAction({ transactionIds: [id] });
+  if (!result.success) {
+    throw new Error(result.error || "Simulated API error during reconciliation.");
+  }
+  return result;
 }
 
 export default function BankingPage() {
   const [transactions, setTransactions] = useState(mockTransactions);
   const [selectedBank, setSelectedBank] = useState("HDFC-XXXX1234");
   const [isReconciling, setIsReconciling] = useState<string | null>(null);
+  const [selectedTxns, setSelectedTxns] = useState(new Set<string>());
+  const [isBulkReconciling, setIsBulkReconciling] = useState(false);
   const { toast } = useToast();
 
   const handleReconcile = async (id: string) => {
@@ -44,6 +51,53 @@ export default function BankingPage() {
       setIsReconciling(null);
     }
   };
+  
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allUnreconciledIds = new Set(
+        transactions.filter(t => !t.reconciled).map(t => t.id)
+      );
+      setSelectedTxns(allUnreconciledIds);
+    } else {
+      setSelectedTxns(new Set());
+    }
+  };
+
+  const handleSelect = (id: string, checked: boolean) => {
+    setSelectedTxns(prev => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  };
+  
+  const handleReconcileSelected = async () => {
+    setIsBulkReconciling(true);
+    try {
+      const result = await reconcileTransactionsAction({ transactionIds: Array.from(selectedTxns) });
+      if (result.success) {
+        setTransactions(prev =>
+          prev.map(t => (selectedTxns.has(t.id) ? { ...t, reconciled: true } : t))
+        );
+        setSelectedTxns(new Set());
+        toast({
+          title: "Bulk Reconcile Successful",
+          description: result.message,
+        });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to reconcile transactions.", variant: "destructive" });
+      }
+    } catch (error: any) {
+      toast({ title: "Critical Error", description: "A critical error occurred while reconciling.", variant: "destructive" });
+    } finally {
+      setIsBulkReconciling(false);
+    }
+  };
+
 
   const unreconciledCount = transactions.filter(t => !t.reconciled).length;
   const balance = transactions.reduce((acc, t) => acc + t.amount, 0);
@@ -68,16 +122,22 @@ export default function BankingPage() {
                 Match your book entries with your bank statement for {selectedBank}.
               </CardDescription>
             </div>
-            <Select value={selectedBank} onValueChange={setSelectedBank}>
-              <SelectTrigger className="w-full md:w-[250px]">
-                <SelectValue placeholder="Select Bank Account" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="HDFC-XXXX1234">HDFC Bank - ****1234</SelectItem>
-                <SelectItem value="ICICI-XXXX5678">ICICI Bank - ****5678</SelectItem>
-                <SelectItem value="SBI-XXXX9012">State Bank of India - ****9012</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button onClick={handleReconcileSelected} disabled={isBulkReconciling || selectedTxns.size === 0}>
+                {isBulkReconciling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Reconcile Selected ({selectedTxns.size})
+              </Button>
+              <Select value={selectedBank} onValueChange={setSelectedBank}>
+                <SelectTrigger className="w-full sm:w-[250px]">
+                  <SelectValue placeholder="Select Bank Account" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="HDFC-XXXX1234">HDFC Bank - ****1234</SelectItem>
+                  <SelectItem value="ICICI-XXXX5678">ICICI Bank - ****5678</SelectItem>
+                  <SelectItem value="SBI-XXXX9012">State Bank of India - ****9012</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -85,6 +145,13 @@ export default function BankingPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={unreconciledCount > 0 && selectedTxns.size === unreconciledCount}
+                      onCheckedChange={handleSelectAll}
+                      aria-label="Select all unreconciled"
+                    />
+                  </TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Particulars</TableHead>
                   <TableHead className="text-right">Amount (INR)</TableHead>
@@ -93,7 +160,16 @@ export default function BankingPage() {
               </TableHeader>
               <TableBody>
                 {transactions.map(t => (
-                  <TableRow key={t.id} className={t.reconciled ? "bg-accent/50" : ""}>
+                  <TableRow key={t.id} className={t.reconciled ? "bg-accent/10" : ""}>
+                    <TableCell>
+                      {!t.reconciled && (
+                        <Checkbox
+                          checked={selectedTxns.has(t.id)}
+                          onCheckedChange={(checked) => handleSelect(t.id, checked as boolean)}
+                          aria-label={`Select transaction ${t.id}`}
+                        />
+                      )}
+                    </TableCell>
                     <TableCell>{t.date}</TableCell>
                     <TableCell className="font-medium">{t.particulars}</TableCell>
                     <TableCell className={`text-right font-mono ${t.amount >= 0 ? 'text-foreground' : 'text-destructive'}`}>
@@ -110,7 +186,7 @@ export default function BankingPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleReconcile(t.id)}
-                          disabled={!!isReconciling}
+                          disabled={!!isReconciling || isBulkReconciling}
                           className="w-[110px]"
                         >
                           {isReconciling === t.id ? (

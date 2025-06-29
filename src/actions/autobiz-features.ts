@@ -151,3 +151,19 @@ export async function fileGstReturnAction(params: FileGstReturnParams) {
   const arn = `ARN${Date.now()}${Math.floor(Math.random() * 100)}`;
   return { success: true, message: `GSTR-1 successfully filed. Acknowledgement Reference Number (ARN): ${arn}` };
 }
+
+// --- NEW ACTION for API Keys ---
+interface ApiKeyParams {
+  userId: string;
+  razorpayKey?: string;
+  whatsappKey?: string;
+  botpressKey?: string;
+}
+
+export async function saveApiKeysAction(params: ApiKeyParams) {
+  console.log("Server Action: Saving API Keys for user:", params.userId, "Keys provided:", { hasRazorpay: !!params.razorpayKey, hasWhatsApp: !!params.whatsappKey, hasBotpress: !!params.botpressKey });
+  // Simulate saving to a secure backend store (e.g., Firestore encrypted field or Secret Manager)
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  if (Math.random() < 0.1) throw new Error("Simulated error saving API keys.");
+  return { success: true, message: "API connections saved successfully." };
+}

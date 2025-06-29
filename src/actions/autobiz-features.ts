@@ -30,7 +30,7 @@ interface GstPdfParams {
 }
 
 export async function generateGstPdfAction(params: GstPdfParams) {
-  console.log("Server Action: Attempting to generate GST PDF with detailed params:", params);
+  console.info("Server Action: Attempting to generate GST PDF with detailed params:", params);
   // Simulate backend processing (e.g., calling a Cloud Function that uses LaTeX)
   await new Promise(resolve => setTimeout(resolve, 1500));
   // In a real app, you'd get a PDF URL back from the Cloud Function
@@ -51,7 +51,7 @@ interface StockUpdateParams {
 }
 
 export async function updateStockAction(params: StockUpdateParams) {
-  console.log("Server Action: Attempting to update stock:", params);
+  console.info("Server Action: Attempting to update stock:", params);
   // Simulate saving to Firestore
   await new Promise(resolve => setTimeout(resolve, 1000));
   if (Math.random() < 0.1) throw new Error("Simulated Firestore Error during stock update");
@@ -67,7 +67,7 @@ interface BusinessAnalysisParams {
 }
 
 export async function analyzeBusinessDataAction(params: BusinessAnalysisParams) {
-  console.log("Server Action: Attempting to analyze business data with provided keys (illustrative):", { userId: params.userId, hasRazorpay: !!params.razorpayKey, hasWhatsApp: !!params.whatsappKey, hasBotpress: !!params.botpressKey });
+  console.info("Server Action: Attempting to analyze business data with provided keys (illustrative):", { userId: params.userId, hasRazorpay: !!params.razorpayKey, hasWhatsApp: !!params.whatsappKey, hasBotpress: !!params.botpressKey });
   // Simulate calling a Cloud Function that fetches data from various APIs
   await new Promise(resolve => setTimeout(resolve, 2000));
   if (Math.random() < 0.1) throw new Error("Simulated Business Analysis API Error");
@@ -94,7 +94,7 @@ interface EmployeeParams {
 }
 
 export async function addEmployeeAction(params: EmployeeParams) {
-  console.log("Server Action: Adding new employee:", params);
+  console.info("Server Action: Adding new employee:", params);
   await new Promise(resolve => setTimeout(resolve, 1000));
   if (Math.random() < 0.1) throw new Error("Simulated error adding employee.");
   return { success: true, message: "Employee added." };
@@ -107,7 +107,7 @@ interface ProcessPayrollParams {
 
 // Updated to match the logic in the user's brief
 export async function processPayrollAction(params: ProcessPayrollParams) {
-  console.log("Server Action: Processing payroll for employee:", params.employeeId);
+  console.info("Server Action: Processing payroll for employee:", params.employeeId);
   await new Promise(resolve => setTimeout(resolve, 1500));
   if (Math.random() < 0.1) throw new Error("Simulated error processing payroll.");
   
@@ -129,7 +129,7 @@ interface CreateBackupParams {
 }
 
 export async function createBackupAction(params: CreateBackupParams) {
-  console.log("Server Action: Creating backup for user:", params.userId);
+  console.info("Server Action: Creating backup for user:", params.userId);
   await new Promise(resolve => setTimeout(resolve, 2000));
   if (Math.random() < 0.1) throw new Error("Simulated backup creation error.");
   const newId = `bkp_${crypto.randomUUID()}`;
@@ -142,7 +142,7 @@ interface RestoreBackupParams {
 }
 
 export async function restoreBackupAction(params: RestoreBackupParams) {
-  console.log("Server Action: Restoring from backup:", params.backupId);
+  console.info("Server Action: Restoring from backup:", params.backupId);
   await new Promise(resolve => setTimeout(resolve, 3000));
   if (Math.random() < 0.1) throw new Error("Simulated backup restore error.");
   return { success: true, message: "Restore process started successfully." };
@@ -155,7 +155,7 @@ interface FileGstReturnParams {
 }
 
 export async function fileGstReturnAction(params: FileGstReturnParams) {
-  console.log("Server Action: Filing GSTR-1 for:", params.gstin, "for period:", params.period);
+  console.info("Server Action: Filing GSTR-1 for:", params.gstin, "for period:", params.period);
   // Simulate filing with a government portal
   await new Promise(resolve => setTimeout(resolve, 2000));
   if (Math.random() < 0.1) throw new Error("Simulated GSTN communication error.");
@@ -173,7 +173,7 @@ interface ApiKeyParams {
 }
 
 export async function saveApiKeysAction(params: ApiKeyParams) {
-  console.log("Server Action: Saving API Keys for user:", params.userId, "Keys provided:", { hasRazorpay: !!params.razorpayKey, hasWhatsApp: !!params.whatsappKey, hasBotpress: !!params.botpressKey });
+  console.info("Server Action: Saving API Keys for user:", params.userId, "Keys provided:", { hasRazorpay: !!params.razorpayKey, hasWhatsApp: !!params.whatsappKey, hasBotpress: !!params.botpressKey });
   // Simulate saving to a secure backend store (e.g., Firestore encrypted field or Secret Manager)
   await new Promise(resolve => setTimeout(resolve, 1000));
   if (Math.random() < 0.1) throw new Error("Simulated error saving API keys.");
@@ -186,7 +186,7 @@ interface EWayBillParams {
     companyId: string;
 }
 export async function generateEWayBillAction(params: EWayBillParams) {
-    console.log("Server Action: Generating E-Way Bill for invoice:", params.invoiceId);
+    console.info("Server Action: Generating E-Way Bill for invoice:", params.invoiceId);
     await new Promise(resolve => setTimeout(resolve, 2000));
     if (Math.random() < 0.1) throw new Error("Simulated E-Way Bill API error.");
 
@@ -211,7 +211,7 @@ interface ExportParams {
     format: 'PDF' | 'Excel';
 }
 export async function exportReportAction(params: ExportParams) {
-    console.log(`Server Action: Exporting ${params.reportType} report as ${params.format}`);
+    console.info(`Server Action: Exporting ${params.reportType} report as ${params.format}`);
     await new Promise(resolve => setTimeout(resolve, 1500));
     if (Math.random() < 0.1) throw new Error("Simulated report export error.");
 

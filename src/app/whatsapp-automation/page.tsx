@@ -54,7 +54,7 @@ export default function WhatsappAutomationPageRedirect() {
                 </li>
               </ul>
               <div className="mt-8">
-                <Button asChild className="w-full sm:w-auto btn-tally-gradient hover-scale">
+                <Button asChild className="w-full sm:w-auto hover-scale">
                   <Link href="/whatsapp-auto-reply">
                     Go to AI Reply Generator
                   </Link>

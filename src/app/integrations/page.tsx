@@ -97,7 +97,7 @@ export default function IntegrationsPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full btn-tally-gradient" disabled={isSaving}>
+            <Button type="submit" className="w-full" disabled={isSaving}>
               {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plug className="mr-2 h-4 w-4" />}
               {isSaving ? "Saving..." : "Save Connections"}
             </Button>

@@ -292,7 +292,7 @@ export default function GstBillingPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full btn-tally-gradient" disabled={isLoading || authLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || authLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
               Generate GST PDF
             </Button>

@@ -26,7 +26,7 @@ export default function AccountingPage() {
           <h1 className="text-3xl font-headline font-semibold text-foreground">Accounting & Financial Management</h1>
           <p className="mt-2 text-muted-foreground">The core of your financial operations, featuring the General Ledger.</p>
         </div>
-        <Button className="btn-tally-gradient">
+        <Button>
             <Filter className="mr-2 h-4 w-4" />
             Filter by Date
         </Button>

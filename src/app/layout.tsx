@@ -3,19 +3,18 @@ import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
-import { Roboto, Space_Grotesk as SpaceGrotesk } from 'next/font/google';
+import { Inter, Roboto_Mono as RobotoMono } from 'next/font/google';
 import { AuthProvider } from '@/contexts/AuthContext';
 
-const roboto = Roboto({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
-  variable: '--font-roboto', // Use a CSS variable for the body font
+  weight: ['500', '700'], // Medium and Bold
+  variable: '--font-inter',
 });
 
-const spaceGrotesk = SpaceGrotesk({
+const robotoMono = RobotoMono({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-space-grotesk', // Use a CSS variable for headlines
+  variable: '--font-roboto-mono',
 });
 
 export const metadata: Metadata = {
@@ -29,10 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${roboto.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" className={`${inter.variable} ${robotoMono.variable}`}>
       <head>
       </head>
-      <body className="font-body antialiased"> {/* font-body will apply Roboto via CSS variable */}
+      <body className="font-body antialiased">
         <AuthProvider>
           <SidebarProvider defaultOpen={true}>
             <AppSidebar />

@@ -44,7 +44,7 @@ export default function GstInvoicingPageRedirect() {
                 </li>
               </ul>
               <div className="mt-8">
-                 <Button asChild className="w-full sm:w-auto btn-tally-gradient hover-scale">
+                 <Button asChild className="w-full sm:w-auto hover-scale">
                   <Link href="/gst-billing">
                     Go to GST Bill Generation
                   </Link>

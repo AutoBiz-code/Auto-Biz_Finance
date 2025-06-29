@@ -149,7 +149,7 @@ export default function PayrollPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" className="w-full btn-tally-gradient" disabled={isSaving}>
+                  <Button type="submit" className="w-full" disabled={isSaving}>
                       {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
                       {isSaving ? "Saving..." : "Add Employee"}
                   </Button>
@@ -188,7 +188,7 @@ export default function PayrollPage() {
                         <TableCell>{emp.department}</TableCell>
                         <TableCell className="text-right">{emp.salary.toLocaleString('en-IN')}</TableCell>
                         <TableCell className="flex items-center justify-center gap-2">
-                            <Button size="sm" onClick={() => handleProcessPayroll(emp.id, emp.name)} disabled={isProcessing === emp.id} className="btn-tally-gradient">
+                            <Button size="sm" onClick={() => handleProcessPayroll(emp.id, emp.name)} disabled={isProcessing === emp.id}>
                                 {isProcessing === emp.id ? <Loader2 className="h-4 w-4 animate-spin"/> : <DollarSign className="h-4 w-4"/>}
                             </Button>
                             <Button variant="destructive" size="sm" onClick={() => handleRemoveEmployee(emp.id)} disabled={!!isProcessing}>

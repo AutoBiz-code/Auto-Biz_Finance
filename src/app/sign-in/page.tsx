@@ -145,7 +145,7 @@ export default function SignInPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full btn-tally-gradient hover-scale" disabled={anyLoading}>
+            <Button type="submit" className="w-full hover-scale" disabled={anyLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
               Sign In with Email
             </Button>

@@ -98,7 +98,7 @@ export default function DataBackupPage() {
               </p>
           </CardContent>
           <CardFooter>
-            <Button onClick={handleCreateBackup} className="w-full btn-tally-gradient" disabled={isBackingUp}>
+            <Button onClick={handleCreateBackup} className="w-full" disabled={isBackingUp}>
                 {isBackingUp ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
                 {isBackingUp ? "Backing up..." : "Backup Now"}
             </Button>

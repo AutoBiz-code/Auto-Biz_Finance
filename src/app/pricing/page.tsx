@@ -97,7 +97,7 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <div className="p-6 mt-auto">
-              <Button className="w-full btn-tally-gradient text-lg py-3">
+              <Button className="w-full text-lg py-3">
                 {plan.cta}
               </Button>
             </div>

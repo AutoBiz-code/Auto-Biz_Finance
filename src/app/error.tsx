@@ -33,7 +33,7 @@ export default function Error({
         )}
         <Button
           onClick={() => reset()}
-          className="btn-tally-gradient hover-scale"
+          className="hover-scale"
           aria-label="Try again"
         >
           Try again

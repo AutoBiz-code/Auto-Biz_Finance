@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    /* Orange Theme (Light) */
-    --background: 25 95% 95%; /* #FFF6F2 */
+    /* Yellow Theme (Light) */
+    --background: 48 95% 95%; /* Light Yellow */
     --foreground: 215 28% 21%; /* #1F2937 */
 
-    --card: 25 95% 98%; /* #FFFCFA */
+    --card: 48 95% 98%; /* Very Light Yellow */
     --card-foreground: 215 28% 21%;
 
-    --popover: 25 95% 98%;
+    --popover: 48 95% 98%;
     --popover-foreground: 215 28% 21%;
 
     --primary: 224 82% 57%; /* Blue */
@@ -20,41 +20,41 @@
     --secondary: 174 80% 39%; /* Green */
     --secondary-foreground: 0 0% 100%;
     
-    --accent: 25 95% 53%; /* Orange */
-    --accent-foreground: 0 0% 100%;
+    --accent: 48 96% 53%; /* Yellow */
+    --accent-foreground: 215 28% 21%; /* Dark text for better contrast on yellow */
 
-    --muted: 25 90% 92%;
+    --muted: 48 90% 92%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 25 80% 88%;
-    --input: 25 80% 88%;
+    --border: 48 80% 88%;
+    --input: 48 80% 88%;
     --ring: 224 82% 57%; /* Blue */
 
     --radius: 0.5rem; /* 8px */
 
     /* Sidebar specific theme (aligned with main theme) */
-    --sidebar-background: 25 95% 98%;
+    --sidebar-background: 48 95% 98%;
     --sidebar-foreground: 215 28% 21%;
     --sidebar-primary: 224 82% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 25 90% 92%;
+    --sidebar-accent: 48 90% 92%;
     --sidebar-accent-foreground: 215 28% 21%;
-    --sidebar-border: 25 80% 88%;
+    --sidebar-border: 48 80% 88%;
     --sidebar-ring: 224 82% 57%;
 
     /* Chart Colors */
     --chart-1: 224 82% 57%; /* Blue */
     --chart-2: 174 80% 39%; /* Green */
-    --chart-3: 25 95% 53%;  /* Orange */
+    --chart-3: 48 96% 53%;  /* Yellow */
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }
 
   .dark {
-    /* Blue, Green, Orange Theme (Dark) */
+    /* Blue, Green, Yellow Theme (Dark) */
     --background: 222 47% 11%; /* #111827 */
     --foreground: 220 13% 91%; /* #E5E7EB */
 
@@ -70,8 +70,8 @@
     --secondary: 174 80% 39%; /* Green */
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 25 95% 53%; /* Orange */
-    --accent-foreground: 0 0% 100%;
+    --accent: 48 96% 53%; /* Yellow */
+    --accent-foreground: 215 28% 21%; /* Dark text for better contrast on yellow */
 
     --muted: 217 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;

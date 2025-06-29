@@ -48,7 +48,7 @@ export default function RootLayout({
   }, []);
 
   return (
-    <html lang="en" className={`${inter.variable} ${robotoMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${robotoMono.variable}`} suppressHydrationWarning>
       <head>
         <title>AutoBiz Finance</title>
         <meta name="description" content="Automate your business finances with AI-powered tools for Indian SMEs." />

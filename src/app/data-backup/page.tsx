@@ -37,16 +37,21 @@ export default function DataBackupPage() {
   const handleCreateBackup = async () => {
     setIsBackingUp(true);
     try {
-      const newBackupData = await createBackupAction({ userId: "guest-user" });
-      const newBackup: Backup = {
-        id: newBackupData.backupId,
-        createdAt: new Date(newBackupData.createdAt),
-        size: newBackupData.size
-      };
-      setBackups(prev => [newBackup, ...prev]);
-      toast({ title: "Backup Created", description: `Successfully created backup ${newBackup.id}.` });
+      const result = await createBackupAction({ userId: "guest-user" });
+      if (result.success && result.backupId) {
+        const newBackup: Backup = {
+          id: result.backupId,
+          createdAt: new Date(result.createdAt),
+          size: result.size
+        };
+        setBackups(prev => [newBackup, ...prev]);
+        toast({ title: "Backup Created", description: `Successfully created backup ${newBackup.id}.` });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to create backup.", variant: "destructive" });
+      }
     } catch (error: any) {
-       toast({ title: "Error", description: error.message || "Failed to create backup.", variant: "destructive" });
+       console.error("Critical error calling createBackupAction:", error);
+       toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsBackingUp(false);
     }
@@ -55,11 +60,15 @@ export default function DataBackupPage() {
   const handleRestoreBackup = async (backupId: string) => {
     setIsRestoring(backupId);
     try {
-      await restoreBackupAction({ backupId });
-      toast({ title: "Restore Initiated", description: `Restoring data from backup ${backupId}. The application may be temporarily unavailable.` });
-      // In a real app, you might poll for status or refresh the page after a delay
+      const result = await restoreBackupAction({ backupId });
+      if (result.success) {
+        toast({ title: "Restore Initiated", description: `Restoring data from backup ${backupId}. The application may be temporarily unavailable.` });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to restore backup.", variant: "destructive" });
+      }
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to restore backup.", variant: "destructive" });
+      console.error("Critical error calling restoreBackupAction:", error);
+      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsRestoring(null);
     }

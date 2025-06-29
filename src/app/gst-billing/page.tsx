@@ -126,13 +126,17 @@ export default function GstBillingPage() {
         recurring: isRecurring,
       });
       
-      toast({
-        title: "GST Bill PDF Generation Initiated (Simulated)",
-        description: `PDF for ${customerName} is being generated. ${result.message}`,
-      });
+      if (result.success) {
+        toast({
+          title: "GST Bill PDF Generation Initiated (Simulated)",
+          description: `PDF for ${customerName} is being generated. ${result.message}`,
+        });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to initiate PDF generation.", variant: "destructive" });
+      }
     } catch (error: any) {
-      console.error("GST Bill generation error:", error);
-      toast({ title: "Error", description: error.message || "Failed to initiate PDF generation.", variant: "destructive" });
+      console.error("Critical error calling generateGstPdfAction:", error);
+      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }

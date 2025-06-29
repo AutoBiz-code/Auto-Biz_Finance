@@ -59,20 +59,25 @@ export default function PayrollPage() {
         salary: salaryNum
       };
       
-      await addEmployeeAction({ ...newEmployee });
+      const result = await addEmployeeAction({ ...newEmployee });
       
-      setEmployees(prev => [...prev, newEmployee]);
-      toast({ title: "Employee Added", description: `${name} has been added successfully.` });
-      
-      // Reset form
-      setName("");
-      setEmail("");
-      setPhoneNumber("");
-      setDepartment("");
-      setSalary("");
+      if (result.success) {
+        setEmployees(prev => [...prev, newEmployee]);
+        toast({ title: "Employee Added", description: `${name} has been added successfully.` });
+        
+        // Reset form
+        setName("");
+        setEmail("");
+        setPhoneNumber("");
+        setDepartment("");
+        setSalary("");
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to add employee.", variant: "destructive" });
+      }
 
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to add employee.", variant: "destructive" });
+      console.error("Critical error calling addEmployeeAction:", error);
+      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -82,9 +87,14 @@ export default function PayrollPage() {
     setIsProcessing(employee.id);
     try {
       const result = await processPayrollAction({ employeeId: employee.id, salary: employee.salary });
-      toast({ title: "Payroll Processed", description: `${employee.name}'s payroll processed. ${result.message}` });
+      if (result.success) {
+        toast({ title: "Payroll Processed", description: `${employee.name}'s payroll processed. ${result.message}` });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to process payroll.", variant: "destructive" });
+      }
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to process payroll.", variant: "destructive" });
+      console.error("Critical error calling processPayrollAction:", error);
+      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsProcessing(null);
     }

@@ -29,9 +29,14 @@ export default function IntegrationsPage() {
         whatsappKey,
         botpressKey,
       });
-      toast({ title: "Success", description: result.message });
+      if (result.success) {
+        toast({ title: "Success", description: result.message });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to save connections.", variant: "destructive" });
+      }
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to save connections.", variant: "destructive" });
+      console.error("Critical error calling saveApiKeysAction:", error);
+      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }

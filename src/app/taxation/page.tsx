@@ -37,9 +37,14 @@ export default function TaxationPage() {
         gstin, 
         period: `${month}-${year}` 
       });
-      toast({ title: "Filing Initiated", description: result.message });
+      if (result.success) {
+        toast({ title: "Filing Initiated", description: result.message });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to initiate GST filing.", variant: "destructive" });
+      }
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to initiate GST filing.", variant: "destructive" });
+      console.error("Critical error calling fileGstReturnAction:", error);
+      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -50,12 +55,17 @@ export default function TaxationPage() {
     try {
       // Using mock IDs for simulation
       const result = await generateEWayBillAction({ invoiceId: 'inv_12345', companyId: 'comp_abcde' });
-      toast({
-        title: "E-Way Bill Generated (Simulated)",
-        description: `IRN: ${result.irn}. E-Way Bill No: ${result.eWayBillNumber}`,
-      });
+      if (result.success) {
+        toast({
+          title: "E-Way Bill Generated (Simulated)",
+          description: `IRN: ${result.irn}. E-Way Bill No: ${result.eWayBillNumber}`,
+        });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to generate E-Way Bill.", variant: "destructive" });
+      }
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to generate E-Way Bill.", variant: "destructive" });
+      console.error("Critical error calling generateEWayBillAction:", error);
+      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsGeneratingEWay(false);
     }

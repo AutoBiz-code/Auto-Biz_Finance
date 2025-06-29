@@ -31,17 +31,22 @@ export default function AccountingPage() {
     setIsExporting(true);
     try {
       const result = await exportReportAction({ reportType: 'General Ledger', format: 'PDF' });
-      toast({
-        title: "Export Successful",
-        description: "Your General Ledger report is ready for download.",
-        action: (
-          <a href={result.url} target="_blank" rel="noopener noreferrer">
-            <Button variant="outline" size="sm">Download</Button>
-          </a>
-        ),
-      });
+      if (result.success) {
+        toast({
+          title: "Export Successful",
+          description: "Your General Ledger report is ready for download.",
+          action: (
+            <a href={result.url} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm">Download</Button>
+            </a>
+          ),
+        });
+      } else {
+        toast({ title: "Export Failed", description: result.error || "Could not export the report.", variant: "destructive" });
+      }
     } catch (error: any) {
-      toast({ title: "Export Failed", description: error.message || "Could not export the report.", variant: "destructive" });
+      console.error("Critical error calling exportReportAction:", error);
+      toast({ title: "Export Failed", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsExporting(false);
     }

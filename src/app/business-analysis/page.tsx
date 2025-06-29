@@ -24,7 +24,6 @@ export default function BusinessAnalysisPage() {
     e.preventDefault();
     setAnalysisResult(null);
 
-    // Basic validation for key presence, real validation would be more complex
     if (!razorpayKey && !whatsappKey && !botpressKey) {
       toast({ title: "API Key Required", description: "Please enter at least one API key.", variant: "destructive" });
       return;
@@ -32,18 +31,20 @@ export default function BusinessAnalysisPage() {
 
     setIsLoading(true);
     try {
-      // In a real app, this server action would securely trigger a Cloud Function.
-      // The Cloud Function would use these keys to fetch data from the respective APIs.
       const result = await analyzeBusinessDataAction({ userId: user?.uid || "guest-user", razorpayKey, whatsappKey, botpressKey });
       
-      setAnalysisResult(result.analysisData);
-      toast({
-        title: "Business Analysis Completed (Simulated)",
-        description: `Data processing finished. ${result.message}`,
-      });
+      if (result.success) {
+        setAnalysisResult(result.analysisData);
+        toast({
+          title: "Business Analysis Completed (Simulated)",
+          description: `Data processing finished. ${result.message}`,
+        });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to run business analysis.", variant: "destructive" });
+      }
     } catch (error: any) {
-      console.error("Business analysis error:", error);
-      toast({ title: "Error", description: error.message || "Failed to run business analysis.", variant: "destructive" });
+      console.error("Critical error calling analyzeBusinessDataAction:", error);
+      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }

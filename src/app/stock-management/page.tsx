@@ -55,21 +55,24 @@ export default function StockManagementPage() {
         location,
       });
       
-      toast({
-        title: "Stock Updated",
-        description: result.message,
-      });
-      // Clear form on success
-      setItemName("");
-      setQuantity("");
-      setPrice("");
-      setBatchNumber("");
-      setExpiryDate(undefined);
-      setLocation("");
-
+      if (result.success) {
+        toast({
+          title: "Stock Updated",
+          description: result.message,
+        });
+        // Clear form on success
+        setItemName("");
+        setQuantity("");
+        setPrice("");
+        setBatchNumber("");
+        setExpiryDate(undefined);
+        setLocation("");
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to update stock.", variant: "destructive" });
+      }
     } catch (error: any) {
-      console.error("Stock update error:", error);
-      toast({ title: "Error", description: error.message || "Failed to update stock.", variant: "destructive" });
+      console.error("Critical error calling updateStockAction:", error);
+      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }

@@ -10,8 +10,7 @@ import {
   Landmark,
   Banknote,
   ShieldCheck,
-  Plug,
-  PlayCircle
+  Plug
 } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -116,12 +115,6 @@ export default function FeaturesPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="text-lg py-7 hover-scale">
                 <Link href="/signup">Start Free Trial</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="text-lg py-7 hover-scale">
-                <Link href="#">
-                    <PlayCircle className="mr-2 h-6 w-6" />
-                    Watch 30s Demo
-                </Link>
             </Button>
         </div>
       </div>

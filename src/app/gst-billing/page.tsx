@@ -282,7 +282,7 @@ export default function GstBillingPage() {
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                       <div className="md:col-span-2 space-y-1">
                         <Label htmlFor={`itemName-${index}`} className="text-xs">Item Name</Label>
-                        <Input id={`itemName-${index}`} value={item.name} onChange={(e) => handleItemchange(index, "name", e.target.value)} placeholder="Product/Service Name" required />
+                        <Input id={`itemName-${index}`} value={item.name} onChange={(e) => handleItemChange(index, "name", e.target.value)} placeholder="Product/Service Name" required />
                       </div>
                       <div className="space-y-1">
                         <Label htmlFor={`quantity-${index}`} className="text-xs">Quantity</Label>

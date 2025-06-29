@@ -108,7 +108,7 @@ export default function SignInPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline">Sign In</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Access your automated finance dashboard.
+            Access your automated finance dashboard. Powering SMEs with Tally-Like Precision.
           </CardDescription>
         </CardHeader>
         

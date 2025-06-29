@@ -101,6 +101,11 @@ export default function PricingPage() {
         ))}
       </div>
       
+      <div className="text-center mt-12">
+        <p className="text-lg font-medium text-foreground">
+          Trusted by SMEs, built for success – AutoBiz Finance, your business partner.
+        </p>
+      </div>
     </div>
   );
 }

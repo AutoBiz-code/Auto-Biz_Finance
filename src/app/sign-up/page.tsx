@@ -119,7 +119,7 @@ export default function SignUpPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline">Create an Account</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Join AutoBiz Finance to automate your workflows.
+            Manage accounts, track inventory, and comply with GST effortlessly with AutoBiz Finance.
           </CardDescription>
         </CardHeader>
 
@@ -168,7 +168,7 @@ export default function SignUpPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full btn-tally-gradient hover-scale" disabled={anyLoading}>
+            <Button type="submit" className="w-full hover-scale" disabled={anyLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
               Sign Up with Email
             </Button>

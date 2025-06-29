@@ -108,8 +108,11 @@ export default function FeaturesPage() {
     <div className="space-y-12 fade-in">
       <div className="text-center space-y-6 pt-8">
         <h1 className="text-4xl lg:text-5xl font-headline font-bold text-foreground max-w-4xl mx-auto">
-          Automate GST, Invoices & Payments in 60 Seconds – Save 10+ Hours/Week!
+          Empower Your Business, Simplify Your Finances.
         </h1>
+        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+          From invoicing to payroll, AutoBiz Finance delivers Tally-like efficiency at your fingertips.
+        </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="text-lg py-7 hover-scale">
                 <Link href="/signup">Start Free Trial</Link>

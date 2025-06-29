@@ -4,7 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { FileText, MessageSquareText, Package, BarChart3, UserCircle as UserIcon, Loader2 } from "lucide-react";
+import { FileText, MessageSquareText, Package, UserCircle as UserIcon, Loader2, Banknote, Clock, Zap, BarChartHorizontalBig } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -14,6 +14,7 @@ interface Metric {
   value: string | number;
   icon: React.ReactNode;
   description?: string;
+  actionPath?: string;
 }
 
 export default function DashboardPage() {
@@ -41,10 +42,10 @@ export default function DashboardPage() {
   const conversationProgress = conversationLimit > 0 && conversationLimit !== Infinity ? (conversationCount / conversationLimit) * 100 : 0;
 
   const keyMetrics: Metric[] = [
-    { title: "GST Bills Generated", value: "125", icon: <FileText className="h-6 w-6 text-primary" />, description: "This month" },
-    { title: "Automated Replies Sent", value: "850", icon: <MessageSquareText className="h-6 w-6 text-primary" />, description: "Using Gemini AI" },
-    { title: "Items in Stock", value: "340", icon: <Package className="h-6 w-6 text-primary" />, description: "Across all categories" },
-    { title: "Business Insights", value: "View Report", icon: <BarChart3 className="h-6 w-6 text-primary" />, description: "From connected services" },
+    { title: "Invoices Generated", value: "125", icon: <FileText className="h-6 w-6 text-primary" />, description: "This month", actionPath: "/gst-billing" },
+    { title: "Pending Payments", value: "₹45,230", icon: <Banknote className="h-6 w-6 text-primary" />, description: "Total outstanding", actionPath: "/banking" },
+    { title: "Hours Saved", value: "25+", icon: <Clock className="h-6 w-6 text-primary" />, description: "Via automation this month", actionPath: "/business-analysis" },
+    { title: "Active Automations", value: "3", icon: <Zap className="h-6 w-6 text-primary" />, description: "Across all services", actionPath: "/integrations" },
   ];
 
   if (authLoading) {
@@ -83,13 +84,16 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* The sign in prompt is removed to allow guest access */}
-
       <section aria-labelledby="key-financial-metrics">
         <h2 id="key-financial-metrics" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{ animationDelay: '0.2s' }}>Key Metrics</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {keyMetrics.map((metric, idx) => (
-            <Card key={metric.title} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card text-card-foreground fade-in hover-scale" style={{ animationDelay: `${0.3 + idx * 0.05}s` }}>
+             <Card 
+              key={metric.title} 
+              className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card text-card-foreground fade-in hover-scale cursor-pointer" 
+              style={{ animationDelay: `${0.3 + idx * 0.05}s` }}
+              onClick={() => metric.actionPath && router.push(metric.actionPath)}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-card-foreground">{metric.title}</CardTitle>
                 {metric.icon}
@@ -116,7 +120,7 @@ export default function DashboardPage() {
             <Package className="mr-3 h-6 w-6"/> Manage Stock
           </Button>
           <Button onClick={() => router.push('/business-analysis')} className="hover-scale py-6 text-base justify-start">
-            <BarChart3 className="mr-3 h-6 w-6"/> Analyze Business
+            <BarChartHorizontalBig className="mr-3 h-6 w-6"/> Analyze Business
           </Button>
         </div>
       </section>

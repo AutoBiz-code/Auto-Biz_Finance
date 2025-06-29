@@ -4,16 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
-import { useState, useEffect } from 'react';
-import type { Metadata } from "next";
-
-// Note: Metadata can't be dynamic in client components this way. 
-// It should be defined in a server component or layout.tsx for static metadata.
-// export const metadata: Metadata = { 
-//   title: "Pricing | AutoBiz Finance",
-//   description: "Choose the best plan for your SME with AutoBiz Finance. Transparent pricing for financial automation.",
-// };
-
+import Link from "next/link";
 
 const pricingPlans = [
   {
@@ -97,8 +88,10 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <div className="p-6 mt-auto">
-              <Button className="w-full text-lg py-3">
-                {plan.cta}
+               <Button asChild className="w-full text-lg py-3">
+                 <Link href={plan.name === 'Enterprise' ? 'mailto:sales@autobiz.finance' : '/signup'}>
+                  {plan.cta}
+                 </Link>
               </Button>
             </div>
           </Card>

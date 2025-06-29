@@ -65,12 +65,13 @@ Generate a single, self-contained HTML5 document based on the provided JSON data
 3.  **Layout:** Create a clean, modern, two-column layout where company and customer details are clearly separated. Use flexbox or grid for layout. The design should be print-friendly (A4 size).
 4.  **Content:**
     *   Clearly label and display "TAX INVOICE".
+    *   Generate a unique invoice number. It should start with 'INV-' and be followed by numbers.
     *   Display all company details, customer details, and bank details (if provided).
     *   The items must be in a table with columns: "Item Description", "Qty", "Rate", "Taxable Amount", "GST (%)", and "Total".
     *   The "Taxable Amount" is quantity * rate.
     *   The final section must show the "Subtotal", "Total GST", and "Grand Total". The grand total should be prominently displayed.
     *   Include any "Notes" at the bottom.
-5.  **Formatting:** Format all currency values with the Indian Rupee symbol (₹) and appropriate comma separators (e.g., ₹1,23,456.78). Format the invoice date to be human-readable (e.g., June 29, 2025).
+5.  **Formatting:** Format all currency values with the Indian Rupee symbol (₹) and appropriate comma separators (e.g., '₹1,23,456.78'). Format the invoice date to be human-readable (e.g., 'June 29, 2025').
 
 **Invoice Data:**
 Company Name: {{{companyName}}}
@@ -84,7 +85,6 @@ Customer Address: {{{customerAddress}}}
 Customer Phone: {{{customerPhone}}}
 
 Invoice Date: {{{invoiceDate}}}
-Invoice Number: INV-{{#invoke "Date.now"}}{{/invoke}}
 
 Bank Name: {{{bankName}}}
 Account Number: {{{accountNumber}}}

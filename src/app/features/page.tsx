@@ -122,7 +122,7 @@ export default function FeaturesPage() {
             </Button>
         </div>
         <div className="pt-6">
-            <p className="text-sm text-muted-foreground font-semibold tracking-wider">TRUSTED BY 500+ SMEs INCLUDING</p>
+            <p className="text-sm text-muted-foreground font-semibold tracking-wider">TRUSTED BY 500+ SMEs</p>
             <div className="flex justify-center items-center gap-12 mt-4">
                 <Image src="https://placehold.co/120x40.png" width={120} height={40} alt="Razorpay Logo" data-ai-hint="logo company" className="grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all" />
                 <Image src="https://placehold.co/120x40.png" width={120} height={40} alt="WhatsApp Business Logo" data-ai-hint="logo company" className="grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all"/>
@@ -133,15 +133,15 @@ export default function FeaturesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-12">
         {features.map((feature, idx) => (
           <Link href={feature.link} key={feature.title} className="block hover-scale">
-              <Card className="h-full shadow-xl hover:shadow-2xl transition-shadow duration-300 bg-card text-card-foreground flex flex-col" style={{animationDelay: `${0.2 + idx * 0.1}s`}}>
+              <Card className="h-full shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-card text-card-foreground flex flex-col" style={{animationDelay: `${0.2 + idx * 0.1}s`}}>
                 <CardHeader className="items-center text-center">
                   {feature.icon}
-                  <CardTitle className="text-2xl font-headline text-card-foreground">{feature.title}</CardTitle>
+                  <CardTitle className="text-2xl font-headline">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <CardDescription className="text-base text-center text-muted-foreground">
+                  <p className="text-base text-center text-muted-foreground">
                     {feature.description}
-                  </CardDescription>
+                  </p>
                 </CardContent>
               </Card>
           </Link>

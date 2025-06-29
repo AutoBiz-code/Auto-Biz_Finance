@@ -19,6 +19,7 @@ const pricingPlans = [
       "Email Support",
     ],
     cta: "Get Started with Basic",
+    link: "/signup",
   },
   {
     name: "Pro",
@@ -33,6 +34,7 @@ const pricingPlans = [
     ],
     cta: "Upgrade to Pro",
     highlighted: true,
+    link: "/signup",
   },
   {
     name: "Enterprise",
@@ -46,6 +48,7 @@ const pricingPlans = [
       "SLA & Premium Support",
     ],
     cta: "Contact Sales",
+    link: "mailto:sales@autobiz.finance",
   },
 ];
 
@@ -71,8 +74,8 @@ export default function PricingPage() {
             style={{animationDelay: `${0.2 + idx * 0.1}s`}}
           >
             <CardHeader className="text-center">
-              <CardTitle className={`text-2xl font-headline ${plan.highlighted ? 'text-primary' : 'text-card-foreground'}`}>{plan.name}</CardTitle>
-              <p className="text-3xl font-bold text-card-foreground mt-2">
+              <CardTitle className={`text-2xl font-headline ${plan.highlighted ? 'text-primary' : ''}`}>{plan.name}</CardTitle>
+              <p className="text-3xl font-bold mt-2">
                 {plan.price}
                 {plan.priceSuffix && <span className="text-sm font-normal text-muted-foreground">{plan.priceSuffix}</span>}
               </p>
@@ -89,7 +92,7 @@ export default function PricingPage() {
             </CardContent>
             <div className="p-6 mt-auto">
                <Button asChild className="w-full text-lg py-3">
-                 <Link href={plan.name === 'Enterprise' ? 'mailto:sales@autobiz.finance' : '/signup'}>
+                 <Link href={plan.link}>
                   {plan.cta}
                  </Link>
               </Button>

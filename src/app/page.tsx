@@ -8,6 +8,8 @@ import { FileText, MessageSquareText, Package, UserCircle as UserIcon, Loader2, 
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 interface Metric {
   title: string;
@@ -16,6 +18,22 @@ interface Metric {
   description?: string;
   actionPath?: string;
 }
+
+const chartData = [
+  { month: 'Jan', revenue: 4000 },
+  { month: 'Feb', revenue: 3000 },
+  { month: 'Mar', revenue: 5000 },
+  { month: 'Apr', revenue: 4500 },
+  { month: 'May', revenue: 6000 },
+  { month: 'Jun', revenue: 5500 },
+];
+
+const chartConfig = {
+  revenue: {
+    label: "Revenue",
+    color: "hsl(var(--chart-1))",
+  },
+};
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -66,15 +84,15 @@ export default function DashboardPage() {
             <UserIcon className="h-7 w-7 text-primary" />
             User Details
           </CardTitle>
-          <CardDescription className="text-muted-foreground">
+          <CardDescription>
             Welcome back, {user?.email || "Guest"}!
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p><span className="font-medium text-card-foreground">Email:</span> <span className="text-muted-foreground">{user?.email || "Not signed in"}</span></p>
-          <p><span className="font-medium text-card-foreground">Current Plan:</span> <span className="text-muted-foreground">{userPlan}</span></p>
+          <p><span className="font-medium">Email:</span> <span className="text-muted-foreground">{user?.email || "Not signed in"}</span></p>
+          <p><span className="font-medium">Current Plan:</span> <span className="text-muted-foreground">{userPlan}</span></p>
           <div>
-            <p className="font-medium text-card-foreground mb-1">Conversation Usage (Botpress/Gemini):</p>
+            <p className="font-medium mb-1">Conversation Usage (Botpress/Gemini):</p>
             <div className="flex items-center gap-2">
               <Progress value={conversationProgress} aria-label={`Conversation usage ${conversationProgress.toFixed(0)}%`} className="h-3 flex-1 [&>div]:bg-primary" />
               <span className="text-sm text-muted-foreground">{conversationCount} / {conversationLimit === Infinity ? 'Unlimited' : conversationLimit}</span>
@@ -95,16 +113,44 @@ export default function DashboardPage() {
               onClick={() => metric.actionPath && router.push(metric.actionPath)}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-card-foreground">{metric.title}</CardTitle>
+                <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
                 {metric.icon}
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-card-foreground">{metric.value}</div>
+                <div className="text-2xl font-bold">{metric.value}</div>
                 {metric.description && <p className="text-xs text-muted-foreground">{metric.description}</p>}
               </CardContent>
             </Card>
           ))}
         </div>
+      </section>
+
+      <section aria-labelledby="revenue-overview">
+         <h2 id="revenue-overview" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.3s'}}>Revenue Overview</h2>
+         <Card className="shadow-lg bg-card text-card-foreground fade-in" style={{ animationDelay: '0.4s' }}>
+          <CardHeader>
+            <CardTitle>Monthly Revenue</CardTitle>
+            <CardDescription>A look at your revenue over the past 6 months.</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+              <BarChart accessibilityLayer data={chartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dot" />}
+                />
+                <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
+         </Card>
       </section>
 
       <section aria-labelledby="quick-actions">

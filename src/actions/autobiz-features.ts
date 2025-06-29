@@ -102,14 +102,26 @@ export async function addEmployeeAction(params: EmployeeParams) {
 
 interface ProcessPayrollParams {
   employeeId: string;
-  deductions: Record<string, number>;
+  salary: number; // Base salary
 }
 
+// Updated to match the logic in the user's brief
 export async function processPayrollAction(params: ProcessPayrollParams) {
-  console.log("Server Action: Processing payroll for employee:", params.employeeId, "with deductions:", params.deductions);
+  console.log("Server Action: Processing payroll for employee:", params.employeeId);
   await new Promise(resolve => setTimeout(resolve, 1500));
   if (Math.random() < 0.1) throw new Error("Simulated error processing payroll.");
-  return { success: true, message: "Payroll processed with deductions." };
+  
+  // Logic from the brief
+  const deductions = { PF: 1800, ESI: 750 };
+  const netAmount = params.salary - Object.values(deductions).reduce((a, b) => a + b, 0);
+  const taxDeducted = 2000; // Simulated
+  const finalAmount = netAmount - taxDeducted;
+
+  return { 
+    success: true, 
+    message: `Payroll processed. Net pay: ₹${finalAmount.toLocaleString()}`,
+    payslipUrl: "https://example.com/payslip.pdf" // Placeholder
+  };
 }
 
 interface CreateBackupParams {
@@ -166,4 +178,47 @@ export async function saveApiKeysAction(params: ApiKeyParams) {
   await new Promise(resolve => setTimeout(resolve, 1000));
   if (Math.random() < 0.1) throw new Error("Simulated error saving API keys.");
   return { success: true, message: "API connections saved successfully." };
+}
+
+// --- NEW ACTION for E-Way Bill ---
+interface EWayBillParams {
+    invoiceId: string;
+    companyId: string;
+}
+export async function generateEWayBillAction(params: EWayBillParams) {
+    console.log("Server Action: Generating E-Way Bill for invoice:", params.invoiceId);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    if (Math.random() < 0.1) throw new Error("Simulated E-Way Bill API error.");
+
+    // Placeholder data from the brief
+    const eWayBillNumber = 'EWB' + Date.now();
+    const irn = 'IRN' + Date.now();
+    const qrCode = 'https://placehold.co/100x100.png'; // Placeholder QR code
+
+    return {
+        success: true,
+        message: `E-Way Bill ${eWayBillNumber} and IRN generated.`,
+        eWayBillNumber,
+        irn,
+        qrCode
+    };
+}
+
+
+// --- NEW ACTION for Report Export ---
+interface ExportParams {
+    reportType: string;
+    format: 'PDF' | 'Excel';
+}
+export async function exportReportAction(params: ExportParams) {
+    console.log(`Server Action: Exporting ${params.reportType} report as ${params.format}`);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    if (Math.random() < 0.1) throw new Error("Simulated report export error.");
+
+    const fileExtension = params.format === 'PDF' ? 'pdf' : 'xlsx';
+    return {
+        success: true,
+        message: "Report has been generated and is ready for download.",
+        url: `https://example.com/export/report_${Date.now()}.${fileExtension}`
+    };
 }

@@ -78,13 +78,11 @@ export default function PayrollPage() {
     }
   };
   
-  const handleProcessPayroll = async (employeeId: string, employeeName: string) => {
-    setIsProcessing(employeeId);
+  const handleProcessPayroll = async (employee: Employee) => {
+    setIsProcessing(employee.id);
     try {
-      // Simulate standard deductions
-      const standardDeductions = { PF: 1800, ESI: 750 };
-      await processPayrollAction({ employeeId, deductions: standardDeductions });
-      toast({ title: "Payroll Processed", description: `Payroll for ${employeeName} has been processed with standard deductions.` });
+      const result = await processPayrollAction({ employeeId: employee.id, salary: employee.salary });
+      toast({ title: "Payroll Processed", description: `${employee.name}'s payroll processed. ${result.message}` });
     } catch (error: any) {
       toast({ title: "Error", description: error.message || "Failed to process payroll.", variant: "destructive" });
     } finally {
@@ -116,9 +114,9 @@ export default function PayrollPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
-           <Card className="shadow-xl bg-card text-card-foreground border-primary/20">
+           <Card className="shadow-xl bg-card text-card-foreground border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-card-foreground">
+              <CardTitle className="flex items-center gap-2">
                 <PlusCircle className="h-6 w-6 text-primary" />
                 Add New Employee
               </CardTitle>
@@ -158,9 +156,9 @@ export default function PayrollPage() {
            </Card>
         </div>
         <div className="lg:col-span-2">
-            <Card className="shadow-xl bg-card text-card-foreground border-primary/20">
+            <Card className="shadow-xl bg-card text-card-foreground border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-card-foreground">
+              <CardTitle className="flex items-center gap-2">
                 <Users className="h-6 w-6 text-primary" />
                 Employee List
               </CardTitle>
@@ -188,7 +186,7 @@ export default function PayrollPage() {
                         <TableCell>{emp.department}</TableCell>
                         <TableCell className="text-right">{emp.salary.toLocaleString('en-IN')}</TableCell>
                         <TableCell className="flex items-center justify-center gap-2">
-                            <Button size="sm" onClick={() => handleProcessPayroll(emp.id, emp.name)} disabled={isProcessing === emp.id}>
+                            <Button size="sm" onClick={() => handleProcessPayroll(emp)} disabled={isProcessing === emp.id}>
                                 {isProcessing === emp.id ? <Loader2 className="h-4 w-4 animate-spin"/> : <DollarSign className="h-4 w-4"/>}
                             </Button>
                             <Button variant="destructive" size="sm" onClick={() => handleRemoveEmployee(emp.id)} disabled={!!isProcessing}>

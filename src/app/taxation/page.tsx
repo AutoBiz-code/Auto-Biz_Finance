@@ -11,7 +11,7 @@ import { Landmark, FileText, Loader2, FileDigit, Scissors } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { fileGstReturnAction } from "@/actions/autobiz-features";
+import { fileGstReturnAction, generateEWayBillAction } from "@/actions/autobiz-features";
 
 // Mock data for sales summary
 const salesSummary = [
@@ -24,6 +24,7 @@ const salesSummary = [
 export default function TaxationPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingEWay, setIsGeneratingEWay] = useState(false);
   const [gstin, setGstin] = useState("29ABCDE1234F1Z5"); // Mock GSTIN
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [month, setMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
@@ -44,6 +45,22 @@ export default function TaxationPage() {
     }
   };
 
+  const handleGenerateEWayBill = async () => {
+    setIsGeneratingEWay(true);
+    try {
+      // Using mock IDs for simulation
+      const result = await generateEWayBillAction({ invoiceId: 'inv_12345', companyId: 'comp_abcde' });
+      toast({
+        title: "E-Way Bill Generated (Simulated)",
+        description: `IRN: ${result.irn}. E-Way Bill No: ${result.eWayBillNumber}`,
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to generate E-Way Bill.", variant: "destructive" });
+    } finally {
+      setIsGeneratingEWay(false);
+    }
+  };
+
   const calculateTotal = (field: 'taxableValue' | 'taxAmount' | 'totalValue') => {
      return salesSummary.reduce((acc, item) => acc + (Number(item[field]) || 0), 0);
   }
@@ -58,17 +75,17 @@ export default function TaxationPage() {
       <Tabs defaultValue="gst-returns" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="gst-returns"><FileDigit className="mr-2 h-4 w-4"/> GST Returns</TabsTrigger>
+          <TabsTrigger value="e-invoicing"><FileText className="mr-2 h-4 w-4"/> E-Invoicing</TabsTrigger>
           <TabsTrigger value="tds-tcs" disabled><Scissors className="mr-2 h-4 w-4"/> TDS/TCS</TabsTrigger>
-          <TabsTrigger value="e-invoicing" disabled><FileText className="mr-2 h-4 w-4"/> E-Invoicing</TabsTrigger>
         </TabsList>
         <TabsContent value="gst-returns">
           <Card className="shadow-lg bg-card text-card-foreground">
             <CardHeader>
-              <CardTitle className="text-card-foreground flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2">
                 <Landmark className="h-6 w-6 text-primary" />
                 File GSTR-1 Return
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
+              <CardDescription>
                 Review your sales summary and file your GSTR-1 return for the selected period.
               </CardDescription>
             </CardHeader>
@@ -105,7 +122,7 @@ export default function TaxationPage() {
                 </div>
 
                 <div>
-                    <h3 className="text-lg font-medium text-card-foreground mb-2">Sales Summary for {month}-{year}</h3>
+                    <h3 className="text-lg font-medium mb-2">Sales Summary for {month}-{year}</h3>
                     <div className="border rounded-md">
                         <Table>
                             <TableHeader>
@@ -145,15 +162,31 @@ export default function TaxationPage() {
             </form>
           </Card>
         </TabsContent>
+        <TabsContent value="e-invoicing">
+           <Card className="shadow-lg bg-card text-card-foreground">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-6 w-6 text-primary" />
+                E-Invoicing and E-Way Bill
+              </CardTitle>
+              <CardDescription>
+                Generate Invoice Reference Number (IRN) and E-Way Bills for your invoices.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground mb-4">
+                    This module allows you to connect with the GST portal to generate compliant e-invoices. The button below simulates this process for a sample invoice.
+                </p>
+                 <Button onClick={handleGenerateEWayBill} disabled={isGeneratingEWay}>
+                    {isGeneratingEWay ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                    {isGeneratingEWay ? "Generating..." : "Generate E-Way Bill (Simulated)"}
+                  </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
         <TabsContent value="tds-tcs">
           <Card>
             <CardHeader><CardTitle>TDS/TCS Management</CardTitle></CardHeader>
-            <CardContent><p className="text-muted-foreground">This feature is under development.</p></CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="e-invoicing">
-          <Card>
-            <CardHeader><CardTitle>E-Invoicing & E-Way Bill</CardTitle></CardHeader>
             <CardContent><p className="text-muted-foreground">This feature is under development.</p></CardContent>
           </Card>
         </TabsContent>

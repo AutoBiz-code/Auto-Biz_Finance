@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,8 +26,14 @@ export default function TaxationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingEWay, setIsGeneratingEWay] = useState(false);
   const [gstin, setGstin] = useState("29ABCDE1234F1Z5"); // Mock GSTIN
-  const [year, setYear] = useState(new Date().getFullYear().toString());
-  const [month, setMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
+  const [year, setYear] = useState("");
+  const [month, setMonth] = useState("");
+
+  useEffect(() => {
+    const now = new Date();
+    setYear(now.getFullYear().toString());
+    setMonth((now.getMonth() + 1).toString().padStart(2, '0'));
+  }, []);
 
   const handleFileReturn = async (e: FormEvent) => {
     e.preventDefault();

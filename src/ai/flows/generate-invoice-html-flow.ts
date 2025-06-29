@@ -56,52 +56,63 @@ const prompt = ai.definePrompt({
   name: 'generateInvoiceHtmlPrompt',
   input: {schema: GenerateInvoiceHtmlInputSchema},
   output: {schema: GenerateInvoiceHtmlOutputSchema},
-  prompt: `You are an expert web developer tasked with creating a professional, print-ready HTML invoice.
-Generate a single, self-contained HTML5 document based on the provided JSON data.
+  prompt: `You are an expert web developer creating a professional HTML invoice that precisely replicates a TallyPrime e-invoice format. Generate a single, self-contained HTML5 document. All CSS must be inside a single '<style>' tag in the '<head>'. Use a common sans-serif font like Arial.
 
-**Key Requirements:**
-1.  **Structure:** Use a standard HTML5 boilerplate ('<!DOCTYPE html>', '<html>', '<head>', '<body>').
-2.  **Styling:** All CSS must be contained within a single '<style>' tag in the '<head>'. Do not use external stylesheets or inline 'style' attributes on elements.
-3.  **Layout:** Create a clean, modern, two-column layout where company and customer details are clearly separated. Use flexbox or grid for layout. The design should be print-friendly (A4 size).
-4.  **Content:**
-    *   Clearly label and display "TAX INVOICE".
-    *   Generate a unique invoice number. It should start with 'INV-' and be followed by numbers.
-    *   Display all company details, customer details, and bank details (if provided).
-    *   The items must be in a table with columns: "Item Description", "Qty", "Rate", "Taxable Amount", "GST (%)", and "Total".
-    *   The "Taxable Amount" is quantity * rate.
-    *   The final section must show the "Subtotal", "Total GST", and "Grand Total". The grand total should be prominently displayed.
-    *   Include any "Notes" at the bottom.
-5.  **Formatting:** Format all currency values with the Indian Rupee symbol (₹) and appropriate comma separators (e.g., '₹1,23,456.78'). Format the invoice date to be human-readable (e.g., 'June 29, 2025').
+**Layout and Content Specification:**
+
+1.  **Title:** "Tax Invoice" centered and bold at the top.
+
+2.  **Header:** A top section with:
+    *   **Left:** "IRN:", "Ack No.:", "Ack Date:" (leave values blank).
+    *   **Right:** An "e-Invoice" section with a 100x100px bordered div as a QR code placeholder.
+
+3.  **Party & Invoice Details (Two-column layout):**
+    *   **Left Column (Supplier & Customer):**
+        *   Supplier: {{{companyName}}}, {{{companyAddress}}}, "GSTIN/UIN: {{{companyGstin}}}".
+        *   Consignee (Ship to): {{{customerName}}}, {{{customerAddress}}}.
+        *   Buyer (Bill to): {{{customerName}}}, {{{customerAddress}}}.
+    *   **Right Column (Invoice Metadata Table):**
+        *   A table with rows for: "Invoice No.", "Dated", "Delivery Note", "Mode/Terms of Payment", "Reference No. & Date", "Buyer's Order No.", "Dispatch Doc No.", "Dispatched through", "Terms of Delivery".
+        *   Populate "Invoice No." with a unique ID you generate.
+        *   Populate "Dated" with {{{invoiceDate}}} formatted as DD-Mon-YY.
+        *   If bank details ({{{bankName}}}, etc.) are provided, list them under "Mode/Terms of Payment".
+        *   Leave other fields blank.
+
+4.  **Items Table:**
+    *   Columns: "Sl No.", "Description of Goods", "HSN/SAC", "Quantity", "Rate", "per", "Amount".
+    *   For each item in the items array:
+        *   Create a row. Use a placeholder for "HSN/SAC".
+        *   Format Quantity as "{{this.quantity}} No".
+        *   "Amount" is quantity * rate.
+    *   **After each item's main row**, if there is tax, add two sub-rows for CGST and SGST. Display their respective amounts under the "Amount" column. Assume the item's total tax should be split equally between CGST and SGST.
+    *   **Total Row:** Display total quantity and the {{{grandTotal}}} (formatted as ₹#,##,###.##). Add "E. & O.E" to the right.
+
+5.  **Totals Section:**
+    *   "Amount Chargeable (in words)": Write out the {{{grandTotal}}} in Indian English words.
+    *   **Tax Summary Table:** Create a summary table below with columns: "HSN/SAC", "Taxable Value", "Central Tax (Rate, Amount)", "State Tax (Rate, Amount)", "Total Tax Amount".
+        *   Summarize the totals for all items. {{{subtotal}}} is the total taxable value. {{{totalTax}}} should be split into Central and State tax amounts. The tax *rate* for Central/State should be half of the item's taxRate.
+    *   "Tax Amount (in words):": Write out the {{{totalTax}}} in Indian English words.
+
+6.  **Footer:**
+    *   **Declaration:** "We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct."
+    *   **Signature:** On the right, "for {{{companyName}}}" and "Authorised Signatory" below it.
+    *   **Final Line:** Centered at the bottom: "This is a Computer Generated Invoice".
+
+**Styling:**
+*   Use thin, black, collapsed borders for all tables.
+*   Match text alignment (e.g., right-align numbers) and font-weight (bold titles).
 
 **Invoice Data:**
 Company Name: {{{companyName}}}
 Company Address: {{{companyAddress}}}
 Company GSTIN: {{{companyGstin}}}
-Company Email: {{{companyEmail}}}
-Company Phone: {{{companyPhone}}}
-
 Customer Name: {{{customerName}}}
 Customer Address: {{{customerAddress}}}
-Customer Phone: {{{customerPhone}}}
-
 Invoice Date: {{{invoiceDate}}}
-
-Bank Name: {{{bankName}}}
-Account Number: {{{accountNumber}}}
-IFSC Code: {{{ifscCode}}}
-
-Notes: {{{notes}}}
-
-Items:
+Bank Details: {{{bankName}}}, {{{accountNumber}}}, {{{ifscCode}}}
 {{#each items}}
-- Name: {{this.name}}
-  Quantity: {{this.quantity}}
-  Rate: {{this.rate}}
-  Tax Rate: {{this.taxRate}}%
-  Total: {{this.total}}
+- Item: {{this.name}}, Qty: {{this.quantity}}, Rate: {{this.rate}}, Tax Rate: {{this.taxRate}}%
 {{/each}}
-
-Totals:
 Subtotal: {{{subtotal}}}
 Total Tax: {{{totalTax}}}
 Grand Total: {{{grandTotal}}}

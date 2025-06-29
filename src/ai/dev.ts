@@ -6,3 +6,4 @@ config();
 // import '@/ai/flows/flag-reconciliation-discrepancies.ts';
 
 import '@/ai/flows/generate-whatsapp-reply-flow.ts';
+import '@/ai/flows/generate-invoice-html-flow.ts';

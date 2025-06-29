@@ -1,7 +1,7 @@
 
 "use server";
 
-import {functions} from "firebase-functions";
+import { generateInvoiceHtml } from "@/ai/flows/generate-invoice-html-flow";
 
 // Placeholder server actions for AutoBiz Finance features
 
@@ -13,7 +13,7 @@ export interface GstPdfItem {
   total: number; // Total for this item: quantity * rate * (1 + taxRate/100)
 }
 
-interface GstPdfParams {
+export interface GstPdfParams {
   userId: string;
   // Company Details
   companyName: string;
@@ -36,17 +36,20 @@ interface GstPdfParams {
 }
 
 export async function generateGstPdfAction(params: GstPdfParams) {
-  const logPayload = {
-    userId: params.userId,
-    company: params.companyName,
-    customer: params.customerName,
-    bankDetailsProvided: !!(params.bankName && params.accountNumber && params.ifscCode),
-  };
-  console.info("Server Action: Attempting to generate GST PDF.", logPayload);
+  console.info("Server Action: Attempting to generate GST invoice HTML.", { userId: params.userId, company: params.companyName });
   try {
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    if (Math.random() < 0.1) throw new Error("Simulated PDF Generation Error");
-    return { success: true, message: "PDF generation process started.", pdfUrl: `https://example.com/pdfs/${params.userId}_${Date.now()}.pdf` };
+    const subtotal = params.items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
+    const totalTax = params.items.reduce((acc, item) => acc + (item.quantity * item.rate * (item.taxRate / 100)), 0);
+    const grandTotal = subtotal + totalTax;
+
+    const result = await generateInvoiceHtml({
+      ...params,
+      subtotal,
+      totalTax,
+      grandTotal,
+    });
+    
+    return { success: true, htmlContent: result.html };
   } catch (error: any) {
     console.error("Error in generateGstPdfAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred during PDF generation." };
@@ -167,7 +170,7 @@ export async function createBackupAction(params: CreateBackupParams) {
     const size = (Math.random() * 5 + 12).toFixed(1); // 12.0 - 17.0 MB
     return { success: true, backupId: newId, createdAt: new Date().toISOString(), size: `${size} MB` };
   } catch (error: any) {
-    console.error("Error in createBackupAction", { errorMessage: error.message, stack: error.stack, params });
+    console.error("Error in createBackupAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred during backup creation." };
   }
 }
@@ -203,7 +206,7 @@ export async function fileGstReturnAction(params: FileGstReturnParams) {
     const arn = `ARN${Date.now()}${Math.floor(Math.random() * 100)}`;
     return { success: true, message: `GSTR-1 successfully filed. Acknowledgement Reference Number (ARN): ${arn}` };
   } catch (error: any) {
-    console.error("Error in fileGstReturnAction", { errorMessage: error.message, stack: error.stack, params });
+    console.error("Error in fileGstReturnAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred during GST filing." };
   }
 }
@@ -223,7 +226,7 @@ export async function saveApiKeysAction(params: ApiKeyParams) {
     if (Math.random() < 0.1) throw new Error("Simulated error saving API keys.");
     return { success: true, message: "API connections saved successfully." };
   } catch (error: any) {
-    console.error("Error in saveApiKeysAction", { errorMessage: error.message, stack: error.stack, params });
+    console.error("Error in saveApiKeysAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred while saving API keys." };
   }
 }
@@ -251,7 +254,7 @@ export async function generateEWayBillAction(params: EWayBillParams) {
             qrCode
         };
     } catch (error: any) {
-        console.error("Error in generateEWayBillAction", { errorMessage: error.message, stack: error.stack, params });
+        console.error("Error in generateEWayBillAction", { errorMessage: error.message, stack: error.stack, params: params });
         return { success: false, error: error.message || "An unknown error occurred during E-Way Bill generation." };
     }
 }
@@ -275,7 +278,7 @@ export async function exportReportAction(params: ExportParams) {
             url: `https://example.com/export/report_${Date.now()}.${fileExtension}`
         };
     } catch (error: any) {
-        console.error("Error in exportReportAction", { errorMessage: error.message, stack: error.stack, params });
+        console.error("Error in exportReportAction", { errorMessage: error.message, stack: error.stack, params: params });
         return { success: false, error: error.message || "An unknown error occurred during report export." };
     }
 }
@@ -291,7 +294,7 @@ export async function reconcileTransactionsAction(params: ReconcileTransactionsP
         if (Math.random() < 0.1) throw new Error("Simulated bulk reconciliation error.");
         return { success: true, message: `${params.transactionIds.length} transactions have been reconciled.` };
     } catch (error: any) {
-        console.error("Error in reconcileTransactionsAction", { errorMessage: error.message, stack: error.stack, params });
+        console.error("Error in reconcileTransactionsAction", { errorMessage: error.message, stack: error.stack, params: params });
         return { success: false, error: error.message || "An unknown error occurred during bulk reconciliation." };
     }
 }

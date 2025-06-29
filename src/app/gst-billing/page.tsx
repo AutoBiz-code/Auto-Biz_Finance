@@ -13,6 +13,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { generateGstPdfAction, type GstPdfItem } from "@/actions/autobiz-features";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Switch } from "@/components/ui/switch";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+
 
 interface BillItem extends GstPdfItem {
   id: string; // For React key prop
@@ -134,13 +137,36 @@ export default function GstBillingPage() {
         recurring: isRecurring,
       });
       
-      if (result.success) {
-        toast({
-          title: "GST Bill PDF Generation Initiated (Simulated)",
-          description: `PDF for ${customerName} is being generated. ${result.message}`,
-        });
+      if (result.success && result.htmlContent) {
+        toast({ title: "Generating PDF...", description: "Please wait while we prepare your download." });
+
+        const invoiceElement = document.createElement('div');
+        // Set a fixed width corresponding to A4 paper for accurate rendering
+        invoiceElement.style.width = '210mm'; 
+        invoiceElement.style.padding = '20px';
+        invoiceElement.style.backgroundColor = 'white';
+        invoiceElement.innerHTML = result.htmlContent;
+        // Append to body to be rendered, but off-screen
+        invoiceElement.style.position = 'absolute';
+        invoiceElement.style.left = '-9999px';
+        document.body.appendChild(invoiceElement);
+
+        html2canvas(invoiceElement, { scale: 2 }) // Higher scale for better quality
+          .then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`invoice-${customerName.replace(/\s/g, '_')}-${Date.now()}.pdf`);
+
+            document.body.removeChild(invoiceElement); // Clean up the temporary element
+            
+            toast({ title: "PDF Downloaded", description: "Your invoice has been downloaded successfully." });
+          });
       } else {
-        toast({ title: "Error", description: result.error || "Failed to initiate PDF generation.", variant: "destructive" });
+        toast({ title: "Error", description: result.error || "Failed to generate PDF content.", variant: "destructive" });
       }
     } catch (error: any) {
       console.error("Critical error calling generateGstPdfAction:", error);

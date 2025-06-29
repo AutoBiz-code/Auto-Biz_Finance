@@ -55,10 +55,6 @@ export default function AccountingPage() {
 
   return (
     <div className="space-y-8 fade-in">
-       <head>
-          <title>Accounting & Ledger | AutoBiz Finance</title>
-          <meta name="description" content="Manage your chart of accounts, journal entries, ledgers, and financial statements." />
-        </head>
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-headline font-semibold text-foreground">Accounting & Financial Management</h1>

@@ -40,6 +40,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const mainNavItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -155,29 +156,73 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarHeader className="p-4 mt-auto border-t border-sidebar-border">
-        {/* Authentication section temporarily removed to allow guest access */}
-        {user && !loading && (
-          <div className="flex flex-col gap-2 items-start group-data-[state=collapsed]:hidden fade-in" style={{ animationDelay: '0.5s' }}>
-            <div className="flex items-center gap-2 w-full mb-2 p-2 rounded-md bg-sidebar-accent/30">
-              <UserIcon className="h-6 w-6 text-sidebar-primary" />
-              <span className="text-sm text-sidebar-foreground truncate" title={user.email || ""}>{user.email || "User"}</span>
-            </div>
-            <Button onClick={handleSignOut} variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-              <LogOut className="mr-2 h-4 w-4" /> Sign Out
-            </Button>
+        {loading ? (
+          <div className="flex justify-center items-center h-16 group-data-[state=collapsed]:hidden">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-        )}
-        {user && !loading && (
-          <div className="hidden group-data-[state=collapsed]:flex flex-col gap-2 items-center">
-            <Button onClick={handleSignOut} variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary" title="Sign Out">
-              <LogOut />
-            </Button>
-          </div>
-        )}
-         {loading && (
-            <div className="flex justify-center items-center h-10 group-data-[state=collapsed]:hidden">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        ) : user ? (
+          <>
+            {/* Expanded view - logged in */}
+            <div className="flex flex-col gap-2 items-start group-data-[state=collapsed]:hidden fade-in" style={{ animationDelay: '0.5s' }}>
+              <div className="flex items-center gap-2 w-full mb-2 p-2 rounded-md bg-sidebar-accent/30">
+                <UserIcon className="h-6 w-6 text-sidebar-primary" />
+                <span className="text-sm text-sidebar-foreground truncate" title={user.email || ""}>{user.email || "User"}</span>
+              </div>
+              <Button onClick={handleSignOut} variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                <LogOut className="mr-2 h-4 w-4" /> Sign Out
+              </Button>
             </div>
+            {/* Collapsed view - logged in */}
+            <div className="hidden group-data-[state=collapsed]:flex flex-col gap-2 items-center">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={handleSignOut} variant="ghost" size="icon" className="text-sidebar-foreground hover:text-sidebar-primary">
+                    <LogOut />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Sign Out</TooltipContent>
+              </Tooltip>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Expanded view - logged out */}
+            <div className="flex flex-col gap-2 items-start group-data-[state=collapsed]:hidden fade-in" style={{ animationDelay: '0.5s' }}>
+              <Button asChild className="w-full">
+                <Link href="/sign-in">
+                  <LogIn className="mr-2 h-4 w-4" /> Sign In
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/sign-up">
+                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+                </Link>
+              </Button>
+            </div>
+            {/* Collapsed view - logged out */}
+            <div className="hidden group-data-[state=collapsed]:flex flex-col gap-2 items-center">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button asChild variant="ghost" size="icon">
+                    <Link href="/sign-in" className="text-sidebar-foreground hover:text-sidebar-primary">
+                      <LogIn />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Sign In</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button asChild variant="ghost" size="icon">
+                    <Link href="/sign-up" className="text-sidebar-foreground hover:text-sidebar-primary">
+                      <UserPlus />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Sign Up</TooltipContent>
+              </Tooltip>
+            </div>
+          </>
         )}
       </SidebarHeader>
     </Sidebar>

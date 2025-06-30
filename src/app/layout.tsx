@@ -1,19 +1,19 @@
 
 import type { Metadata } from 'next';
 import './globals.css';
-import { Inter, Roboto_Mono as RobotoMono } from 'next/font/google';
+import { PT_Sans, Space_Grotesk } from 'next/font/google';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AppWrapper } from '@/components/layout/AppWrapper';
 
-const inter = Inter({
+const ptSans = PT_Sans({
   subsets: ['latin'],
-  weight: ['500', '700'], // Medium and Bold
-  variable: '--font-inter',
+  weight: ['400', '700'],
+  variable: '--font-pt-sans',
 });
 
-const robotoMono = RobotoMono({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-roboto-mono',
+  variable: '--font-space-grotesk',
 });
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en" className={`${inter.variable} ${robotoMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${ptSans.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ff6200" />

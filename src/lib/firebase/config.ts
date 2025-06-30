@@ -35,8 +35,10 @@ if (typeof window !== "undefined") {
   googleProvider = new GoogleAuthProvider();
   appleProvider = new OAuthProvider('apple.com');
   phoneProvider = new PhoneAuthProvider(auth);
-  performance = getPerformance(app);
 
+  if (process.env.NODE_ENV === 'production') {
+    performance = getPerformance(app);
+  }
 }
 
 // @ts-ignore

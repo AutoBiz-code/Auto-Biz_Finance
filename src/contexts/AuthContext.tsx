@@ -2,10 +2,16 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, signInWithRedirect, getRedirectResult, GoogleAuthProvider, AuthError, OAuthProvider } from 'firebase/auth';
+import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, signInWithRedirect, getRedirectResult, GoogleAuthProvider, AuthError, OAuthProvider, RecaptchaVerifier, ConfirmationResult, signInWithPhoneNumber } from 'firebase/auth';
 import { auth as firebaseAuthInstance, googleProvider, appleProvider } from '@/lib/firebase/config';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+declare global {
+  interface Window {
+    recaptchaVerifier?: RecaptchaVerifier;
+  }
+}
 
 interface AuthContextType {
   user: User | null;
@@ -15,6 +21,8 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
+  setupRecaptcha: (containerId: string) => RecaptchaVerifier;
+  signInWithPhone: (phoneNumber: string, verifier: RecaptchaVerifier) => Promise<ConfirmationResult>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -118,6 +126,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null); 
   };
   
+  const setupRecaptcha = (containerId: string) => {
+    if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
+    // This check prevents re-creating the verifier on re-renders
+    if (window.recaptchaVerifier) {
+      return window.recaptchaVerifier;
+    }
+    const verifier = new RecaptchaVerifier(firebaseAuthInstance, containerId, {
+      'size': 'invisible',
+      'callback': (response: any) => {
+        console.log("reCAPTCHA solved, ready to send OTP.");
+      },
+      'expired-callback': () => {
+        // Response expired. Ask user to solve reCAPTCHA again.
+        console.log("reCAPTCHA expired.");
+      }
+    });
+    window.recaptchaVerifier = verifier;
+    return verifier;
+  };
+
+  const signInWithPhone = (phoneNumber: string, verifier: RecaptchaVerifier) => {
+    if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
+    return signInWithPhoneNumber(firebaseAuthInstance, phoneNumber, verifier);
+  };
+
   const value: AuthContextType = {
     user,
     loading: loading || isHandlingRedirect,
@@ -126,6 +159,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signInWithGoogle,
     signInWithApple,
     signOut,
+    setupRecaptcha,
+    signInWithPhone,
   };
 
   if (loading || isHandlingRedirect) {

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { Loader2, LogIn } from "lucide-react";
-import type { AuthError } from "firebase/auth";
+import { Loader2, LogIn, Phone } from "lucide-react";
+import type { AuthError, ConfirmationResult } from "firebase/auth";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -36,38 +37,41 @@ function AppleIcon(props: React.SVGProps<SVGSVGElement>) {
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [showOtpInput, setShowOtpInput] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isAppleLoading, setIsAppleLoading] = useState(false);
+  const [isPhoneLoading, setIsPhoneLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
 
-  const { signIn, signInWithGoogle, signInWithApple } = useAuth(); 
+  const { signIn, signInWithGoogle, signInWithApple, setupRecaptcha, signInWithPhone } = useAuth(); 
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  useEffect(() => {
+    setupRecaptcha("recaptcha-container");
+  }, [setupRecaptcha]);
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
     try {
       await signIn(email, password);
+      toast({ title: "Logged in!", description: "Welcome back.", });
       router.push("/"); 
     } catch (error) {
       const authError = error as AuthError;
-      
       let friendlyMessage: React.ReactNode = "An unexpected error occurred. Please try again.";
       switch (authError.code) {
         case 'auth/invalid-credential':
         case 'auth/user-not-found':
         case 'auth/wrong-password':
-          friendlyMessage = (
-            <span>
-              Invalid email or password. Have you signed up? Try{" "}
-              <Link href="/sign-up" className="font-bold text-primary hover:underline">
-                creating an account
-              </Link>
-              .
-            </span>
-          );
+          friendlyMessage = "Invalid email or password.";
           break;
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
@@ -84,9 +88,9 @@ export default function SignInPage() {
     setError(null);
     try {
       await signInWithGoogle();
-      // On successful redirect, the user will be brought back and AuthContext will handle it.
     } catch (error) {
       setIsGoogleLoading(false);
+      setError("Failed to sign in with Google.");
     }
   };
 
@@ -97,84 +101,151 @@ export default function SignInPage() {
       await signInWithApple();
     } catch (error) {
       setIsAppleLoading(false);
+      setError("Failed to sign in with Apple.");
     }
   };
 
-  const anyLoading = isLoading || isGoogleLoading || isAppleLoading;
+  const handlePhoneSignIn = async () => {
+    setError(null);
+    if (!phone) {
+      setError("Please enter a valid phone number.");
+      return;
+    }
+    setIsPhoneLoading(true);
+    try {
+      const verifier = window.recaptchaVerifier;
+      if (!verifier) throw new Error("Recaptcha verifier not initialized.");
+      
+      const result = await signInWithPhone(phone, verifier);
+      setConfirmationResult(result);
+      setShowOtpInput(true);
+      toast({ title: "OTP Sent!", description: "Please check your phone for the verification code."});
+    } catch (error) {
+      console.error(error);
+      const authError = error as AuthError;
+      let friendlyMessage = "Failed to send OTP. Please try again.";
+      if (authError.code === 'auth/invalid-phone-number') {
+        friendlyMessage = "The phone number is not valid.";
+      }
+      setError(friendlyMessage);
+    } finally {
+      setIsPhoneLoading(false);
+    }
+  }
+
+  const handleVerifyOtp = async () => {
+    setError(null);
+    if (!otp || !confirmationResult) {
+      setError("Please enter the OTP.");
+      return;
+    }
+    setIsPhoneLoading(true);
+    try {
+      await confirmationResult.confirm(otp);
+      toast({ title: "Logged in!", description: "Welcome back."});
+      router.push("/");
+    } catch (error) {
+      const authError = error as AuthError;
+      let friendlyMessage = "Failed to verify OTP.";
+      if(authError.code === 'auth/invalid-verification-code') {
+        friendlyMessage = "The OTP you entered is invalid.";
+      }
+      setError(friendlyMessage);
+    } finally {
+      setIsPhoneLoading(false);
+    }
+  }
+
+  const anyLoading = isLoading || isGoogleLoading || isAppleLoading || isPhoneLoading;
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-border/30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-headline">Sign In</CardTitle>
+          <CardTitle className="text-3xl font-headline">Welcome to AutoBiz Finance</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Access your automated finance dashboard. Powering SMEs with Tally-Like Precision.
+            Sign in to access your dashboard.
           </CardDescription>
         </CardHeader>
         
-        <form onSubmit={handleSignIn}>
-          <CardContent className="space-y-4">
-             {error && (
-              <Alert variant="destructive" className="fade-in">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-card-foreground">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-input border-border text-foreground focus:ring-primary"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-card-foreground">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-input border-border text-foreground focus:ring-primary"
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full hover-scale" disabled={anyLoading}>
-              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-              Sign In with Email
-            </Button>
-            <p className="text-sm text-center text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <Link href="/sign-up" className="font-medium text-primary hover:underline">
-                Sign Up
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-
         <CardContent className="space-y-4">
-            <div className="flex items-center">
-                <Separator className="flex-1" />
-                <span className="px-4 text-xs text-muted-foreground">OR</span>
-                <Separator className="flex-1" />
+          {error && (
+            <Alert variant="destructive" className="fade-in">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {!showOtpInput ? (
+            <>
+              {/* Email/Password Form */}
+              <form onSubmit={handleEmailSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-card-foreground">Email</Label>
+                  <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-card-foreground">Password</Label>
+                  <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                </div>
+                <Button type="submit" className="w-full hover-scale" disabled={anyLoading}>
+                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
+                  Sign In with Email
+                </Button>
+              </form>
+
+              <div className="flex items-center">
+                  <Separator className="flex-1" />
+                  <span className="px-4 text-xs text-muted-foreground">OR</span>
+                  <Separator className="flex-1" />
+              </div>
+
+              {/* Social Logins */}
+              <div className="space-y-2">
+                 <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={anyLoading}>
+                    {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
+                    Sign in with Google
+                </Button>
+                <Button variant="outline" className="w-full" onClick={handleAppleSignIn} disabled={anyLoading}>
+                    {isAppleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5 fill-current" />}
+                    Sign in with Apple
+                </Button>
+              </div>
+
+              {/* Phone Login */}
+              <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-card-foreground">Phone Number</Label>
+                  <div className="flex gap-2">
+                      <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                      <Button variant="outline" onClick={handlePhoneSignIn} disabled={anyLoading}>
+                          {isPhoneLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4"/>}
+                      </Button>
+                  </div>
+              </div>
+            </>
+          ) : (
+            /* OTP Verification Form */
+            <div className="space-y-4">
+              <Label htmlFor="otp">Enter OTP</Label>
+              <Input id="otp" type="text" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} required />
+              <Button onClick={handleVerifyOtp} className="w-full" disabled={isPhoneLoading}>
+                {isPhoneLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Verify & Sign In
+              </Button>
+              <Button variant="link" onClick={() => setShowOtpInput(false)}>Back</Button>
             </div>
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={anyLoading}>
-                {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
-                Sign in with Google
-            </Button>
-            <Button variant="outline" className="w-full" onClick={handleAppleSignIn} disabled={anyLoading}>
-                {isAppleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5 fill-current" />}
-                Sign in with Apple
-            </Button>
+          )}
         </CardContent>
 
+        <CardFooter className="flex-col gap-2">
+          <p className="text-sm text-center text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <Link href="/sign-up" className="font-medium text-primary hover:underline">
+              Sign Up
+            </Link>
+          </p>
+        </CardFooter>
       </Card>
+      <div id="recaptcha-container"></div>
     </div>
   );
 }

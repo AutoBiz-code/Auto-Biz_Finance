@@ -10,12 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-// Explicitly define all public routes. Everything else requires authentication.
 const publicRoutes = ['/', '/sign-in', '/sign-up', '/pricing'];
-
-// Routes that a logged-in user should be redirected away from.
 const authRoutes = ['/', '/sign-in', '/sign-up'];
-
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const [isGoToBarOpen, setIsGoToBarOpen] = useState(false);
@@ -34,41 +30,33 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  const isPublicRoute = publicRoutes.includes(pathname);
-  const isAuthRoute = authRoutes.includes(pathname);
-
-  useEffect(() => {
-    // Wait until authentication status is resolved
-    if (loading) {
-      return;
-    }
-
-    // If user is not authenticated and trying to access a non-public page,
-    // redirect them to the sign-in page.
-    if (!user && !isPublicRoute) {
-      router.replace('/sign-in');
-    }
-
-    // If user is authenticated and trying to access landing, sign-in, or sign-up,
-    // redirect them to their dashboard.
-    if (user && isAuthRoute) {
-      router.replace('/dashboard');
-    }
-  }, [loading, user, pathname, router, isPublicRoute, isAuthRoute]);
   
-  // Show a loader while authentication is in progress or a redirect is happening.
-  if (loading || (!user && !isPublicRoute) || (user && isAuthRoute)) {
+  // Show a global loader while we wait for auth status
+  if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     );
   }
-  
-  // If user is authenticated, render the full app layout with sidebar.
+
+  const isPublic = publicRoutes.includes(pathname);
+  const isAuthPage = authRoutes.includes(pathname);
+
+  // User is logged in
   if (user) {
-     return (
+    // If they are on a page like landing or sign-in, redirect to dashboard
+    if (isAuthPage) {
+      router.replace('/dashboard');
+      return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+          <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+      );
+    }
+
+    // Otherwise, show the main app with sidebar
+    return (
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
           <main className="flex-1 md:pl-[var(--sidebar-width)] group-data-[sidebar-state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding-left] duration-300 ease-in-out">
@@ -82,8 +70,21 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Otherwise, user is not logged in and on a public page. Render the simple layout.
-  // This correctly shows the landing page, sign-in, etc., for new visitors.
+  // User is not logged in
+  if (!user) {
+    // If they are trying to access a protected page, redirect to sign-in
+    if (!isPublic) {
+      router.replace('/sign-in');
+      return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+          <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+      );
+    }
+  }
+
+  // If we are here, user is not logged in and is on a public page.
+  // Show the page content without the sidebar.
   return (
     <>
       {children}

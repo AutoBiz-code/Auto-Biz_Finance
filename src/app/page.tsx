@@ -27,77 +27,77 @@ const features = [
     icon: <FileText className="h-10 w-10 text-primary mb-4" />,
     title: "GST Billing & Invoicing",
     description: "Create GST-compliant invoices, e-way bills, and manage your billing cycle seamlessly.",
-    link: "/gst-billing",
+    link: "/sign-up",
     dataAiHint: "invoice document"
   },
   {
     icon: <Package className="h-10 w-10 text-primary mb-4" />,
     title: "Inventory Management",
     description: "Track stock levels, manage warehouses, and handle product batches and expiry dates.",
-    link: "/stock-management",
+    link: "/sign-up",
     dataAiHint: "inventory boxes"
   },
    {
     icon: <BookOpenCheck className="h-10 w-10 text-primary mb-4" />,
     title: "Accounting & Ledger",
     description: "Manage your chart of accounts, journal entries, and ledgers with double-entry precision.",
-    link: "/accounting",
+    link: "/sign-up",
     dataAiHint: "accounting ledger"
   },
   {
     icon: <Users className="h-10 w-10 text-primary mb-4" />,
     title: "Employee & Payroll",
     description: "Manage employee records, process salaries, and handle payroll compliance.",
-    link: "/payroll",
+    link: "/sign-up",
     dataAiHint: "team employee"
   },
   {
     icon: <Landmark className="h-10 w-10 text-primary mb-4" />,
     title: "Taxation & Compliance",
     description: "Handle GST returns, TDS/TCS, and stay compliant with automated tax calculations.",
-    link: "/taxation",
+    link: "/sign-up",
     dataAiHint: "tax government"
   },
   {
     icon: <Banknote className="h-10 w-10 text-primary mb-4" />,
     title: "Banking & Payments",
     description: "Reconcile bank statements, manage cheques, and track digital payments seamlessly.",
-    link: "/banking",
+    link: "/sign-up",
     dataAiHint: "bank money"
   },
   {
     icon: <BarChartHorizontalBig className="h-10 w-10 text-primary mb-4" />,
     title: "Business Reporting",
     description: "Generate Balance Sheets, P&L statements, and analyze cash flow in real-time.",
-    link: "/business-analysis",
+    link: "/sign-up",
     dataAiHint: "data analytics"
   },
   {
     icon: <DatabaseBackup className="h-10 w-10 text-primary mb-4" />,
     title: "Data Backup & Restore",
     description: "Securely back up your company data to the cloud and restore it anytime.",
-    link: "/data-backup",
+    link: "/sign-up",
     dataAiHint: "server database"
   },
   {
     icon: <ShieldCheck className="h-10 w-10 text-primary mb-4" />,
     title: "Security & Access",
     description: "Control user roles and permissions, and view audit logs to keep your data secure.",
-    link: "/security",
+    link: "/sign-up",
     dataAiHint: "security shield"
   },
   {
     icon: <Plug className="h-10 w-10 text-primary mb-4" />,
     title: "Integrations",
     description: "Connect with third-party apps, export data, and extend your functionality.",
-    link: "/integrations",
+    link: "/sign-up",
     dataAiHint: "api integration"
   },
   {
     icon: <MessageCircleCode className="h-10 w-10 text-primary mb-4" />,
     title: "AI WhatsApp Assistant",
     description: "Use AI to automate customer communication and send payment reminders via WhatsApp.",
-    link: "/whatsapp-auto-reply",
+    link: "/sign-up",
     dataAiHint: "ai chat"
   }
 ];

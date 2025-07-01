@@ -24,11 +24,10 @@ const protectedRoutes = [
   '/integrations',
   '/whatsapp-auto-reply',
   '/communication-preferences',
-  // Note: /pricing is public but uses the main layout
 ];
 
-const authPages = ['/sign-in', '/sign-up'];
-const publicStandalonePages = ['/']; // Pages that should NOT have the main app sidebar, e.g. landing page
+// Define which pages are public and don't require the sidebar.
+const publicStandalonePages = ['/', '/sign-in', '/sign-up'];
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const [isGoToBarOpen, setIsGoToBarOpen] = useState(false);
@@ -48,25 +47,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    if (loading) return; // Don't do anything until auth state is known
-
-    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-    const isAuthPage = authPages.includes(pathname);
-    
-    // If user is not logged in and tries to access a protected route
-    if (!user && isProtectedRoute) {
-      router.push('/sign-in');
-    }
-
-    // If user is logged in, redirect them from auth pages or the main landing page
-    if (user && (isAuthPage || pathname === '/')) {
-      router.push('/dashboard');
-    }
-
-  }, [user, loading, pathname, router]);
-
-  // While loading auth state, show a global loader
+  // 1. Show a global loader while we wait for Firebase to determine the auth state.
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -76,20 +57,52 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
   }
 
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-  const isAuthPage = authPages.includes(pathname);
-
-  // If a redirect is about to happen, show a loader to prevent content flash
-  if ((!user && isProtectedRoute) || (user && (isAuthPage || pathname === '/'))) {
+  const isPublicStandalonePage = publicStandalonePages.includes(pathname);
+  
+  // 2. Logic for LOGGED-IN users.
+  if (user) {
+    // If a logged-in user tries to visit the landing, sign-in, or sign-up page,
+    // redirect them to the dashboard.
+    if (isPublicStandalonePage) {
+      router.replace('/dashboard');
+      // Show a loader during the redirect to prevent content flashing.
+      return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+          <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+      );
+    }
+    
+    // Otherwise, they are in the main app, so show the full layout with the sidebar.
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
+        <SidebarProvider defaultOpen={true}>
+          <AppSidebar />
+          <main className="flex-1 md:pl-[var(--sidebar-width)] group-data-[sidebar-state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding-left] duration-300 ease-in-out">
+            <div className="p-4 sm:p-6 lg:p-8 fade-in">
+              {children}
+            </div>
+          </main>
+          <Toaster />
+          <GoToBar isOpen={isGoToBarOpen} setIsOpen={setIsGoToBarOpen} />
+        </SidebarProvider>
     );
   }
 
-  // For auth pages and the main landing page, render a simple layout without the sidebar
-  const isStandalonePage = authPages.includes(pathname) || publicStandalonePages.includes(pathname);
-  if (isStandalonePage) {
+  // 3. Logic for LOGGED-OUT users.
+  if (!user) {
+    // If a logged-out user tries to access a protected route, redirect them to the sign-in page.
+    if (isProtectedRoute) {
+      router.replace('/sign-in');
+      // Show a loader during the redirect.
+      return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+          <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+      );
+    }
+
+    // For any other page (which must be a public one like the landing page), 
+    // show the children in a simple, full-screen layout without the sidebar.
     return (
       <>
         {children}
@@ -97,18 +110,4 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
       </>
     );
   }
-
-  // For all other pages (the main app), render the full layout with the sidebar.
-  return (
-    <SidebarProvider defaultOpen={true}>
-      <AppSidebar />
-      <main className="flex-1 md:pl-[var(--sidebar-width)] group-data-[sidebar-state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding-left] duration-300 ease-in-out">
-        <div className="p-4 sm:p-6 lg:p-8 fade-in">
-          {children}
-        </div>
-      </main>
-      <Toaster />
-      <GoToBar isOpen={isGoToBarOpen} setIsOpen={setIsGoToBarOpen} />
-    </SidebarProvider>
-  );
 }

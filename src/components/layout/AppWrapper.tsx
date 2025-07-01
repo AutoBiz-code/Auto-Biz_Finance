@@ -26,6 +26,9 @@ const protectedRoutes = [
   '/communication-preferences',
 ];
 
+const authPages = ['/sign-in', '/sign-up'];
+const publicPages = ['/', '/pricing']; // Explicitly public pages
+
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const [isGoToBarOpen, setIsGoToBarOpen] = useState(false);
   const { user, loading } = useAuth();
@@ -45,33 +48,55 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (loading) return; // Wait until auth state is confirmed
+    if (loading) return; // Don't do anything until auth state is known
 
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+    const isAuthPage = authPages.includes(pathname);
+    const isPublicPage = publicPages.includes(pathname);
 
+    // If user is not logged in and tries to access a protected route
     if (!user && isProtectedRoute) {
       router.push('/sign-in');
     }
-    
-    // Redirect logged-in users from auth pages to the dashboard
-    if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
-        router.push('/dashboard');
+
+    // If user is logged in, redirect them from auth pages or the main landing page
+    if (user && (isAuthPage || pathname === '/')) {
+      router.push('/dashboard');
     }
 
   }, [user, loading, pathname, router]);
-  
-  const isProtectedRouteCheck = protectedRoutes.some(route => pathname.startsWith(route));
-  
-  // While loading, or if on a protected route without a user, show a loader.
-  // This prevents a flash of the protected content before redirection.
-  if ((loading || !user) && isProtectedRouteCheck) {
-     return (
+
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  const isAuthPage = authPages.includes(pathname);
+
+  // While loading, show a global loader to prevent any flashes of content
+  if (loading) {
+    return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     );
   }
 
+  // If a redirect is imminent, show a loader to ensure a smooth transition.
+  // Case 1: Unauthenticated user on a protected route.
+  if (!user && isProtectedRoute) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+  // Case 2: Authenticated user on an auth page or the landing page.
+  if (user && (isAuthPage || pathname === '/')) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // If no redirects are needed, render the actual content.
   return (
     <SidebarProvider defaultOpen={true}>
       <AppSidebar />

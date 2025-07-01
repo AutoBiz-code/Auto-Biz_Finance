@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
@@ -10,18 +10,19 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
+// Define which routes are public and which are part of the authentication flow
 const publicRoutes = ["/", "/pricing"];
-const authPages = ["/sign-in", "/sign-up"];
+const authRoutes = ["/sign-in", "/sign-up"];
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
-  const [isGoToBarOpen, setIsGoToBarOpen] = useState(false);
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [isGoToBarOpen, setIsGoToBarOpen] = React.useState(false);
 
-  // Keyboard shortcut for GoToBar, only active for logged-in users
-  useEffect(() => {
-    if (!user) return; // Only attach listener if user is logged in
+  // Keyboard shortcut effect should only run for logged-in users
+  React.useEffect(() => {
+    if (!user) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && e.key.toLowerCase() === 'g') {
@@ -32,8 +33,9 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [user]); // Rerun when user status changes
+  }, [user]);
 
+  // 1. Show a loader while authentication state is being determined.
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -43,20 +45,22 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
   }
 
   const isPublicPage = publicRoutes.includes(pathname);
-  const isAuthPage = authPages.includes(pathname);
-
-  // User is LOGGED IN
+  const isAuthPage = authRoutes.includes(pathname);
+  
+  // 2. If the user IS LOGGED IN
   if (user) {
-    // If they are on the landing page or an auth page, redirect to dashboard
+    // If they are on a public or auth page, redirect them to the dashboard.
     if (isPublicPage || isAuthPage) {
       router.replace('/dashboard');
+      // Show a loader during the redirect
       return (
         <div className="flex h-screen w-full items-center justify-center bg-background">
           <Loader2 className="h-16 w-16 animate-spin text-primary" />
         </div>
       );
     }
-    // Otherwise, they are on a protected page, show the app layout
+
+    // Otherwise, they are on a protected page. Show the full app layout.
     return (
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
@@ -71,18 +75,18 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // User is LOGGED OUT
-  // If it's a public or auth page, show it as is
+  // 3. If the user IS LOGGED OUT
+  // If they are on a public page or an auth page, show it as is, without the sidebar.
   if (isPublicPage || isAuthPage) {
-    return (
+     return (
       <>
         {children}
         <Toaster />
       </>
     );
   }
-
-  // Otherwise, it's a protected page, so redirect to sign-in
+  
+  // Otherwise, they are trying to access a protected page. Redirect to sign-in.
   router.replace('/sign-in');
   return (
     <div className="flex h-screen w-full items-center justify-center bg-background">

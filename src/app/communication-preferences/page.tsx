@@ -141,7 +141,7 @@ export default function CommunicationPreferencesPage() {
           </div>
           
           <div className="pt-4">
-            <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto btn-tally-gradient hover-scale">
+            <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto hover-scale">
               {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
               {isSaving ? "Saving..." : "Save Changes"}
             </Button>

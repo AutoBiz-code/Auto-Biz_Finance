@@ -26,8 +26,9 @@ const protectedRoutes = [
   '/communication-preferences',
 ];
 
-// Define which pages are public and don't require the sidebar.
-const publicStandalonePages = ['/', '/sign-in', '/sign-up'];
+// Routes that a logged-in user should be redirected away from.
+const publicOnlyRoutes = ['/', '/sign-in', '/sign-up'];
+
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const [isGoToBarOpen, setIsGoToBarOpen] = useState(false);
@@ -47,7 +48,10 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // 1. Show a global loader while we wait for Firebase to determine the auth state.
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  const isPublicOnlyRoute = publicOnlyRoutes.includes(pathname);
+
+  // 1. While auth state is resolving, show a global loader. This prevents any content flashing.
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -56,25 +60,30 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-  const isPublicStandalonePage = publicStandalonePages.includes(pathname);
-  
-  // 2. Logic for LOGGED-IN users.
-  if (user) {
-    // If a logged-in user tries to visit the landing, sign-in, or sign-up page,
-    // redirect them to the dashboard.
-    if (isPublicStandalonePage) {
-      router.replace('/dashboard');
-      // Show a loader during the redirect to prevent content flashing.
-      return (
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-          <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-      );
-    }
-    
-    // Otherwise, they are in the main app, so show the full layout with the sidebar.
+  // 2. If user is NOT logged in and tries to access a protected route, redirect to sign-in.
+  if (!user && isProtectedRoute) {
+    router.replace('/sign-in');
     return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // 3. If user IS logged in and tries to access a public-only route (landing, sign-in, etc.), redirect to dashboard.
+  if (user && isPublicOnlyRoute) {
+    router.replace('/dashboard');
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  // 4. If we are here, no redirect is necessary. Render the correct layout.
+  // If user is logged in (and on an allowed page), render the full app layout with sidebar.
+  if (user) {
+     return (
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
           <main className="flex-1 md:pl-[var(--sidebar-width)] group-data-[sidebar-state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding-left] duration-300 ease-in-out">
@@ -88,26 +97,12 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // 3. Logic for LOGGED-OUT users.
-  if (!user) {
-    // If a logged-out user tries to access a protected route, redirect them to the sign-in page.
-    if (isProtectedRoute) {
-      router.replace('/sign-in');
-      // Show a loader during the redirect.
-      return (
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-          <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-      );
-    }
-
-    // For any other page (which must be a public one like the landing page), 
-    // show the children in a simple, full-screen layout without the sidebar.
-    return (
-      <>
-        {children}
-        <Toaster />
-      </>
-    );
-  }
+  // Otherwise, user is not logged in and on a public page. Render the simple layout.
+  // This correctly shows the landing page first for new visitors.
+  return (
+    <>
+      {children}
+      <Toaster />
+    </>
+  );
 }

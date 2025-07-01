@@ -2,14 +2,9 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-// Mock data for the General Ledger
+// Mock data for the General Ledger - reset for a new user
 const ledgerEntries = [
-  { id: 1, date: "2023-10-01", particulars: "Opening Balance", debit: 50000.00, credit: 0.00, balance: 50000.00 },
-  { id: 2, date: "2023-10-03", particulars: "Sales to Acme Corp (Invoice #101)", debit: 0.00, credit: 15000.00, balance: 65000.00 },
-  { id: 3, date: "2023-10-05", particulars: "Purchase of Raw Materials", debit: 7500.00, credit: 0.00, balance: 57500.00 },
-  { id: 4, date: "2023-10-10", particulars: "Payment from Acme Corp", debit: 0.00, credit: 15000.00, balance: 72500.00 },
-  { id: 5, date: "2023-10-15", particulars: "Rent Paid", debit: 10000.00, credit: 0.00, balance: 62500.00 },
-  { id: 6, date: "2023-10-25", particulars: "Salaries Paid", debit: 25000.00, credit: 0.00, balance: 37500.00 },
+  { id: 1, date: "2024-01-01", particulars: "Opening Balance", debit: 0.00, credit: 0.00, balance: 0.00 },
 ];
 
 export default function GeneralLedger() {

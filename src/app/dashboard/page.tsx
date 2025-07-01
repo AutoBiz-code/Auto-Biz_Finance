@@ -27,11 +27,10 @@ export default function DashboardPage() {
   const [conversationCount, setConversationCount] = React.useState(0);
 
   React.useEffect(() => {
-    // This now fetches data for guest users too, showing default values.
-    // Placeholder: In a real app, you might fetch different data for guests.
+    // For new users, all data starts at 0.
     setTimeout(() => {
-      setUserPlan(user ? "Pro" : "Basic"); // Example logic
-      setConversationCount(user ? 120 : 0); // Example logic
+      setUserPlan(user ? "Pro" : "Basic");
+      setConversationCount(0);
     }, 500);
   }, [user]);
 
@@ -44,10 +43,10 @@ export default function DashboardPage() {
   const conversationProgress = conversationLimit > 0 && conversationLimit !== Infinity ? (conversationCount / conversationLimit) * 100 : 0;
 
   const keyMetrics: Metric[] = [
-    { title: "Invoices Generated", value: "125", icon: <FileText className="h-6 w-6 text-primary" />, description: "This month", actionPath: "/gst-billing" },
-    { title: "Pending Payments", value: "₹45,230", icon: <Banknote className="h-6 w-6 text-primary" />, description: "Total outstanding", actionPath: "/banking" },
-    { title: "Hours Saved", value: "25+", icon: <Clock className="h-6 w-6 text-primary" />, description: "Via automation this month", actionPath: "/business-analysis" },
-    { title: "Active Automations", value: "3", icon: <Zap className="h-6 w-6 text-primary" />, description: "Across all services", actionPath: "/integrations" },
+    { title: "Invoices Generated", value: "0", icon: <FileText className="h-6 w-6 text-primary" />, description: "This month", actionPath: "/gst-billing" },
+    { title: "Pending Payments", value: "₹0", icon: <Banknote className="h-6 w-6 text-primary" />, description: "Total outstanding", actionPath: "/banking" },
+    { title: "Hours Saved", value: "0", icon: <Clock className="h-6 w-6 text-primary" />, description: "Via automation this month", actionPath: "/business-analysis" },
+    { title: "Active Automations", value: "0", icon: <Zap className="h-6 w-6 text-primary" />, description: "Across all services", actionPath: "/integrations" },
   ];
 
   if (authLoading) {

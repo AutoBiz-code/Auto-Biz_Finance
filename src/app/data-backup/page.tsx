@@ -26,12 +26,9 @@ export default function DataBackupPage() {
 
   // Load initial backups (simulation)
   useEffect(() => {
-    // In a real app, you'd fetch this list from Firestore
-    const mockBackups: Backup[] = [
-      { id: crypto.randomUUID(), createdAt: new Date(new Date().setDate(new Date().getDate() - 7)), size: "14.8 MB" },
-      { id: crypto.randomUUID(), createdAt: new Date(new Date().setDate(new Date().getDate() - 1)), size: "15.1 MB" },
-    ];
-    setBackups(mockBackups);
+    // In a real app, you'd fetch this list from Firestore for the logged-in user.
+    // For a new user, this starts as empty.
+    setBackups([]);
   }, []);
 
   const handleCreateBackup = async () => {

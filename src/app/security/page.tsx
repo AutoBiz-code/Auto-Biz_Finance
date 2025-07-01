@@ -1,12 +1,13 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, Users } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
 
 type UserRole = 'Admin' | 'Manager' | 'Accountant' | 'Clerk';
 
@@ -16,19 +17,20 @@ interface TeamMember {
   role: UserRole;
 }
 
-const initialTeamMembers: TeamMember[] = [
-  { id: 'usr_1', email: 'rohan.sharma@autobiz.co', role: 'Admin' },
-  { id: 'usr_2', email: 'priya.patel@autobiz.co', role: 'Manager' },
-  { id: 'usr_3', email: 'amit.singh@autobiz.co', role: 'Accountant' },
-  { id: 'usr_4', email: 'sunita.verma@autobiz.co', role: 'Clerk' },
-];
-
 export default function SecurityPage() {
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(initialTeamMembers);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const { user } = useAuth();
   const { toast } = useToast();
 
+  useEffect(() => {
+    // For a new user, the team consists of only themselves as Admin.
+    if (user?.email) {
+      setTeamMembers([{ id: user.uid, email: user.email, role: 'Admin' }]);
+    }
+  }, [user]);
+
   const handleRoleChange = (userId: string, newRole: UserRole) => {
-    // In a real app, this would be a server action call
+    // In a real app, this would be a server action call to update roles in Firestore
     console.log(`Updating role for ${userId} to ${newRole}`);
     setTeamMembers(prevMembers =>
       prevMembers.map(member =>

@@ -11,15 +11,7 @@ import { CheckCircle2, Loader2, Scale } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { reconcileTransactionsAction } from "@/actions/autobiz-features";
 
-const mockTransactions = [
-  { id: 'txn1', date: '2023-10-28', particulars: 'Cheque Deposit #123', type: 'Credit', amount: 5000, reconciled: true },
-  { id: 'txn2', date: '2023-10-29', particulars: 'Vendor Payment - Acme Ltd', type: 'Debit', amount: -2500, reconciled: true },
-  { id: 'txn3', date: '2023-10-30', particulars: 'Bank Interest', type: 'Credit', amount: 150, reconciled: false },
-  { id: 'txn4', date: '2023-10-30', particulars: 'Cash Deposit', type: 'Credit', amount: 10000, reconciled: true },
-  { id: 'txn5', date: '2023-10-31', particulars: 'Online Purchase - Cloud Svc', type: 'Debit', amount: -1200, reconciled: false },
-  { id: 'txn6', date: '2023-10-31', particulars: 'Cheque Issued #502', type: 'Debit', amount: -3500, reconciled: false },
-  { id: 'txn7', date: '2023-11-01', particulars: 'UPI In - Customer A', type: 'Credit', amount: 800, reconciled: true },
-];
+const mockTransactions: any[] = [];
 
 async function reconcileSingleTransaction(id: string) {
   console.log("Simulating reconciliation for transaction:", id);
@@ -159,45 +151,53 @@ export default function BankingPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.map(t => (
-                  <TableRow key={t.id} className={t.reconciled ? "bg-accent/10" : ""}>
-                    <TableCell>
-                      {!t.reconciled && (
-                        <Checkbox
-                          checked={selectedTxns.has(t.id)}
-                          onCheckedChange={(checked) => handleSelect(t.id, checked as boolean)}
-                          aria-label={`Select transaction ${t.id}`}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>{t.date}</TableCell>
-                    <TableCell className="font-medium">{t.particulars}</TableCell>
-                    <TableCell className={`text-right font-mono ${t.amount >= 0 ? 'text-foreground' : 'text-destructive'}`}>
-                      {t.amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {t.reconciled ? (
-                        <div className="flex items-center justify-center gap-2 text-primary font-medium">
-                          <CheckCircle2 className="h-5 w-5" />
-                          <span>Reconciled</span>
-                        </div>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleReconcile(t.id)}
-                          disabled={!!isReconciling || isBulkReconciling}
-                          className="w-[110px]"
-                        >
-                          {isReconciling === t.id ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : null}
-                          Reconcile
-                        </Button>
-                      )}
+                {transactions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                      No transactions to display.
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  transactions.map(t => (
+                    <TableRow key={t.id} className={t.reconciled ? "bg-accent/10" : ""}>
+                      <TableCell>
+                        {!t.reconciled && (
+                          <Checkbox
+                            checked={selectedTxns.has(t.id)}
+                            onCheckedChange={(checked) => handleSelect(t.id, checked as boolean)}
+                            aria-label={`Select transaction ${t.id}`}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell>{t.date}</TableCell>
+                      <TableCell className="font-medium">{t.particulars}</TableCell>
+                      <TableCell className={`text-right font-mono ${t.amount >= 0 ? 'text-foreground' : 'text-destructive'}`}>
+                        {t.amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {t.reconciled ? (
+                          <div className="flex items-center justify-center gap-2 text-primary font-medium">
+                            <CheckCircle2 className="h-5 w-5" />
+                            <span>Reconciled</span>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleReconcile(t.id)}
+                            disabled={!!isReconciling || isBulkReconciling}
+                            className="w-[110px]"
+                          >
+                            {isReconciling === t.id ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : null}
+                            Reconcile
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>

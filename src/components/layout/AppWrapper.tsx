@@ -23,6 +23,7 @@ const protectedRoutes = [
   '/security',
   '/integrations',
   '/whatsapp-auto-reply',
+  '/communication-preferences',
 ];
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {

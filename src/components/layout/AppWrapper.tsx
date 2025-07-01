@@ -10,24 +10,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-const protectedRoutes = [
-  '/dashboard',
-  '/gst-billing',
-  '/stock-management',
-  '/accounting',
-  '/payroll',
-  '/taxation',
-  '/banking',
-  '/business-analysis',
-  '/data-backup',
-  '/security',
-  '/integrations',
-  '/whatsapp-auto-reply',
-  '/communication-preferences',
-];
+// Explicitly define all public routes. Everything else requires authentication.
+const publicRoutes = ['/', '/sign-in', '/sign-up', '/pricing'];
 
 // Routes that a logged-in user should be redirected away from.
-const publicOnlyRoutes = ['/', '/sign-in', '/sign-up'];
+const authRoutes = ['/', '/sign-in', '/sign-up'];
 
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
@@ -48,31 +35,30 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-  const isPublicOnlyRoute = publicOnlyRoutes.includes(pathname);
+  const isPublicRoute = publicRoutes.includes(pathname);
+  const isAuthRoute = authRoutes.includes(pathname);
 
-  // 1. While auth state is resolving, show a global loader. This prevents any content flashing.
-  if (loading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    // Wait until authentication status is resolved
+    if (loading) {
+      return;
+    }
 
-  // 2. If user is NOT logged in and tries to access a protected route, redirect to sign-in.
-  if (!user && isProtectedRoute) {
-    router.replace('/sign-in');
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
+    // If user is not authenticated and trying to access a non-public page,
+    // redirect them to the sign-in page.
+    if (!user && !isPublicRoute) {
+      router.replace('/sign-in');
+    }
 
-  // 3. If user IS logged in and tries to access a public-only route (landing, sign-in, etc.), redirect to dashboard.
-  if (user && isPublicOnlyRoute) {
-    router.replace('/dashboard');
+    // If user is authenticated and trying to access landing, sign-in, or sign-up,
+    // redirect them to their dashboard.
+    if (user && isAuthRoute) {
+      router.replace('/dashboard');
+    }
+  }, [loading, user, pathname, router, isPublicRoute, isAuthRoute]);
+  
+  // Show a loader while authentication is in progress or a redirect is happening.
+  if (loading || (!user && !isPublicRoute) || (user && isAuthRoute)) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -80,8 +66,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
   
-  // 4. If we are here, no redirect is necessary. Render the correct layout.
-  // If user is logged in (and on an allowed page), render the full app layout with sidebar.
+  // If user is authenticated, render the full app layout with sidebar.
   if (user) {
      return (
         <SidebarProvider defaultOpen={true}>
@@ -98,7 +83,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
   }
 
   // Otherwise, user is not logged in and on a public page. Render the simple layout.
-  // This correctly shows the landing page first for new visitors.
+  // This correctly shows the landing page, sign-in, etc., for new visitors.
   return (
     <>
       {children}

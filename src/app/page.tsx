@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   FileText, 
@@ -114,9 +115,9 @@ export default function LandingPage() {
             From invoicing to payroll, AutoBiz Finance is very efficient, putting everything you need at your fingertips.
           </p>
           <div className="flex justify-center">
-              <Button asChild size="lg" className="text-lg py-7 hover-scale">
-                  <Link href="/sign-in">Get Started</Link>
-              </Button>
+            <Link href="/sign-in" className="inline-flex items-center justify-center rounded-md px-8 py-3 text-lg font-bold bg-transparent border-2 border-secondary hover:bg-secondary/10 transition-colors hover-scale">
+                <span className="bg-primary-gradient bg-clip-text text-transparent">Get Started</span>
+            </Link>
           </div>
         </div>
 

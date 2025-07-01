@@ -45,7 +45,7 @@ export default function IntegrationsPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold text-foreground">Integrations & Connectivity</h1>
+        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Integrations & Connectivity</h1>
         <p className="mt-2 text-muted-foreground">Extend your capabilities by connecting to other services.</p>
       </header>
       

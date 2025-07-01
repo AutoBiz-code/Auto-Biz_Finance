@@ -57,7 +57,7 @@ export default function PricingPage() {
   return (
     <div className="space-y-12 fade-in">
       <div className="text-center">
-        <h1 className="text-4xl font-headline font-bold text-foreground">Flexible Pricing for Your Business</h1>
+        <h1 className="text-4xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Flexible Pricing for Your Business</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
           Choose the plan that best fits your SME's needs in Gurugram and scale as you grow with AutoBiz Finance.
         </p>

@@ -106,7 +106,7 @@ export default function BankingPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold text-foreground">Banking & Payments</h1>
+        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Banking & Payments</h1>
         <p className="mt-2 text-muted-foreground">Reconcile bank statements, manage payments, and streamline your cash flow.</p>
       </header>
       

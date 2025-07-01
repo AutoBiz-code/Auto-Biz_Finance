@@ -24,7 +24,7 @@ export default function AccountingPage() {
     <div className="space-y-8 fade-in">
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-headline font-semibold text-foreground">Accounting & Financial Management</h1>
+          <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Accounting & Financial Management</h1>
           <p className="mt-2 text-muted-foreground">The core of your financial operations, featuring the General Ledger.</p>
         </div>
         <AccountingActions />

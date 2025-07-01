@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -43,7 +44,7 @@ export default function SecurityPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold text-foreground">Security & Access Control</h1>
+        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Security & Access Control</h1>
         <p className="mt-2 text-muted-foreground">Manage user roles and permissions to protect your financial data.</p>
       </header>
       

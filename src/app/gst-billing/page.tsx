@@ -188,7 +188,7 @@ export default function GstBillingPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold text-foreground">GST Bill Generation</h1>
+        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">GST Bill Generation</h1>
         <p className="mt-2 text-muted-foreground">Create and generate detailed GST-compliant bills as PDFs.</p>
       </header>
 

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function GstInvoicingPageRedirect() {
   return (
     <div className="space-y-8 fade-in">
-      <h1 className="text-3xl font-headline font-semibold text-foreground">GST Billing and PDF Generation</h1>
+      <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">GST Billing and PDF Generation</h1>
       
       <Card className="shadow-lg overflow-hidden bg-card text-card-foreground">
          <div className="md:flex">

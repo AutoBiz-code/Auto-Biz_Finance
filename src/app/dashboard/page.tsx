@@ -60,7 +60,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 fade-in">
-      <h1 className="text-3xl font-headline font-semibold text-foreground">AutoBiz Finance Dashboard</h1>
+      <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">AutoBiz Finance Dashboard</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">

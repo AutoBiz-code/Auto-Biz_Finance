@@ -118,7 +118,7 @@ export default function PayrollPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold text-foreground">Employee & Payroll Management</h1>
+        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Employee & Payroll Management</h1>
         <p className="mt-2 text-muted-foreground">Manage your employees, process salaries, and handle compliance.</p>
       </header>
 

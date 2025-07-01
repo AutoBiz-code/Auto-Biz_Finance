@@ -10,8 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-const publicPages = ['/', '/sign-in', '/sign-up', '/pricing'];
-const authPages = ['/sign-in', '/sign-up'];
+const publicPages = ['/', '/sign-in', '/sign-up', '/pricing']; // These pages are accessible to everyone.
+const authPages = ['/sign-in', '/sign-up']; // Pages for authentication.
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -21,19 +21,17 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (!user) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && e.key.toLowerCase() === 'g') {
         e.preventDefault();
-        setIsGoToBarOpen(prev => !prev);
+        setIsGoTo-BarOpen(prev => !prev);
       }
     };
-    
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [user]);
 
-  // 1. Render a loader while auth state is being determined
+  // 1. Show a loader while authentication state is being determined.
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -44,13 +42,12 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
 
   const isPublicPage = publicPages.includes(pathname);
   const isAuthPage = authPages.includes(pathname);
-
-  // 2. Handle logged-in users
+  
+  // 2. Handle logged-in users.
   if (user) {
-    // If a logged-in user tries to access the landing page or an auth page, redirect them to the dashboard
+    // If a logged-in user tries to access an auth page or the landing page, redirect to the dashboard.
     if (isAuthPage || pathname === '/') {
       router.replace('/dashboard');
-      // Show a loader during the redirect
       return (
         <div className="flex h-screen w-full items-center justify-center bg-background">
           <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -58,7 +55,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
       );
     }
     
-    // Otherwise, render the main application with the sidebar
+    // Otherwise, render the main application with the sidebar for any other page.
     return (
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
@@ -73,9 +70,9 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // 3. Handle logged-out users
+  // 3. Handle logged-out users.
   if (!user) {
-    // If the page is public, render it without the sidebar
+    // If the page is public, render it without the sidebar. This correctly shows the landing page.
     if (isPublicPage) {
       return (
         <>
@@ -85,7 +82,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
       );
     }
 
-    // If the page is protected, redirect to sign-in
+    // If the page is protected, redirect to sign-in.
     router.replace('/sign-in');
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -94,6 +91,5 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Fallback case (should not be reached)
   return null;
 }

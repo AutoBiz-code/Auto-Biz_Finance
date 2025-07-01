@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   FileText, 
@@ -108,7 +107,7 @@ export default function LandingPage() {
     <div className="container mx-auto px-4">
       <div className="space-y-12 fade-in">
         <div className="text-center space-y-6 pt-8">
-          <h1 className="text-4xl lg:text-5xl font-headline font-bold text-foreground max-w-4xl mx-auto">
+          <h1 className="text-4xl lg:text-5xl font-headline font-bold max-w-4xl mx-auto bg-primary-gradient bg-clip-text text-transparent">
             Empower Your Business, Simplify Your Finances.
           </h1>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">

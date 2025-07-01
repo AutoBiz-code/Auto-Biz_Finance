@@ -26,14 +26,6 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function AppleIcon(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
-            <path d="M19.143 14.302c-.08 3.65-2.52 5.568-4.938 5.586-1.07.02-2.12-.47-3.15-.47-.96 0-2.12.47-3.21.5-.22 0-.43-.02-.64-.04-1.33-.09-2.73-.74-3.75-2.26-.01 0-.01 0 0 0-2.1-3.21-.8-7.3 1.5-9.52 1.14-1.08 2.58-1.74 4.12-1.74 1.13 0 2.25.43 3.19.43.9-.01 2.2-.5 3.32-.43.58.02 1.16.14 1.7.35 1.13.43 2.14 1.28 2.14 1.28s-1.14.73-2.2 1.43c-1.12.73-2.3 1.5-2.3 2.65.02 1.34 1.3 1.93 2.45 1.21.22-.15.45-.33.68-.54.2-.18.38-.36.54-.53a.28.28 0 01.3-.1c.07 0 .1.03.1.04.02.03-.04.06-1.1 1.05zM15.58 6.16c.92-.99 1.48-2.28 1.34-3.55-.96.06-2.21.64-3.13 1.63-.82.88-1.5 2.2-1.34 3.42.3.02 1.05-.18 2.05-.62s1.02-.7 1.08-.88z"/>
-        </svg>
-    )
-}
-
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,11 +36,10 @@ export default function SignInPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isAppleLoading, setIsAppleLoading] = useState(false);
   const [isPhoneLoading, setIsPhoneLoading] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
 
-  const { signIn, signInWithGoogle, signInWithApple, setupRecaptcha, signInWithPhone } = useAuth(); 
+  const { signIn, signInWithGoogle, setupRecaptcha, signInWithPhone } = useAuth(); 
   const router = useRouter();
   const { toast } = useToast();
 
@@ -91,17 +82,6 @@ export default function SignInPage() {
     } catch (error) {
       setIsGoogleLoading(false);
       setError("Failed to sign in with Google.");
-    }
-  };
-
-  const handleAppleSignIn = async () => {
-    setIsAppleLoading(true);
-    setError(null);
-    try {
-      await signInWithApple();
-    } catch (error) {
-      setIsAppleLoading(false);
-      setError("Failed to sign in with Apple.");
     }
   };
 
@@ -156,7 +136,7 @@ export default function SignInPage() {
     }
   }
 
-  const anyLoading = isLoading || isGoogleLoading || isAppleLoading || isPhoneLoading;
+  const anyLoading = isLoading || isGoogleLoading || isPhoneLoading;
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
@@ -204,10 +184,6 @@ export default function SignInPage() {
                  <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={anyLoading}>
                     {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
                     Sign in with Google
-                </Button>
-                <Button variant="outline" className="w-full" onClick={handleAppleSignIn} disabled={anyLoading}>
-                    {isAppleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AppleIcon className="mr-2 h-5 w-5 fill-current" />}
-                    Sign in with Apple
                 </Button>
               </div>
 

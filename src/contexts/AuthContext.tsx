@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, signInWithRedirect, getRedirectResult, GoogleAuthProvider, AuthError, OAuthProvider, RecaptchaVerifier, ConfirmationResult, signInWithPhoneNumber } from 'firebase/auth';
-import { auth as firebaseAuthInstance, googleProvider, appleProvider } from '@/lib/firebase/config';
+import { auth as firebaseAuthInstance, googleProvider } from '@/lib/firebase/config';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,7 +20,6 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<UserCredential>;
   signIn: (email: string, password: string) => Promise<UserCredential>;
   signInWithGoogle: () => Promise<void>;
-  signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
   setupRecaptcha: (containerId: string) => RecaptchaVerifier;
   signInWithPhone: (phoneNumber: string, verifier: RecaptchaVerifier) => Promise<ConfirmationResult>;
@@ -97,7 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return signInWithEmailAndPassword(firebaseAuthInstance, email, password);
   };
 
-  const signInWithProvider = async (provider: GoogleAuthProvider | OAuthProvider) => {
+  const signInWithProvider = async (provider: GoogleAuthProvider) => {
     if (!firebaseAuthInstance) {
         toast({ title: "Initialization Error", description: "Firebase is not ready.", variant: "destructive" });
         throw new Error("Firebase not initialized");
@@ -121,7 +120,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithGoogle = () => signInWithProvider(googleProvider);
-  const signInWithApple = () => signInWithProvider(appleProvider);
 
   const signOut = async () => {
     if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
@@ -160,7 +158,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signUp,
     signIn,
     signInWithGoogle,
-    signInWithApple,
     signOut,
     setupRecaptcha,
     signInWithPhone,

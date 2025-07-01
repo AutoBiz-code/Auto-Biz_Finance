@@ -1,7 +1,7 @@
 
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, Auth, GoogleAuthProvider, OAuthProvider, PhoneAuthProvider } from "firebase/auth";
+import { getAuth, Auth, GoogleAuthProvider, PhoneAuthProvider } from "firebase/auth";
 import { getPerformance, Performance } from "firebase/performance";
 
 const firebaseConfig = {
@@ -17,7 +17,6 @@ const firebaseConfig = {
 let app: FirebaseApp;
 let auth: Auth;
 let googleProvider: GoogleAuthProvider;
-let appleProvider: OAuthProvider;
 let phoneProvider: PhoneAuthProvider;
 let performance: Performance;
 
@@ -41,7 +40,6 @@ if (typeof window !== "undefined") {
   auth = getAuth(app);
   auth.useDeviceLanguage();
   googleProvider = new GoogleAuthProvider();
-  appleProvider = new OAuthProvider('apple.com');
   phoneProvider = new PhoneAuthProvider(auth);
 
   if (process.env.NODE_ENV === 'production' && firebaseConfig.measurementId) {
@@ -50,4 +48,4 @@ if (typeof window !== "undefined") {
 }
 
 // @ts-ignore
-export { app, auth, googleProvider, appleProvider, phoneProvider, performance };
+export { app, auth, googleProvider, phoneProvider, performance };

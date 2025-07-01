@@ -78,10 +78,10 @@ export default function SignInPage() {
     setIsGoogleLoading(true);
     setError(null);
     try {
-      await signInWithGoogle();
+      await signInWithGoogle('signin');
     } catch (error) {
       setIsGoogleLoading(false);
-      setError("Failed to sign in with Google.");
+      // The toast is handled in the context, but we still catch to stop the loader.
     }
   };
 

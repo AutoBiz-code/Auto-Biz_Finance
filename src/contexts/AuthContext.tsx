@@ -19,7 +19,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string) => Promise<UserCredential>;
   signIn: (email: string, password: string) => Promise<UserCredential>;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (flow?: 'signin' | 'signup') => Promise<void>;
   signOut: () => Promise<void>;
   setupRecaptcha: (containerId: string) => RecaptchaVerifier;
   signInWithPhone: (phoneNumber: string, verifier: RecaptchaVerifier) => Promise<ConfirmationResult>;
@@ -50,16 +50,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       })
       .catch((error: AuthError) => {
+        const flow = sessionStorage.getItem('firebase_auth_flow') || 'signin';
+        sessionStorage.removeItem('firebase_auth_flow');
+        const title = flow === 'signup' ? "Sign Up Failed" : "Sign In Failed";
+
         let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
         
         if (error.code === 'auth/account-exists-with-different-credential') {
           friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
         } else if (error.code === 'auth/unauthorized-domain') {
-           friendlyMessage = "This domain is not authorized. If you've already added it to your Firebase project, please wait a few minutes and perform a hard refresh (Cmd+Shift+R or Ctrl+F5).";
+           friendlyMessage = "This domain is not authorized for sign-in. Please add it to your Firebase project's Authentication > Settings > Authorized domains list, then wait a few minutes and refresh.";
         }
         
         toast({
-          title: "Sign In Failed",
+          title: title,
           description: friendlyMessage,
           variant: "destructive",
           duration: 15000,
@@ -96,21 +100,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return signInWithEmailAndPassword(firebaseAuthInstance, email, password);
   };
 
-  const signInWithProvider = async (provider: GoogleAuthProvider) => {
+  const signInWithProvider = async (provider: GoogleAuthProvider, flow: 'signin' | 'signup' = 'signin') => {
     if (!firebaseAuthInstance) {
         toast({ title: "Initialization Error", description: "Firebase is not ready.", variant: "destructive" });
         throw new Error("Firebase not initialized");
     }
     try {
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('firebase_auth_flow', flow);
+        }
         await signInWithRedirect(firebaseAuthInstance, provider);
     } catch (error) {
         const authError = error as AuthError;
-        let friendlyMessage = `Could not start the sign-in process: ${authError.message}`;
+        const title = flow === 'signup' ? "Sign Up Failed" : "Sign In Failed";
+        let friendlyMessage = `Could not start the process: ${authError.message}`;
+
         if (authError.code === 'auth/unauthorized-domain') {
-            friendlyMessage = "This domain is not authorized. If you've already added it to your Firebase project, please wait a few minutes and perform a hard refresh (Cmd+Shift+R or Ctrl+F5).";
+            friendlyMessage = "This domain is not authorized for sign-in. Please add it to your Firebase project's Authentication > Settings > Authorized domains list, then wait a few minutes and refresh.";
         }
+
         toast({
-            title: "Sign In Failed",
+            title: title,
             description: friendlyMessage,
             variant: "destructive",
             duration: 15000,
@@ -119,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signInWithGoogle = () => signInWithProvider(googleProvider);
+  const signInWithGoogle = (flow: 'signin' | 'signup' = 'signin') => signInWithProvider(googleProvider, flow);
 
   const signOut = async () => {
     if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");

@@ -115,7 +115,7 @@ export default function LandingPage() {
             From invoicing to payroll, AutoBiz Finance is very efficient, putting everything you need at your fingertips.
           </p>
           <div className="flex justify-center">
-            <Link href="/sign-in" className="inline-flex items-center justify-center rounded-md px-8 py-3 text-lg font-bold bg-transparent border-2 border-secondary hover:bg-secondary/10 transition-colors hover-scale">
+            <Link href="/sign-in" className="inline-flex items-center justify-center px-8 py-3 text-lg font-bold bg-transparent transition-colors hover-scale">
                 <span className="bg-primary-gradient bg-clip-text text-transparent">Get Started</span>
             </Link>
           </div>

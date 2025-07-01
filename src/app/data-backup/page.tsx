@@ -86,14 +86,14 @@ export default function DataBackupPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Data Backup & Restore</h1>
+        <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Data Backup & Restore</h1>
         <p className="mt-2 text-muted-foreground">Securely back up your company data to the cloud and restore it anytime.</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="shadow-xl bg-card text-card-foreground border-primary/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-card-foreground">
+            <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
               <DatabaseBackup className="h-6 w-6 text-primary" />
               Create Backup
             </CardTitle>
@@ -116,7 +116,7 @@ export default function DataBackupPage() {
 
         <Card className="shadow-xl bg-card text-card-foreground border-primary/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-card-foreground">
+            <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
               <History className="h-6 w-6 text-primary" />
               Backup History
             </CardTitle>

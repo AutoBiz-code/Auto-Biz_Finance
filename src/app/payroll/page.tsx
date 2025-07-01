@@ -118,7 +118,7 @@ export default function PayrollPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Employee & Payroll Management</h1>
+        <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Employee & Payroll Management</h1>
         <p className="mt-2 text-muted-foreground">Manage your employees, process salaries, and handle compliance.</p>
       </header>
 
@@ -126,7 +126,7 @@ export default function PayrollPage() {
         <div className="lg:col-span-1">
            <Card className="shadow-xl bg-card text-card-foreground border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
                 <PlusCircle className="h-6 w-6 text-primary" />
                 Add New Employee
               </CardTitle>
@@ -168,7 +168,7 @@ export default function PayrollPage() {
         <div className="lg:col-span-2">
             <Card className="shadow-xl bg-card text-card-foreground border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
                 <Users className="h-6 w-6 text-primary" />
                 Employee List
               </CardTitle>

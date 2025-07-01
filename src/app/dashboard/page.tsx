@@ -60,13 +60,13 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 fade-in">
-      <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">AutoBiz Finance Dashboard</h1>
+      <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">AutoBiz Finance Dashboard</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <Card className="shadow-lg bg-card text-card-foreground fade-in" style={{ animationDelay: '0.1s' }}>
             <CardHeader>
-              <CardTitle className="text-card-foreground flex items-center gap-2">
+              <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
                 <UserIcon className="h-7 w-7 text-primary" />
                 User Details
               </CardTitle>
@@ -92,7 +92,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-1 space-y-8">
           <Card className="shadow-lg bg-card text-card-foreground border border-primary/20 hover:shadow-xl transition-shadow fade-in" style={{ animationDelay: '0.2s' }}>
             <CardHeader>
-              <CardTitle className="text-card-foreground flex items-center gap-2">
+              <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
                 <Lightbulb className="h-6 w-6 text-primary" />
                 Quote of the Day
               </CardTitle>
@@ -107,7 +107,7 @@ export default function DashboardPage() {
       </div>
       
       <section aria-labelledby="key-financial-metrics">
-        <h2 id="key-financial-metrics" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{ animationDelay: '0.2s' }}>Key Metrics</h2>
+        <h2 id="key-financial-metrics" className="text-2xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent mb-4 fade-in" style={{ animationDelay: '0.2s' }}>Key Metrics</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {keyMetrics.map((metric, idx) => (
              <Card 
@@ -117,7 +117,7 @@ export default function DashboardPage() {
               onClick={() => metric.actionPath && router.push(metric.actionPath)}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
+                <CardTitle className="text-sm font-bold bg-primary-gradient bg-clip-text text-transparent">{metric.title}</CardTitle>
                 {metric.icon}
               </CardHeader>
               <CardContent>
@@ -130,7 +130,7 @@ export default function DashboardPage() {
       </section>
 
       <section aria-labelledby="revenue-overview">
-         <h2 id="revenue-overview" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.3s'}}>Revenue Overview</h2>
+         <h2 id="revenue-overview" className="text-2xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent mb-4 fade-in" style={{animationDelay: '0.3s'}}>Revenue Overview</h2>
          <Suspense fallback={
             <Card className="shadow-lg bg-card text-card-foreground flex justify-center items-center min-h-[348px]">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -141,7 +141,7 @@ export default function DashboardPage() {
       </section>
 
       <section aria-labelledby="quick-actions">
-        <h2 id="quick-actions" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.4s'}}>Quick Actions</h2>
+        <h2 id="quick-actions" className="text-2xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent mb-4 fade-in" style={{animationDelay: '0.4s'}}>Quick Actions</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Button onClick={() => router.push('/gst-billing')} className="hover-scale py-6 text-base justify-start">
             <FileText className="mr-3 h-6 w-6"/> Generate GST Bill

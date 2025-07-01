@@ -188,13 +188,13 @@ export default function GstBillingPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">GST Bill Generation</h1>
+        <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">GST Bill Generation</h1>
         <p className="mt-2 text-muted-foreground">Create and generate detailed GST-compliant bills as PDFs.</p>
       </header>
 
       <Card className="max-w-4xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-card-foreground">
+          <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
             <FileText className="h-6 w-6 text-primary" />
             New GST Bill
           </CardTitle>
@@ -206,7 +206,7 @@ export default function GstBillingPage() {
           <CardContent className="space-y-8">
             {/* Company Details */}
             <section>
-              <h3 className="text-xl font-medium text-card-foreground mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold bg-primary-gradient bg-clip-text text-transparent mb-4 flex items-center gap-2">
                 <Building className="h-5 w-5 text-primary" /> Your Company Details
               </h3>
               <div className="space-y-6">
@@ -241,7 +241,7 @@ export default function GstBillingPage() {
 
             {/* Bank Details */}
             <section>
-              <h3 className="text-xl font-medium text-card-foreground mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold bg-primary-gradient bg-clip-text text-transparent mb-4 flex items-center gap-2">
                 <Landmark className="h-5 w-5 text-primary" /> Bank Details (Optional)
               </h3>
               <div className="space-y-6">
@@ -266,7 +266,7 @@ export default function GstBillingPage() {
 
             {/* Customer Details */}
             <section>
-              <h3 className="text-xl font-medium text-card-foreground mb-4">Customer Details</h3>
+              <h3 className="text-xl font-bold bg-primary-gradient bg-clip-text text-transparent mb-4">Customer Details</h3>
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -302,7 +302,7 @@ export default function GstBillingPage() {
             
             {/* Itemized List */}
             <section>
-              <h3 className="text-xl font-medium text-card-foreground mb-4">Items *</h3>
+              <h3 className="text-xl font-bold bg-primary-gradient bg-clip-text text-transparent mb-4">Items *</h3>
               <div className="space-y-4">
                 {itemsList.map((item, index) => (
                   <Card key={item.id} className="p-4 space-y-3 bg-input/50 border-border/50">

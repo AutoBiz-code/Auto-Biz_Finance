@@ -89,13 +89,13 @@ export default function StockManagementPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Inventory Management</h1>
+        <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Inventory Management</h1>
         <p className="mt-2 text-muted-foreground">Add or update items in your inventory with batch and expiry tracking.</p>
       </header>
 
       <Card className="max-w-xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20 hover-scale">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-card-foreground">
+          <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
             <Package className="h-6 w-6 text-primary" />
             Update Stock Item
           </CardTitle>

@@ -20,7 +20,7 @@ export default function GeneralLedger() {
   return (
     <Card className="shadow-lg bg-card text-card-foreground col-span-1 lg:col-span-2">
       <CardHeader>
-        <CardTitle className="text-card-foreground">General Ledger</CardTitle>
+        <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent">General Ledger</CardTitle>
         <CardDescription className="text-muted-foreground">
           A complete record of all financial transactions for the period.
         </CardDescription>

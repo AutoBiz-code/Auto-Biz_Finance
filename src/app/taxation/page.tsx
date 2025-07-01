@@ -84,7 +84,7 @@ export default function TaxationPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Taxation & Compliance</h1>
+        <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Taxation & Compliance</h1>
         <p className="mt-2 text-muted-foreground">Manage your GST returns, TDS, and other compliance tasks.</p>
       </header>
 
@@ -97,7 +97,7 @@ export default function TaxationPage() {
         <TabsContent value="gst-returns">
           <Card className="shadow-lg bg-card text-card-foreground">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
                 <Landmark className="h-6 w-6 text-primary" />
                 File GSTR-1 Return
               </CardTitle>
@@ -138,7 +138,7 @@ export default function TaxationPage() {
                 </div>
 
                 <div>
-                    <h3 className="text-lg font-medium mb-2">Sales Summary for {month}-{year}</h3>
+                    <h3 className="text-lg font-bold bg-primary-gradient bg-clip-text text-transparent mb-2">Sales Summary for {month}-{year}</h3>
                     <div className="border rounded-md">
                         <Table>
                             <TableHeader>
@@ -181,7 +181,7 @@ export default function TaxationPage() {
         <TabsContent value="e-invoicing">
            <Card className="shadow-lg bg-card text-card-foreground">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
                 <FileText className="h-6 w-6 text-primary" />
                 E-Invoicing and E-Way Bill
               </CardTitle>

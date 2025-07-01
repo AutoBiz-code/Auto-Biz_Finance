@@ -63,11 +63,11 @@ export default function CommunicationPreferencesPage() {
 
   return (
     <div className="space-y-8 fade-in">
-      <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Communication Preferences</h1>
+      <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Communication Preferences</h1>
       
       <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader>
-          <CardTitle className="text-card-foreground flex items-center gap-2">
+          <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
             <BellRing className="h-6 w-6 text-primary" />
             Notification Settings
           </CardTitle>
@@ -77,7 +77,7 @@ export default function CommunicationPreferencesPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h3 className="text-lg font-medium text-card-foreground mb-3">Payment Alerts</h3>
+            <h3 className="text-lg font-bold bg-primary-gradient bg-clip-text text-transparent mb-3">Payment Alerts</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 rounded-md border border-border bg-input hover:bg-input/80 transition-colors">
                 <Label htmlFor="emailPaymentAlerts" className="flex items-center gap-2 text-foreground cursor-pointer">
@@ -109,7 +109,7 @@ export default function CommunicationPreferencesPage() {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium text-card-foreground mb-3">Report Delivery</h3>
+            <h3 className="text-lg font-bold bg-primary-gradient bg-clip-text text-transparent mb-3">Report Delivery</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 rounded-md border border-border bg-input hover:bg-input/80 transition-colors">
                 <Label htmlFor="emailReportDelivery" className="flex items-center gap-2 text-foreground cursor-pointer">

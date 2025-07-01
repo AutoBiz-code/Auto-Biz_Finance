@@ -24,7 +24,7 @@ export default function AccountingPage() {
     <div className="space-y-8 fade-in">
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Accounting & Financial Management</h1>
+          <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Accounting & Financial Management</h1>
           <p className="mt-2 text-muted-foreground">The core of your financial operations, featuring the General Ledger.</p>
         </div>
         <AccountingActions />
@@ -43,7 +43,7 @@ export default function AccountingPage() {
         <div className="space-y-6 lg:col-span-1">
             <Card className="shadow-lg bg-card text-card-foreground">
                 <CardHeader>
-                    <CardTitle className="text-card-foreground">Other Modules</CardTitle>
+                    <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent">Other Modules</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
                     <div className="space-y-4">

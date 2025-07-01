@@ -54,13 +54,13 @@ export default function WhatsappAutoReplyPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">AI WhatsApp Reply Generator</h1>
+        <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">AI WhatsApp Reply Generator</h1>
         <p className="mt-2 text-muted-foreground">Generate contextual replies for customer messages using Gemini AI.</p>
       </header>
 
       <Card className="max-w-2xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20 hover-scale">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-card-foreground">
+          <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
             <MessageCircleCode className="h-6 w-6 text-primary" />
             Craft a Reply
           </CardTitle>
@@ -102,7 +102,7 @@ export default function WhatsappAutoReplyPage() {
         </form>
         {generatedReply && (
           <CardContent className="mt-6 border-t border-border pt-6">
-            <h3 className="text-lg font-medium text-card-foreground mb-2">Suggested Reply:</h3>
+            <h3 className="text-lg font-bold bg-primary-gradient bg-clip-text text-transparent mb-2">Suggested Reply:</h3>
             <div className="p-4 rounded-md bg-input border border-border text-foreground whitespace-pre-wrap">
               {generatedReply}
             </div>

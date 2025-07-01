@@ -44,13 +44,13 @@ export default function SecurityPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">Security & Access Control</h1>
+        <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Security & Access Control</h1>
         <p className="mt-2 text-muted-foreground">Manage user roles and permissions to protect your financial data.</p>
       </header>
       
       <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader>
-          <CardTitle className="text-card-foreground flex items-center gap-2">
+          <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
             <Users className="h-6 w-6 text-primary" />
             User Roles & Permissions
           </CardTitle>
@@ -93,26 +93,26 @@ export default function SecurityPage() {
                 </Table>
             </div>
             <div className="mt-8 space-y-4">
-                <h3 className="text-lg font-medium text-card-foreground">Other Security Modules</h3>
+                <h3 className="text-lg font-bold bg-primary-gradient bg-clip-text text-transparent">Other Security Modules</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="flex items-start gap-3 p-4 rounded-lg border bg-input/50">
                         <ShieldCheck className="h-5 w-5 text-primary mt-1 shrink-0" />
                         <div>
-                            <h4 className="font-semibold text-card-foreground">Data Encryption</h4>
+                            <h4 className="font-bold bg-primary-gradient bg-clip-text text-transparent">Data Encryption</h4>
                             <p className="text-xs text-muted-foreground">Your data is encrypted at rest and in transit.</p>
                         </div>
                     </div>
                      <div className="flex items-start gap-3 p-4 rounded-lg border bg-input/50">
                         <ShieldCheck className="h-5 w-5 text-primary mt-1 shrink-0" />
                         <div>
-                            <h4 className="font-semibold text-card-foreground">Audit Logs</h4>
+                            <h4 className="font-bold bg-primary-gradient bg-clip-text text-transparent">Audit Logs</h4>
                             <p className="text-xs text-muted-foreground">Full functionality coming soon.</p>
                         </div>
                     </div>
                      <div className="flex items-start gap-3 p-4 rounded-lg border bg-input/50">
                         <ShieldCheck className="h-5 w-5 text-primary mt-1 shrink-0" />
                         <div>
-                            <h4 className="font-semibold text-card-foreground">Secure Remote Access</h4>
+                            <h4 className="font-bold bg-primary-gradient bg-clip-text text-transparent">Secure Remote Access</h4>
                             <p className="text-xs text-muted-foreground">Enabled via secure authentication.</p>
                         </div>
                     </div>

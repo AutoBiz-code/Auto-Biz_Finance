@@ -131,7 +131,7 @@ export default function LandingPage() {
                 <Card className="h-full shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-card text-card-foreground flex flex-col" style={{animationDelay: `${0.2 + idx * 0.1}s`}}>
                   <CardHeader className="items-center text-center">
                     {feature.icon}
-                    <CardTitle className="text-2xl font-headline bg-primary-gradient bg-clip-text text-transparent">{feature.title}</CardTitle>
+                    <CardTitle className="text-2xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex-grow">
                     <p className="text-base text-center text-muted-foreground">

@@ -14,13 +14,13 @@ export const metadata: Metadata = {
 export default function GstInvoicingPageRedirect() {
   return (
     <div className="space-y-8 fade-in">
-      <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">GST Billing and PDF Generation</h1>
+      <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">GST Billing and PDF Generation</h1>
       
       <Card className="shadow-lg overflow-hidden bg-card text-card-foreground">
          <div className="md:flex">
           <div className="md:w-1/2 p-6 md:p-8 flex flex-col justify-center order-2 md:order-1">
             <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-2xl font-headline text-card-foreground flex items-center gap-2">
+              <CardTitle className="text-2xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
                 <FileText className="h-7 w-7 text-primary" />
                 Feature Integrated
               </CardTitle>

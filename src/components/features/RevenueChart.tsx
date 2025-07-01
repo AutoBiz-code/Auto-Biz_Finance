@@ -30,7 +30,7 @@ export default function RevenueChart() {
   return (
     <Card className="shadow-lg bg-card text-card-foreground fade-in" style={{ animationDelay: '0.4s' }}>
       <CardHeader>
-        <CardTitle>Revenue vs. Expenses</CardTitle>
+        <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent">Revenue vs. Expenses</CardTitle>
         <CardDescription>A look at your revenue and expenses over the past 6 months.</CardDescription>
       </CardHeader>
       <CardContent>

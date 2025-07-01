@@ -20,11 +20,11 @@ export default function UpiReconciliationPageRedirect() {
 
   return (
     <div className="space-y-8 fade-in">
-      <h1 className="text-3xl font-headline font-semibold bg-primary-gradient bg-clip-text text-transparent">UPI Reconciliation & Business Analysis</h1>
+      <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">UPI Reconciliation & Business Analysis</h1>
       
       <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader>
-          <CardTitle className="text-card-foreground flex items-center gap-2">
+          <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
             <BarChartHorizontalBig className="h-6 w-6 text-primary" />
             Feature Integrated
           </CardTitle>

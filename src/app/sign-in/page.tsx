@@ -162,7 +162,7 @@ export default function SignInPage() {
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-border/30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-headline bg-primary-gradient bg-clip-text text-transparent">Welcome to AutoBiz Finance</CardTitle>
+          <CardTitle className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Welcome to AutoBiz Finance</CardTitle>
           <CardDescription className="text-muted-foreground">
             Sign in to access your dashboard.
           </CardDescription>

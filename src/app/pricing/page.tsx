@@ -74,7 +74,7 @@ export default function PricingPage() {
             style={{animationDelay: `${0.2 + idx * 0.1}s`}}
           >
             <CardHeader className="text-center">
-              <CardTitle className={`text-2xl font-headline ${plan.highlighted ? 'text-primary' : ''}`}>{plan.name}</CardTitle>
+              <CardTitle className="text-2xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">{plan.name}</CardTitle>
               <p className="text-3xl font-bold mt-2">
                 {plan.price}
                 {plan.priceSuffix && <span className="text-sm font-normal text-muted-foreground">{plan.priceSuffix}</span>}

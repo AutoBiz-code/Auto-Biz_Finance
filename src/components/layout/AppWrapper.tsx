@@ -24,10 +24,11 @@ const protectedRoutes = [
   '/integrations',
   '/whatsapp-auto-reply',
   '/communication-preferences',
+  // Note: /pricing is public but uses the main layout
 ];
 
 const authPages = ['/sign-in', '/sign-up'];
-const publicPages = ['/', '/pricing']; // Explicitly public pages
+const publicStandalonePages = ['/']; // Pages that should NOT have the main app sidebar, e.g. landing page
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const [isGoToBarOpen, setIsGoToBarOpen] = useState(false);
@@ -52,8 +53,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
 
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
     const isAuthPage = authPages.includes(pathname);
-    const isPublicPage = publicPages.includes(pathname);
-
+    
     // If user is not logged in and tries to access a protected route
     if (!user && isProtectedRoute) {
       router.push('/sign-in');
@@ -66,10 +66,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
 
   }, [user, loading, pathname, router]);
 
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-  const isAuthPage = authPages.includes(pathname);
-
-  // While loading, show a global loader to prevent any flashes of content
+  // While loading auth state, show a global loader
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -78,17 +75,11 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // If a redirect is imminent, show a loader to ensure a smooth transition.
-  // Case 1: Unauthenticated user on a protected route.
-  if (!user && isProtectedRoute) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
-  // Case 2: Authenticated user on an auth page or the landing page.
-  if (user && (isAuthPage || pathname === '/')) {
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  const isAuthPage = authPages.includes(pathname);
+
+  // If a redirect is about to happen, show a loader to prevent content flash
+  if ((!user && isProtectedRoute) || (user && (isAuthPage || pathname === '/'))) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -96,7 +87,18 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // If no redirects are needed, render the actual content.
+  // For auth pages and the main landing page, render a simple layout without the sidebar
+  const isStandalonePage = authPages.includes(pathname) || publicStandalonePages.includes(pathname);
+  if (isStandalonePage) {
+    return (
+      <>
+        {children}
+        <Toaster />
+      </>
+    );
+  }
+
+  // For all other pages (the main app), render the full layout with the sidebar.
   return (
     <SidebarProvider defaultOpen={true}>
       <AppSidebar />

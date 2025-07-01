@@ -104,37 +104,42 @@ const features = [
 
 export default function LandingPage() {
   return (
-    <div className="space-y-12 fade-in">
-      <div className="text-center space-y-6 pt-8">
-        <h1 className="text-4xl lg:text-5xl font-headline font-bold text-foreground max-w-4xl mx-auto">
-          Empower Your Business, Simplify Your Finances.
-        </h1>
-        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          From invoicing to payroll, AutoBiz Finance delivers Tally-like efficiency at your fingertips.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="text-lg py-7 hover-scale">
-                <Link href="/sign-up">Get Started</Link>
-            </Button>
+    <div className="container mx-auto px-4">
+      <div className="space-y-12 fade-in">
+        <div className="text-center space-y-6 pt-8">
+          <h1 className="text-4xl lg:text-5xl font-headline font-bold text-foreground max-w-4xl mx-auto">
+            Empower Your Business, Simplify Your Finances.
+          </h1>
+          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+            From invoicing to payroll, AutoBiz Finance delivers Tally-like efficiency at your fingertips.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="text-lg py-7 hover-scale">
+                  <Link href="/sign-up">Get Started</Link>
+              </Button>
+               <Button asChild size="lg" variant="outline" className="text-lg py-7 hover-scale">
+                  <Link href="/sign-in">Sign In</Link>
+              </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-12">
-        {features.map((feature, idx) => (
-          <Link href={feature.link} key={feature.title} className="block hover-scale">
-              <Card className="h-full shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-card text-card-foreground flex flex-col" style={{animationDelay: `${0.2 + idx * 0.1}s`}}>
-                <CardHeader className="items-center text-center">
-                  {feature.icon}
-                  <CardTitle className="text-2xl font-headline">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <p className="text-base text-center text-muted-foreground">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
-          </Link>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-12">
+          {features.map((feature, idx) => (
+            <Link href={feature.link} key={feature.title} className="block hover-scale">
+                <Card className="h-full shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-card text-card-foreground flex flex-col" style={{animationDelay: `${0.2 + idx * 0.1}s`}}>
+                  <CardHeader className="items-center text-center">
+                    {feature.icon}
+                    <CardTitle className="text-2xl font-headline">{feature.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-grow">
+                    <p className="text-base text-center text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, signInWithRedirect, getRedirectResult, GoogleAuthProvider, AuthError, OAuthProvider, RecaptchaVerifier, ConfirmationResult, signInWithPhoneNumber } from 'firebase/auth';
 import { auth as firebaseAuthInstance, googleProvider, appleProvider } from '@/lib/firebase/config';
 import { Loader2 } from 'lucide-react';
@@ -32,6 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [isHandlingRedirect, setIsHandlingRedirect] = useState(true);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window === 'undefined' || !firebaseAuthInstance) {
@@ -45,6 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (result) {
           setUser(result.user);
           toast({ title: "Success", description: "Signed in successfully." });
+          router.push('/dashboard');
         }
       })
       .catch((error: AuthError) => {
@@ -66,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .finally(() => {
         setIsHandlingRedirect(false);
       });
-  }, [toast]);
+  }, [toast, router]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !firebaseAuthInstance) {

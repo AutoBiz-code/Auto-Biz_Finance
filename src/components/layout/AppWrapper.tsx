@@ -11,6 +11,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 const protectedRoutes = [
+  '/dashboard',
   '/gst-billing',
   '/stock-management',
   '/accounting',
@@ -50,6 +51,12 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     if (!user && isProtectedRoute) {
       router.push('/sign-in');
     }
+    
+    // Redirect logged-in users from auth pages to the dashboard
+    if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
+        router.push('/dashboard');
+    }
+
   }, [user, loading, pathname, router]);
   
   const isProtectedRouteCheck = protectedRoutes.some(route => pathname.startsWith(route));

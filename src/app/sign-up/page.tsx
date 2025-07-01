@@ -60,7 +60,7 @@ export default function SignUpPage() {
     setIsLoading(true);
     try {
       await signUp(email, password);
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       const authError = error as AuthError;
 

@@ -63,7 +63,7 @@ export default function SignInPage() {
     try {
       await signIn(email, password);
       toast({ title: "Logged in!", description: "Welcome back.", });
-      router.push("/"); 
+      router.push("/dashboard"); 
     } catch (error) {
       const authError = error as AuthError;
       let friendlyMessage: React.ReactNode = "An unexpected error occurred. Please try again.";
@@ -143,7 +143,7 @@ export default function SignInPage() {
     try {
       await confirmationResult.confirm(otp);
       toast({ title: "Logged in!", description: "Welcome back."});
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       const authError = error as AuthError;
       let friendlyMessage = "Failed to verify OTP.";

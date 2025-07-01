@@ -35,7 +35,8 @@ import {
   Landmark,
   Banknote,
   ShieldCheck,
-  Plug
+  Plug,
+  Home,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -43,8 +44,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const mainNavItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/features", label: "Features", icon: Rocket },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/", label: "Home", icon: Home },
   { href: "/pricing", label: "Pricing", icon: DollarSign },
   { href: "/communication-preferences", label: "Preferences", icon: Settings },
 ];
@@ -73,7 +74,7 @@ export function AppSidebar() {
     try {
       await firebaseSignOut();
       toast({ title: "Signed Out", description: "You have been successfully signed out." });
-      router.push("/sign-in");
+      router.push("/");
     } catch (error) {
       console.error("Sign out error in sidebar:", error);
       toast({ title: "Error", description: "Failed to sign out.", variant: "destructive" });

@@ -1,163 +1,141 @@
-
-"use client";
-
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  FileText, 
+  Package, 
+  BarChartHorizontalBig, 
+  Users, 
+  DatabaseBackup, 
+  MessageCircleCode,
+  BookOpenCheck,
+  Landmark,
+  Banknote,
+  ShieldCheck,
+  Plug
+} from "lucide-react";
+import Link from "next/link";
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
-import { FileText, MessageSquareText, Package, UserCircle as UserIcon, Loader2, Banknote, Clock, Zap, BarChartHorizontalBig, Lightbulb } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
-import React, { Suspense, lazy } from "react";
+import Image from "next/image";
 
-const RevenueChart = lazy(() => import('@/components/features/RevenueChart'));
+export const metadata: Metadata = {
+  title: "Welcome to AutoBiz Finance | Automate Your Business",
+  description: "Automate GST, Invoices & Payments in 60 Seconds – Save 10+ Hours/Week!",
+};
 
-interface Metric {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  description?: string;
-  actionPath?: string;
-}
-
-export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
-
-  const [userPlan, setUserPlan] = React.useState("Basic");
-  const [conversationCount, setConversationCount] = React.useState(0);
-
-  React.useEffect(() => {
-    // This now fetches data for guest users too, showing default values.
-    // Placeholder: In a real app, you might fetch different data for guests.
-    setTimeout(() => {
-      setUserPlan(user ? "Pro" : "Basic"); // Example logic
-      setConversationCount(user ? 120 : 0); // Example logic
-    }, 500);
-  }, [user]);
-
-  const getConversationLimit = () => {
-    if (userPlan === "Basic") return 500;
-    if (userPlan === "Pro") return 1500;
-    return Infinity; // Enterprise or unknown
-  };
-  const conversationLimit = getConversationLimit();
-  const conversationProgress = conversationLimit > 0 && conversationLimit !== Infinity ? (conversationCount / conversationLimit) * 100 : 0;
-
-  const keyMetrics: Metric[] = [
-    { title: "Invoices Generated", value: "125", icon: <FileText className="h-6 w-6 text-primary" />, description: "This month", actionPath: "/gst-billing" },
-    { title: "Pending Payments", value: "₹45,230", icon: <Banknote className="h-6 w-6 text-primary" />, description: "Total outstanding", actionPath: "/banking" },
-    { title: "Hours Saved", value: "25+", icon: <Clock className="h-6 w-6 text-primary" />, description: "Via automation this month", actionPath: "/business-analysis" },
-    { title: "Active Automations", value: "3", icon: <Zap className="h-6 w-6 text-primary" />, description: "Across all services", actionPath: "/integrations" },
-  ];
-
-  if (authLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
+const features = [
+  {
+    icon: <FileText className="h-10 w-10 text-primary mb-4" />,
+    title: "GST Billing & Invoicing",
+    description: "Create GST-compliant invoices, e-way bills, and manage your billing cycle seamlessly.",
+    link: "/gst-billing",
+    dataAiHint: "invoice document"
+  },
+  {
+    icon: <Package className="h-10 w-10 text-primary mb-4" />,
+    title: "Inventory Management",
+    description: "Track stock levels, manage warehouses, and handle product batches and expiry dates.",
+    link: "/stock-management",
+    dataAiHint: "inventory boxes"
+  },
+   {
+    icon: <BookOpenCheck className="h-10 w-10 text-primary mb-4" />,
+    title: "Accounting & Ledger",
+    description: "Manage your chart of accounts, journal entries, and ledgers with double-entry precision.",
+    link: "/accounting",
+    dataAiHint: "accounting ledger"
+  },
+  {
+    icon: <Users className="h-10 w-10 text-primary mb-4" />,
+    title: "Employee & Payroll",
+    description: "Manage employee records, process salaries, and handle payroll compliance.",
+    link: "/payroll",
+    dataAiHint: "team employee"
+  },
+  {
+    icon: <Landmark className="h-10 w-10 text-primary mb-4" />,
+    title: "Taxation & Compliance",
+    description: "Handle GST returns, TDS/TCS, and stay compliant with automated tax calculations.",
+    link: "/taxation",
+    dataAiHint: "tax government"
+  },
+  {
+    icon: <Banknote className="h-10 w-10 text-primary mb-4" />,
+    title: "Banking & Payments",
+    description: "Reconcile bank statements, manage cheques, and track digital payments seamlessly.",
+    link: "/banking",
+    dataAiHint: "bank money"
+  },
+  {
+    icon: <BarChartHorizontalBig className="h-10 w-10 text-primary mb-4" />,
+    title: "Business Reporting",
+    description: "Generate Balance Sheets, P&L statements, and analyze cash flow in real-time.",
+    link: "/business-analysis",
+    dataAiHint: "data analytics"
+  },
+  {
+    icon: <DatabaseBackup className="h-10 w-10 text-primary mb-4" />,
+    title: "Data Backup & Restore",
+    description: "Securely back up your company data to the cloud and restore it anytime.",
+    link: "/data-backup",
+    dataAiHint: "server database"
+  },
+  {
+    icon: <ShieldCheck className="h-10 w-10 text-primary mb-4" />,
+    title: "Security & Access",
+    description: "Control user roles and permissions, and view audit logs to keep your data secure.",
+    link: "/security",
+    dataAiHint: "security shield"
+  },
+  {
+    icon: <Plug className="h-10 w-10 text-primary mb-4" />,
+    title: "Integrations",
+    description: "Connect with third-party apps, export data, and extend your functionality.",
+    link: "/integrations",
+    dataAiHint: "api integration"
+  },
+  {
+    icon: <MessageCircleCode className="h-10 w-10 text-primary mb-4" />,
+    title: "AI WhatsApp Assistant",
+    description: "Use AI to automate customer communication and send payment reminders via WhatsApp.",
+    link: "/whatsapp-auto-reply",
+    dataAiHint: "ai chat"
   }
+];
 
+export default function LandingPage() {
   return (
-    <div className="space-y-8 fade-in">
-      <h1 className="text-3xl font-headline font-semibold text-foreground">AutoBiz Finance Dashboard</h1>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <Card className="shadow-lg bg-card text-card-foreground fade-in" style={{ animationDelay: '0.1s' }}>
-            <CardHeader>
-              <CardTitle className="text-card-foreground flex items-center gap-2">
-                <UserIcon className="h-7 w-7 text-primary" />
-                User Details
-              </CardTitle>
-              <CardDescription>
-                Welcome back, {user?.email || "Guest"}!
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p><span className="font-medium">Email:</span> <span className="text-muted-foreground">{user?.email || "Not signed in"}</span></p>
-              <p><span className="font-medium">Current Plan:</span> <span className="text-muted-foreground">{userPlan}</span></p>
-              <div>
-                <p className="font-medium mb-1">Conversation Usage (Botpress/Gemini):</p>
-                <div className="flex items-center gap-2">
-                  <Progress value={conversationProgress} aria-label={`Conversation usage ${conversationProgress.toFixed(0)}%`} className="h-3 flex-1 [&>div]:bg-primary" />
-                  <span className="text-sm text-muted-foreground">{conversationCount} / {conversationLimit === Infinity ? 'Unlimited' : conversationLimit}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">{conversationProgress.toFixed(0)}% used ({conversationLimit === Infinity ? 'Unlimited' : conversationLimit - conversationCount} remaining)</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="lg:col-span-1 space-y-8">
-          <Card className="shadow-lg bg-card text-card-foreground border border-primary/20 hover:shadow-xl transition-shadow fade-in" style={{ animationDelay: '0.2s' }}>
-            <CardHeader>
-              <CardTitle className="text-card-foreground flex items-center gap-2">
-                <Lightbulb className="h-6 w-6 text-primary" />
-                Quote of the Day
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <blockquote className="text-muted-foreground italic">
-                "In the world of business, the right tools transform challenges into opportunities – AutoBiz Finance is that tool."
-              </blockquote>
-            </CardContent>
-          </Card>
+    <div className="space-y-12 fade-in">
+      <div className="text-center space-y-6 pt-8">
+        <h1 className="text-4xl lg:text-5xl font-headline font-bold text-foreground max-w-4xl mx-auto">
+          Empower Your Business, Simplify Your Finances.
+        </h1>
+        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+          From invoicing to payroll, AutoBiz Finance delivers Tally-like efficiency at your fingertips.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="text-lg py-7 hover-scale">
+                <Link href="/sign-up">Get Started</Link>
+            </Button>
         </div>
       </div>
-      
-      <section aria-labelledby="key-financial-metrics">
-        <h2 id="key-financial-metrics" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{ animationDelay: '0.2s' }}>Key Metrics</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {keyMetrics.map((metric, idx) => (
-             <Card 
-              key={metric.title} 
-              className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card text-card-foreground fade-in hover-scale cursor-pointer" 
-              style={{ animationDelay: `${0.3 + idx * 0.05}s` }}
-              onClick={() => metric.actionPath && router.push(metric.actionPath)}
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
-                {metric.icon}
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{metric.value}</div>
-                {metric.description && <p className="text-xs text-muted-foreground">{metric.description}</p>}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
 
-      <section aria-labelledby="revenue-overview">
-         <h2 id="revenue-overview" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.3s'}}>Revenue Overview</h2>
-         <Suspense fallback={
-            <Card className="shadow-lg bg-card text-card-foreground flex justify-center items-center min-h-[348px]">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            </Card>
-         }>
-           <RevenueChart />
-         </Suspense>
-      </section>
-
-      <section aria-labelledby="quick-actions">
-        <h2 id="quick-actions" className="text-2xl font-headline font-medium text-foreground mb-4 fade-in" style={{animationDelay: '0.4s'}}>Quick Actions</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Button onClick={() => router.push('/gst-billing')} className="hover-scale py-6 text-base justify-start">
-            <FileText className="mr-3 h-6 w-6"/> Generate GST Bill
-          </Button>
-          <Button onClick={() => router.push('/whatsapp-auto-reply')} className="hover-scale py-6 text-base justify-start">
-            <MessageSquareText className="mr-3 h-6 w-6"/> AI WhatsApp Reply
-          </Button>
-          <Button onClick={() => router.push('/stock-management')} className="hover-scale py-6 text-base justify-start">
-            <Package className="mr-3 h-6 w-6"/> Manage Stock
-          </Button>
-          <Button onClick={() => router.push('/business-analysis')} className="hover-scale py-6 text-base justify-start">
-            <BarChartHorizontalBig className="mr-3 h-6 w-6"/> Analyze Business
-          </Button>
-        </div>
-      </section>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-12">
+        {features.map((feature, idx) => (
+          <Link href={feature.link} key={feature.title} className="block hover-scale">
+              <Card className="h-full shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-card text-card-foreground flex flex-col" style={{animationDelay: `${0.2 + idx * 0.1}s`}}>
+                <CardHeader className="items-center text-center">
+                  {feature.icon}
+                  <CardTitle className="text-2xl font-headline">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <p className="text-base text-center text-muted-foreground">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

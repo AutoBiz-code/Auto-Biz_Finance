@@ -14,8 +14,8 @@ interface GoToBarProps {
 }
 
 const allPages = [
-  { href: "/", label: "Dashboard" },
-  { href: "/features", label: "Features" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/", label: "Home" },
   { href: "/pricing", label: "Pricing" },
   { href: "/communication-preferences", label: "Preferences" },
   { href: "/gst-billing", label: "GST Billing" },

@@ -112,7 +112,7 @@ export default function LandingPage() {
             Empower Your Business, Simplify Your Finances.
           </h1>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            From invoicing to payroll, AutoBiz Finance delivers Tally-like efficiency at your fingertips.
+            From invoicing to payroll, AutoBiz Finance is very efficient, putting everything you need at your fingertips.
           </p>
           <div className="flex justify-center">
               <Button asChild size="lg" className="text-lg py-7 hover-scale">

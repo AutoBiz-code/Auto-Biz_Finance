@@ -54,29 +54,31 @@ export default function SignUpPage() {
       router.push("/dashboard");
     } catch (error) {
       const authError = error as AuthError;
+      let friendlyMessage: React.ReactNode = "A sign-up error occurred. Please try again.";
 
-      if (authError.code === 'auth/email-already-in-use') {
-        setTimeout(() => router.push('/sign-in'), 2000);
-        setError(
-          <span>
-            An account with this email already exists. Redirecting you to{" "}
-            <Link href="/sign-in" className="font-bold text-primary hover:underline">
-              Sign In
-            </Link>...
-          </span>
-        );
-      } else {
-        let friendlyMessage = "A sign-up error occurred. Please try again.";
-        switch (authError.code) {
-          case 'auth/invalid-email':
-            friendlyMessage = "The email address is not valid.";
-            break;
-          case 'auth/weak-password':
-            friendlyMessage = "The password is too weak. It must be at least 6 characters long.";
-            break;
-        }
-        setError(friendlyMessage);
+      switch (authError.code) {
+        case 'auth/email-already-in-use':
+          setTimeout(() => router.push('/sign-in'), 3000);
+          friendlyMessage = (
+            <span>
+              An account with this email already exists. Redirecting you to{" "}
+              <Link href="/sign-in" className="font-bold text-primary hover:underline">
+                Sign In
+              </Link>...
+            </span>
+          );
+          break;
+        case 'auth/invalid-email':
+          friendlyMessage = "The email address is not valid.";
+          break;
+        case 'auth/weak-password':
+          friendlyMessage = "The password is too weak. It must be at least 6 characters long.";
+          break;
+        case 'auth/operation-not-allowed':
+          friendlyMessage = "Email sign-up is currently disabled. Please enable it in your Firebase project's authentication settings.";
+          break;
       }
+      setError(friendlyMessage);
     } finally {
       setIsLoading(false);
     }

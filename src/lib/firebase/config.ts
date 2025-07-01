@@ -24,6 +24,14 @@ let performance: Performance;
 
 // This check is important to avoid server-side initialization
 if (typeof window !== "undefined") {
+  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+    console.error(
+      "Firebase configuration is missing or incomplete. " +
+      "Please make sure you have copied .env.example to .env and filled out all the " +
+      "NEXT_PUBLIC_FIREBASE_* variables from your Firebase project settings."
+    );
+  }
+  
   if (getApps().length === 0) {
     app = initializeApp(firebaseConfig);
   } else {
@@ -36,7 +44,7 @@ if (typeof window !== "undefined") {
   appleProvider = new OAuthProvider('apple.com');
   phoneProvider = new PhoneAuthProvider(auth);
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && firebaseConfig.measurementId) {
     performance = getPerformance(app);
   }
 }

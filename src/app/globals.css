@@ -130,3 +130,27 @@
 .hover-scale:hover {
   transform: scale(1.05);
 }
+
+@layer utilities {
+  .animated-gradient-border {
+    @apply relative rounded-lg p-px;
+    background: transparent;
+  }
+
+  .animated-gradient-border::before {
+    content: '';
+    @apply absolute -top-1/2 -left-1/2 -z-10 h-[200%] w-[200%] animate-border-beam;
+    background: conic-gradient(
+      from 180deg at 50% 50%,
+      hsl(var(--secondary)) 0deg,
+      hsl(var(--primary)) 50deg,
+      hsl(var(--secondary)) 100deg,
+      hsl(var(--primary)) 150deg,
+      hsl(var(--secondary)) 200deg,
+      hsl(var(--primary)) 250deg,
+      hsl(var(--secondary)) 300deg,
+      hsl(var(--primary)) 350deg,
+      hsl(var(--secondary)) 360deg
+    );
+  }
+}

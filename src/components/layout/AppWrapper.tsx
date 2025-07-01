@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-const publicRoutes = ["/", "/sign-in", "/sign-up", "/pricing"];
+const publicRoutes = ["/", "/pricing"];
 const authPages = ["/sign-in", "/sign-up"];
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
@@ -19,7 +19,10 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
+  // Keyboard shortcut for GoToBar, only active for logged-in users
   useEffect(() => {
+    if (!user) return; // Only attach listener if user is logged in
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && e.key.toLowerCase() === 'g') {
         e.preventDefault();
@@ -29,7 +32,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [user]); // Rerun when user status changes
 
   if (loading) {
     return (
@@ -39,15 +42,14 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const isPublic = publicRoutes.includes(pathname);
+  const isPublicPage = publicRoutes.includes(pathname);
   const isAuthPage = authPages.includes(pathname);
-  
-  // SCENARIO 1: User is LOGGED IN
+
+  // User is LOGGED IN
   if (user) {
     // If they are on the landing page or an auth page, redirect to dashboard
-    if (isAuthPage || pathname === '/') {
+    if (isPublicPage || isAuthPage) {
       router.replace('/dashboard');
-      // Show loader during redirect
       return (
         <div className="flex h-screen w-full items-center justify-center bg-background">
           <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -69,19 +71,9 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // SCENARIO 2: User is LOGGED OUT
-  if (!user) {
-    // If they are on a protected page, redirect to sign-in
-    if (!isPublic) {
-      router.replace('/sign-in');
-      // Show loader during redirect
-      return (
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-          <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-      );
-    }
-    // Otherwise, they are on a public page, show it without the app layout
+  // User is LOGGED OUT
+  // If it's a public or auth page, show it as is
+  if (isPublicPage || isAuthPage) {
     return (
       <>
         {children}
@@ -90,5 +82,11 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return null;
+  // Otherwise, it's a protected page, so redirect to sign-in
+  router.replace('/sign-in');
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-background">
+      <Loader2 className="h-16 w-16 animate-spin text-primary" />
+    </div>
+  );
 }

@@ -10,8 +10,29 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-const publicRoutes = ['/', '/sign-in', '/sign-up', '/pricing'];
-const authRoutes = ['/', '/sign-in', '/sign-up'];
+// Define routes that require authentication. All other routes are considered public.
+const protectedRoutes = [
+  '/dashboard',
+  '/gst-billing',
+  '/stock-management',
+  '/accounting',
+  '/payroll',
+  '/taxation',
+  '/banking',
+  '/business-analysis',
+  '/data-backup',
+  '/security',
+  '/integrations',
+  '/whatsapp-auto-reply',
+  '/communication-preferences',
+  '/gst-invoicing',
+  '/upi-reconciliation',
+  '/whatsapp-automation',
+  '/features'
+];
+
+// Define auth-related pages that a logged-in user should be redirected away from.
+const authPages = ['/sign-in', '/sign-up'];
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const [isGoToBarOpen, setIsGoToBarOpen] = useState(false);
@@ -31,7 +52,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
   
-  // Show a global loader while we wait for auth status
+  // 1. Show a global loader while we wait for auth status to be confirmed.
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -40,22 +61,20 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const isPublic = publicRoutes.includes(pathname);
-  const isAuthPage = authRoutes.includes(pathname);
-
-  // User is logged in
+  // 2. Handle routing for LOGGED-IN users.
   if (user) {
-    // If they are on a page like landing or sign-in, redirect to dashboard
-    if (isAuthPage) {
+    // If a logged-in user is on an auth page or the landing page, redirect them to the dashboard.
+    if (authPages.includes(pathname) || pathname === '/') {
       router.replace('/dashboard');
+      // Show a loader during the redirect.
       return (
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-          <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
+         <div className="flex h-screen w-full items-center justify-center bg-background">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+         </div>
       );
     }
-
-    // Otherwise, show the main app with sidebar
+    
+    // Otherwise, for any other page, show the main app layout with the sidebar.
     return (
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
@@ -69,22 +88,23 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
         </SidebarProvider>
     );
   }
-
-  // User is not logged in
+  
+  // 3. Handle routing for LOGGED-OUT users.
   if (!user) {
-    // If they are trying to access a protected page, redirect to sign-in
-    if (!isPublic) {
-      router.replace('/sign-in');
-      return (
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-          <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-      );
+    // If a logged-out user tries to access a protected page, redirect them to sign-in.
+    if (protectedRoutes.includes(pathname)) {
+        router.replace('/sign-in');
+        // Show a loader during the redirect.
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            </div>
+        );
     }
   }
 
-  // If we are here, user is not logged in and is on a public page.
-  // Show the page content without the sidebar.
+  // 4. If none of the above conditions are met, it means the user is logged out and on a public page.
+  // This is the correct state for showing the landing page, sign-in, etc., without the sidebar.
   return (
     <>
       {children}

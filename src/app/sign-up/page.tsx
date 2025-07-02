@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +33,6 @@ export default function SignUpPage() {
   const [error, setError] = useState<React.ReactNode | null>(null);
 
   const { signUp, signInWithGoogle } = useAuth();
-  const router = useRouter();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,20 +49,19 @@ export default function SignUpPage() {
     setIsLoading(true);
     try {
       await signUp(email, password);
-      router.push("/dashboard");
+      // Redirection is now handled by AppWrapper
     } catch (error) {
       const authError = error as AuthError;
       let friendlyMessage: React.ReactNode = "A sign-up error occurred. Please try again.";
 
       switch (authError.code) {
         case 'auth/email-already-in-use':
-          setTimeout(() => router.push('/sign-in'), 3000);
           friendlyMessage = (
             <span>
-              An account with this email already exists. Redirecting you to{" "}
+              An account with this email already exists. Please{" "}
               <Link href="/sign-in" className="font-bold text-primary hover:underline">
                 Sign In
-              </Link>...
+              </Link>.
             </span>
           );
           break;
@@ -91,7 +88,6 @@ export default function SignUpPage() {
       await signInWithGoogle('signup');
     } catch (error) {
       setIsGoogleLoading(false);
-      // The toast is handled in the context, but we still catch to stop the loader.
     }
   };
 

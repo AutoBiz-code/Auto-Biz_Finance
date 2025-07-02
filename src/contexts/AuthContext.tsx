@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (result) {
           setUser(result.user);
           toast({ title: "Success", description: "Signed in successfully." });
-          router.push('/dashboard');
+          // REMOVED: No longer need to push here, AppWrapper will handle it.
         }
       })
       .catch((error: AuthError) => {

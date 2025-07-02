@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +39,6 @@ export default function SignInPage() {
   const [error, setError] = useState<React.ReactNode | null>(null);
 
   const { signIn, signInWithGoogle, setupRecaptcha, signInWithPhone } = useAuth(); 
-  const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -54,7 +52,6 @@ export default function SignInPage() {
     try {
       await signIn(email, password);
       toast({ title: "Logged in!", description: "Welcome back.", });
-      router.push("/dashboard"); 
     } catch (error) {
       const authError = error as AuthError;
       let friendlyMessage: React.ReactNode = "An unexpected error occurred. Please try again.";
@@ -81,7 +78,6 @@ export default function SignInPage() {
       await signInWithGoogle('signin');
     } catch (error) {
       setIsGoogleLoading(false);
-      // The toast is handled in the context, but we still catch to stop the loader.
     }
   };
 
@@ -123,7 +119,6 @@ export default function SignInPage() {
     try {
       await confirmationResult.confirm(otp);
       toast({ title: "Logged in!", description: "Welcome back."});
-      router.push("/dashboard");
     } catch (error) {
       const authError = error as AuthError;
       let friendlyMessage = "Failed to verify OTP.";

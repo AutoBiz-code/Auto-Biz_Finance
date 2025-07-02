@@ -52,7 +52,7 @@ export default function SignUpPage() {
       // Redirection is now handled by AppWrapper
     } catch (error) {
       const authError = error as AuthError;
-      let friendlyMessage: React.ReactNode = "A sign-up error occurred. Please try again.";
+      let friendlyMessage: React.ReactNode = `A sign-up error occurred. Please try again. (Code: ${authError.code})`;
 
       switch (authError.code) {
         case 'auth/email-already-in-use':
@@ -73,6 +73,12 @@ export default function SignUpPage() {
           break;
         case 'auth/operation-not-allowed':
           friendlyMessage = "Email sign-up is currently disabled. Please enable it in your Firebase project's authentication settings.";
+          break;
+        case 'auth/unauthorized-domain':
+          friendlyMessage = "This domain is not authorized for authentication. Please add it to your Firebase project's allowed domains and wait a few minutes.";
+          break;
+        case 'auth/network-request-failed':
+          friendlyMessage = "Network error. Please check your internet connection and try again.";
           break;
       }
       setError(friendlyMessage);

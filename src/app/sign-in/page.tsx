@@ -54,15 +54,22 @@ export default function SignInPage() {
       toast({ title: "Logged in!", description: "Welcome back.", });
     } catch (error) {
       const authError = error as AuthError;
-      let friendlyMessage: React.ReactNode = "An unexpected error occurred. Please try again.";
+      let friendlyMessage: React.ReactNode = `An unexpected error occurred. Please try again. (Code: ${authError.code})`;
       switch (authError.code) {
         case 'auth/invalid-credential':
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
           friendlyMessage = "Invalid email or password.";
           break;
         case 'auth/invalid-email':
           friendlyMessage = "The email address is not valid.";
+          break;
+        case 'auth/user-disabled':
+          friendlyMessage = "This user account has been disabled.";
+          break;
+        case 'auth/unauthorized-domain':
+            friendlyMessage = "This domain is not authorized for authentication. Please add it to your Firebase project's allowed domains.";
+            break;
+        case 'auth/network-request-failed':
+          friendlyMessage = "Network error. Please check your internet connection and try again.";
           break;
       }
       setError(friendlyMessage);

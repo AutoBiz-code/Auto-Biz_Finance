@@ -7,12 +7,12 @@ import { Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ComposedChart } from 
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 const chartData = [
-  { month: 'Jan', revenue: 4000, expenses: 2400 },
-  { month: 'Feb', revenue: 3000, expenses: 1398 },
-  { month: 'Mar', revenue: 5000, expenses: 3800 },
-  { month: 'Apr', revenue: 4500, expenses: 3908 },
-  { month: 'May', revenue: 6000, expenses: 4800 },
-  { month: 'Jun', revenue: 5500, expenses: 4300 },
+  { month: 'Jan', revenue: 0, expenses: 0 },
+  { month: 'Feb', revenue: 0, expenses: 0 },
+  { month: 'Mar', revenue: 0, expenses: 0 },
+  { month: 'Apr', revenue: 0, expenses: 0 },
+  { month: 'May', revenue: 0, expenses: 0 },
+  { month: 'Jun', revenue: 0, expenses: 0 },
 ];
 
 const chartConfig = {
@@ -61,7 +61,7 @@ export default function RevenueChart() {
                 cursor={true}
                 content={<ChartTooltipContent 
                     indicator="dot" 
-                    formatter={(value) => new Intl.NumberFormat('en-IN').format(value as number)}
+                    formatter={(value) => `${new Intl.NumberFormat('en-IN').format(value as number)} Rupees`}
                 />}
               />
               <defs>

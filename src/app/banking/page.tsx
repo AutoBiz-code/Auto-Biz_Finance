@@ -146,7 +146,7 @@ export default function BankingPage() {
                   </TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Particulars</TableHead>
-                  <TableHead className="text-right">Amount (INR)</TableHead>
+                  <TableHead className="text-right">Amount (Rupees)</TableHead>
                   <TableHead className="text-center w-[150px]">Status</TableHead>
                 </TableRow>
               </TableHeader>

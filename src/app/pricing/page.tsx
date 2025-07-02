@@ -9,8 +9,8 @@ import Link from "next/link";
 const pricingPlans = [
   {
     name: "Basic",
-    price: "₹999", 
-    priceSuffix: "/ month",
+    price: "999", 
+    priceSuffix: "Rupees / month",
     features: [
       "500 AI Reply Generations (WhatsApp/Botpress)",
       "GST Bill Generation (PDF)",
@@ -23,8 +23,8 @@ const pricingPlans = [
   },
   {
     name: "Pro",
-    price: "₹2499", 
-    priceSuffix: "/ month",
+    price: "2499", 
+    priceSuffix: "Rupees / month",
     features: [
       "1500 AI Reply Generations",
       "All Basic Features",
@@ -77,7 +77,7 @@ export default function PricingPage() {
               <CardTitle className="text-2xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">{plan.name}</CardTitle>
               <p className="text-3xl font-bold mt-2">
                 {plan.price}
-                {plan.priceSuffix && <span className="text-sm font-normal text-muted-foreground">{plan.priceSuffix}</span>}
+                {plan.priceSuffix && <span className="text-sm font-normal text-muted-foreground"> {plan.priceSuffix}</span>}
               </p>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">

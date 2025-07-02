@@ -85,7 +85,7 @@ const prompt = ai.definePrompt({
         *   Format Quantity as "{{this.quantity}} No".
         *   "Amount" is quantity * rate.
     *   **After each item's main row**, if there is tax, add two sub-rows for CGST and SGST. Display their respective amounts under the "Amount" column. Assume the item's total tax should be split equally between CGST and SGST.
-    *   **Total Row:** Display total quantity and the {{{grandTotal}}} (formatted as ₹#,##,###.##). Add "E. & O.E" to the right.
+    *   **Total Row:** Display total quantity and the {{{grandTotal}}} (formatted as #,##,###.## Rupees). Add "E. & O.E" to the right.
 
 5.  **Totals Section:**
     *   "Amount Chargeable (in words)": Write out the {{{grandTotal}}} in Indian English words.

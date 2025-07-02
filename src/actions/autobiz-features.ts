@@ -148,7 +148,7 @@ export async function processPayrollAction(params: ProcessPayrollParams) {
 
     return { 
       success: true, 
-      message: `Payroll processed. Net pay: ${finalAmount.toLocaleString('en-IN')}`,
+      message: `Payroll processed. Net pay: ${finalAmount.toLocaleString('en-IN')} Rupees`,
       payslipUrl: "https://example.com/payslip.pdf" // Placeholder
     };
   } catch (error: any) {

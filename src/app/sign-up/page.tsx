@@ -42,6 +42,23 @@ export default function SignUpPage() {
       setError("Passwords do not match.");
       return;
     }
+
+    const passwordErrors = [];
+    if (password.length < 6 || password.length > 8) {
+      passwordErrors.push("be 6-8 characters long");
+    }
+    if (!/[a-z]/.test(password)) {
+      passwordErrors.push("contain a lowercase letter");
+    }
+    if (!/[0-9]/.test(password)) {
+      passwordErrors.push("contain a number");
+    }
+
+    if (passwordErrors.length > 0) {
+      setError(`Password must ${passwordErrors.join(", ")}.`);
+      return;
+    }
+
     setIsLoading(true);
     try {
       await signUp(email, password);
@@ -130,12 +147,15 @@ export default function SignUpPage() {
               <Input
                 id="password"
                 type="password"
-                placeholder="•••••••• (min. 6 characters)"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="bg-input border-border text-foreground focus:ring-primary"
               />
+              <p className="text-xs text-muted-foreground pt-1">
+                Must be 6-8 characters and include a lowercase letter and a number.
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-card-foreground">Confirm Password</Label>

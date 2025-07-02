@@ -92,9 +92,12 @@ export default function SignInPage() {
     setError(null);
     try {
       await signInWithGoogle('signin');
-      // AppWrapper will handle loading state during redirect
+      // On success, the user is redirected by Firebase. This component will unmount.
+      // No need to set loading to false here.
     } catch (error) {
-      // Error is now handled by the toast in AuthContext after redirect
+      // This block only runs if `signInWithGoogle` throws an error *before* the redirect happens.
+      // This is usually due to a configuration issue caught in the AuthContext.
+      // The AuthContext already displays a toast with the error. We just need to stop the spinner.
       setIsGoogleLoading(false);
     }
   };

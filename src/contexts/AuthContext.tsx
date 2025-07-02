@@ -58,6 +58,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (error.code === 'auth/account-exists-with-different-credential') {
           friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
+          // Sign the user out to prevent being in a weird logged-in-but-failed state
+          if (firebaseAuthInstance) {
+            firebaseSignOut(firebaseAuthInstance);
+            setUser(null);
+          }
         } else if (error.code === 'auth/unauthorized-domain') {
            friendlyMessage = "This domain is not authorized for sign-in. Please add it to your Firebase project's Authentication > Settings > Authorized domains list, then wait a few minutes and refresh.";
         }

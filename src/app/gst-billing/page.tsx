@@ -316,7 +316,7 @@ export default function GstBillingPage() {
                         <Input id={`quantity-${index}`} type="number" value={item.quantity} onChange={(e) => handleItemChange(index, "quantity", e.target.value)} placeholder="Qty" required min="0.01" step="any"/>
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor={`rate-${index}`} className="text-xs">Rate (INR)</Label>
+                        <Label htmlFor={`rate-${index}`} className="text-xs">Rate</Label>
                         <Input id={`rate-${index}`} type="number" value={item.rate} onChange={(e) => handleItemChange(index, "rate", e.target.value)} placeholder="Rate" required min="0.01" step="any"/>
                       </div>
                       <div className="space-y-1">
@@ -326,7 +326,7 @@ export default function GstBillingPage() {
                     </div>
                     <div className="flex justify-between items-center mt-2">
                       <p className="text-sm text-muted-foreground">
-                        Item Total: <span className="font-semibold text-foreground">{item.total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
+                        Item Total: <span className="font-semibold text-foreground">{item.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </p>
                       {itemsList.length > 1 && (
                         <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(index)} className="text-destructive hover:text-destructive/80">
@@ -345,7 +345,7 @@ export default function GstBillingPage() {
             {/* Grand Total */}
             <div className="text-right mt-6">
               <p className="text-xl font-bold text-foreground">
-                Grand Total: {calculateGrandTotal().toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
+                Grand Total: {calculateGrandTotal().toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
 

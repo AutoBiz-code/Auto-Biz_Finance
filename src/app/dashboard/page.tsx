@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
   const keyMetrics: Metric[] = [
     { title: "Invoices Generated", value: "0", icon: <FileText className="h-6 w-6 text-primary" />, description: "This month", actionPath: "/gst-billing" },
-    { title: "Pending Payments", value: "₹0", icon: <Banknote className="h-6 w-6 text-primary" />, description: "Total outstanding", actionPath: "/banking" },
+    { title: "Pending Payments", value: "0", icon: <Banknote className="h-6 w-6 text-primary" />, description: "Total outstanding", actionPath: "/banking" },
     { title: "Hours Saved", value: "0", icon: <Clock className="h-6 w-6 text-primary" />, description: "Via automation this month", actionPath: "/business-analysis" },
     { title: "Active Automations", value: "0", icon: <Zap className="h-6 w-6 text-primary" />, description: "Across all services", actionPath: "/integrations" },
   ];

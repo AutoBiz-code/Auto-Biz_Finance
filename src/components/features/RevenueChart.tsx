@@ -55,13 +55,13 @@ export default function RevenueChart() {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(value) => `₹${value / 1000}k`}
+                tickFormatter={(value) => `${value / 1000}k`}
               />
               <ChartTooltip
                 cursor={true}
                 content={<ChartTooltipContent 
                     indicator="dot" 
-                    formatter={(value) => `₹${new Intl.NumberFormat('en-IN').format(value as number)}`}
+                    formatter={(value) => new Intl.NumberFormat('en-IN').format(value as number)}
                 />}
               />
               <defs>

@@ -8,8 +8,8 @@ const ledgerEntries = [
 ];
 
 export default function GeneralLedger() {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+  const formatNumber = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
   };
 
   return (
@@ -37,12 +37,12 @@ export default function GeneralLedger() {
                 <TableCell>{entry.date}</TableCell>
                 <TableCell className="font-medium">{entry.particulars}</TableCell>
                 <TableCell className="text-right">
-                    {entry.debit > 0 ? formatCurrency(entry.debit) : '-'}
+                    {entry.debit > 0 ? formatNumber(entry.debit) : '-'}
                 </TableCell>
                 <TableCell className="text-right">
-                    {entry.credit > 0 ? formatCurrency(entry.credit) : '-'}
+                    {entry.credit > 0 ? formatNumber(entry.credit) : '-'}
                 </TableCell>
-                <TableCell className="text-right font-semibold">{formatCurrency(entry.balance)}</TableCell>
+                <TableCell className="text-right font-semibold">{formatNumber(entry.balance)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -172,7 +172,7 @@ export default function BankingPage() {
                       <TableCell>{t.date}</TableCell>
                       <TableCell className="font-medium">{t.particulars}</TableCell>
                       <TableCell className={`text-right font-mono ${t.amount >= 0 ? 'text-foreground' : 'text-destructive'}`}>
-                        {t.amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
+                        {t.amount.toLocaleString('en-IN')}
                       </TableCell>
                       <TableCell className="text-center">
                         {t.reconciled ? (
@@ -209,8 +209,8 @@ export default function BankingPage() {
             </p>
           </div>
           <div className="text-sm font-medium text-right space-y-1">
-            <p>Reconciled Balance: <span className="font-semibold text-foreground">{reconciledBalance.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span></p>
-            <p>Total Balance in Books: <span className="font-semibold text-foreground">{balance.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span></p>
+            <p>Reconciled Balance: <span className="font-semibold text-foreground">{reconciledBalance.toLocaleString('en-IN')}</span></p>
+            <p>Total Balance in Books: <span className="font-semibold text-foreground">{balance.toLocaleString('en-IN')}</span></p>
           </div>
         </CardFooter>
       </Card>

@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, signInWithRedirect, getRedirectResult, GoogleAuthProvider, AuthError, OAuthProvider, RecaptchaVerifier, ConfirmationResult, signInWithPhoneNumber } from 'firebase/auth';
+import { User, onAuthStateChanged, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, signInWithRedirect, getRedirectResult, GoogleAuthProvider, AuthError, RecaptchaVerifier, ConfirmationResult, signInWithPhoneNumber } from 'firebase/auth';
 import { auth as firebaseAuthInstance, googleProvider } from '@/lib/firebase/config';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -32,7 +32,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [isHandlingRedirect, setIsHandlingRedirect] = useState(true);
   const { toast } = useToast();
-  const router = useRouter();
 
   useEffect(() => {
     if (typeof window === 'undefined' || !firebaseAuthInstance) {
@@ -44,9 +43,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     getRedirectResult(firebaseAuthInstance)
       .then((result) => {
         if (result) {
+          const flow = sessionStorage.getItem('firebase_auth_flow') || 'signin';
+          sessionStorage.removeItem('firebase_auth_flow');
           setUser(result.user);
-          toast({ title: "Success", description: "Signed in successfully." });
-          // REMOVED: No longer need to push here, AppWrapper will handle it.
+          toast({ title: "Success", description: flow === 'signup' ? "Account created successfully." : "Signed in successfully." });
         }
       })
       .catch((error: AuthError) => {
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         sessionStorage.removeItem('firebase_auth_flow');
         const title = flow === 'signup' ? "Sign Up Failed" : "Sign In Failed";
 
-        let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'}`;
+        let friendlyMessage = `An error occurred: ${error.message || 'Please try again.'} (Code: ${error.code})`;
         
         if (error.code === 'auth/account-exists-with-different-credential') {
           friendlyMessage = "An account already exists with this email. Try signing in with the original method.";
@@ -68,11 +68,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           variant: "destructive",
           duration: 15000,
         });
+        console.error("Google Sign-In Error:", error);
       })
       .finally(() => {
         setIsHandlingRedirect(false);
       });
-  }, [toast, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !firebaseAuthInstance) {
@@ -117,6 +119,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (authError.code === 'auth/unauthorized-domain') {
             friendlyMessage = "This domain is not authorized for sign-in. Please add it to your Firebase project's Authentication > Settings > Authorized domains list, then wait a few minutes and refresh.";
+        } else if (authError.code === 'auth/operation-not-allowed') {
+            friendlyMessage = "Google Sign-In is not enabled. Please enable it in your Firebase project's authentication settings.";
         }
 
         toast({
@@ -139,18 +143,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const setupRecaptcha = (containerId: string) => {
     if (!firebaseAuthInstance) throw new Error("Firebase Auth not initialized.");
-    // This check prevents re-creating the verifier on re-renders
+    // Clear any existing verifier
     if (window.recaptchaVerifier) {
-      return window.recaptchaVerifier;
+      window.recaptchaVerifier.clear();
     }
     const verifier = new RecaptchaVerifier(firebaseAuthInstance, containerId, {
       'size': 'invisible',
       'callback': (response: any) => {
-        console.log("reCAPTCHA solved, ready to send OTP.");
+        // reCAPTCHA solved
       },
       'expired-callback': () => {
         // Response expired. Ask user to solve reCAPTCHA again.
-        console.log("reCAPTCHA expired.");
       }
     });
     window.recaptchaVerifier = verifier;

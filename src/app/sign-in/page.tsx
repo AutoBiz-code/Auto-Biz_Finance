@@ -42,7 +42,11 @@ export default function SignInPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    setupRecaptcha("recaptcha-container");
+    // Ensure the recaptcha container is available before setting up
+    const recaptchaContainer = document.getElementById("recaptcha-container");
+    if (recaptchaContainer) {
+      setupRecaptcha("recaptcha-container");
+    }
   }, [setupRecaptcha]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
@@ -51,25 +55,30 @@ export default function SignInPage() {
     setError(null);
     try {
       await signIn(email, password);
-      toast({ title: "Logged in!", description: "Welcome back.", });
+      // AppWrapper will handle redirect
     } catch (error) {
       const authError = error as AuthError;
-      let friendlyMessage: React.ReactNode = `An unexpected error occurred. Please try again. (Code: ${authError.code})`;
+      let friendlyMessage: React.ReactNode = `An unexpected error occurred. (Code: ${authError.code})`;
       switch (authError.code) {
         case 'auth/invalid-credential':
-          friendlyMessage = "Invalid email or password.";
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          friendlyMessage = "Invalid email or password. Please try again.";
           break;
         case 'auth/invalid-email':
-          friendlyMessage = "The email address is not valid.";
+          friendlyMessage = "The email address you entered is not valid.";
           break;
         case 'auth/user-disabled':
           friendlyMessage = "This user account has been disabled.";
           break;
         case 'auth/unauthorized-domain':
-            friendlyMessage = "This domain is not authorized for authentication. Please add it to your Firebase project's allowed domains.";
-            break;
+          friendlyMessage = "This domain is not authorized for authentication. Please add it to your Firebase project's allowed domains.";
+          break;
+        case 'auth/operation-not-allowed':
+          friendlyMessage = "Email/Password sign-in is not enabled. Please enable it in your Firebase project settings.";
+          break;
         case 'auth/network-request-failed':
-          friendlyMessage = "Network error. Please check your internet connection and try again.";
+          friendlyMessage = "Network error. Please check your internet connection.";
           break;
       }
       setError(friendlyMessage);
@@ -83,7 +92,9 @@ export default function SignInPage() {
     setError(null);
     try {
       await signInWithGoogle('signin');
+      // AppWrapper will handle loading state during redirect
     } catch (error) {
+      // Error is now handled by the toast in AuthContext after redirect
       setIsGoogleLoading(false);
     }
   };
@@ -97,10 +108,17 @@ export default function SignInPage() {
     setIsPhoneLoading(true);
     try {
       const verifier = window.recaptchaVerifier;
-      if (!verifier) throw new Error("Recaptcha verifier not initialized.");
+      if (!verifier) {
+          // Render the verifier if it's not there.
+          const newVerifier = setupRecaptcha('recaptcha-container');
+          await newVerifier.render(); // This might be needed if it was cleared
+          const result = await signInWithPhone(phone, newVerifier);
+          setConfirmationResult(result);
+      } else {
+          const result = await signInWithPhone(phone, verifier);
+          setConfirmationResult(result);
+      }
       
-      const result = await signInWithPhone(phone, verifier);
-      setConfirmationResult(result);
       setShowOtpInput(true);
       toast({ title: "OTP Sent!", description: "Please check your phone for the verification code."});
     } catch (error) {
@@ -108,7 +126,7 @@ export default function SignInPage() {
       const authError = error as AuthError;
       let friendlyMessage = "Failed to send OTP. Please try again.";
       if (authError.code === 'auth/invalid-phone-number') {
-        friendlyMessage = "The phone number is not valid.";
+        friendlyMessage = "The phone number is not valid. Please include the country code (e.g., +91).";
       }
       setError(friendlyMessage);
     } finally {
@@ -125,7 +143,7 @@ export default function SignInPage() {
     setIsPhoneLoading(true);
     try {
       await confirmationResult.confirm(otp);
-      toast({ title: "Logged in!", description: "Welcome back."});
+      // AppWrapper will handle redirect
     } catch (error) {
       const authError = error as AuthError;
       let friendlyMessage = "Failed to verify OTP.";
@@ -144,7 +162,7 @@ export default function SignInPage() {
     <div className="flex items-center justify-center min-h-screen p-4 fade-in bg-transparent">
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground border-border/30">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Welcome to AutoBiz Finance</CardTitle>
+          <CardTitle className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Welcome Back</CardTitle>
           <CardDescription className="text-muted-foreground">
             Sign in to access your dashboard.
           </CardDescription>
@@ -175,10 +193,10 @@ export default function SignInPage() {
                 </Button>
               </form>
 
-              <div className="flex items-center">
-                  <Separator className="flex-1" />
-                  <span className="px-4 text-xs text-muted-foreground">OR</span>
-                  <Separator className="flex-1" />
+              <div className="relative flex py-2 items-center">
+                  <div className="flex-grow border-t border-border"></div>
+                  <span className="flex-shrink mx-4 text-xs text-muted-foreground">OR</span>
+                  <div className="flex-grow border-t border-border"></div>
               </div>
 
               {/* Social Logins */}
@@ -190,28 +208,29 @@ export default function SignInPage() {
               </div>
 
               {/* Phone Login */}
-              <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-card-foreground">Phone Number</Label>
+              <form onSubmit={(e) => {e.preventDefault(); handlePhoneSignIn();}} className="space-y-2">
+                  <Label htmlFor="phone" className="text-card-foreground">Sign in with Phone</Label>
                   <div className="flex gap-2">
-                      <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                      <Button variant="outline" onClick={handlePhoneSignIn} disabled={anyLoading}>
+                      <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                      <Button type="submit" variant="outline" onClick={handlePhoneSignIn} disabled={anyLoading}>
                           {isPhoneLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4"/>}
                       </Button>
                   </div>
-              </div>
+              </form>
             </>
           ) : (
             /* OTP Verification Form */
-            <div className="space-y-4">
-              <Label htmlFor="otp">Enter OTP</Label>
-              <Input id="otp" type="text" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} required />
-              <Button onClick={handleVerifyOtp} className="w-full" disabled={isPhoneLoading}>
+            <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp();}} className="space-y-4">
+              <Label htmlFor="otp">Enter OTP sent to {phone}</Label>
+              <Input id="otp" type="text" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} required autoFocus />
+              <Button type="submit" className="w-full" disabled={isPhoneLoading}>
                 {isPhoneLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Verify & Sign In
               </Button>
               <Button variant="link" onClick={() => setShowOtpInput(false)}>Back</Button>
-            </div>
+            </form>
           )}
+          <div id="recaptcha-container" className="flex justify-center"></div>
         </CardContent>
 
         <CardFooter className="flex-col gap-2">
@@ -223,7 +242,6 @@ export default function SignInPage() {
           </p>
         </CardFooter>
       </Card>
-      <div id="recaptcha-container"></div>
     </div>
   );
 }

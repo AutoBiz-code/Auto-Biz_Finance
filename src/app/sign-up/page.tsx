@@ -42,17 +42,13 @@ export default function SignUpPage() {
       setError("Passwords do not match.");
       return;
     }
-    if (password.length < 6) {
-      setError("Password should be at least 6 characters.");
-      return;
-    }
     setIsLoading(true);
     try {
       await signUp(email, password);
-      // Redirection is now handled by AppWrapper
+      // Redirection is handled by AppWrapper
     } catch (error) {
       const authError = error as AuthError;
-      let friendlyMessage: React.ReactNode = `A sign-up error occurred. Please try again. (Code: ${authError.code})`;
+      let friendlyMessage: React.ReactNode = `A sign-up error occurred. (Code: ${authError.code})`;
 
       switch (authError.code) {
         case 'auth/email-already-in-use':
@@ -61,7 +57,8 @@ export default function SignUpPage() {
               An account with this email already exists. Please{" "}
               <Link href="/sign-in" className="font-bold text-primary hover:underline">
                 Sign In
-              </Link>.
+              </Link>
+              .
             </span>
           );
           break;
@@ -72,13 +69,13 @@ export default function SignUpPage() {
           friendlyMessage = "The password is too weak. It must be at least 6 characters long.";
           break;
         case 'auth/operation-not-allowed':
-          friendlyMessage = "Email sign-up is currently disabled. Please enable it in your Firebase project's authentication settings.";
+          friendlyMessage = "Email/Password sign-up is currently disabled. Please enable it in your Firebase project's authentication settings.";
           break;
         case 'auth/unauthorized-domain':
-          friendlyMessage = "This domain is not authorized for authentication. Please add it to your Firebase project's allowed domains and wait a few minutes.";
+          friendlyMessage = "This domain is not authorized for authentication. Please add it to your Firebase project's allowed domains.";
           break;
         case 'auth/network-request-failed':
-          friendlyMessage = "Network error. Please check your internet connection and try again.";
+          friendlyMessage = "Network error. Please check your internet connection.";
           break;
       }
       setError(friendlyMessage);
@@ -105,7 +102,7 @@ export default function SignUpPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">Create an Account</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Manage accounts, track inventory, and comply with GST effortlessly with AutoBiz Finance.
+            Join AutoBiz Finance to streamline your business operations.
           </CardDescription>
         </CardHeader>
 
@@ -158,26 +155,29 @@ export default function SignUpPage() {
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
               Sign Up with Email
             </Button>
-            <p className="text-sm text-center text-muted-foreground">
-              Already have an account?{" "}
-              <Link href="/sign-in" className="font-medium text-primary hover:underline">
-                Sign In
-              </Link>
-            </p>
           </CardFooter>
         </form>
         
         <CardContent className="space-y-4">
-            <div className="flex items-center">
-                <Separator className="flex-1" />
-                <span className="px-4 text-xs text-muted-foreground">OR</span>
-                <Separator className="flex-1" />
+            <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-border"></div>
+                <span className="flex-shrink mx-4 text-xs text-muted-foreground">OR</span>
+                <div className="flex-grow border-t border-border"></div>
             </div>
             <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={anyLoading}>
                 {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
                 Sign up with Google
             </Button>
         </CardContent>
+
+        <CardFooter>
+            <p className="text-sm text-center text-muted-foreground w-full">
+              Already have an account?{" "}
+              <Link href="/sign-in" className="font-medium text-primary hover:underline">
+                Sign In
+              </Link>
+            </p>
+        </CardFooter>
         
       </Card>
     </div>

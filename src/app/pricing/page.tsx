@@ -10,7 +10,7 @@ const pricingPlans = [
   {
     name: "Basic",
     price: "999", 
-    priceSuffix: "Rupees / month",
+    priceSuffix: "INR / month",
     features: [
       "500 AI Reply Generations (WhatsApp/Botpress)",
       "GST Bill Generation (PDF)",
@@ -24,7 +24,7 @@ const pricingPlans = [
   {
     name: "Pro",
     price: "2499", 
-    priceSuffix: "Rupees / month",
+    priceSuffix: "INR / month",
     features: [
       "1500 AI Reply Generations",
       "All Basic Features",

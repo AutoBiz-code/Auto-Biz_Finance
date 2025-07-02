@@ -146,7 +146,7 @@ export default function BankingPage() {
                   </TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Particulars</TableHead>
-                  <TableHead className="text-right">Amount (Rupees)</TableHead>
+                  <TableHead className="text-right">Amount (INR)</TableHead>
                   <TableHead className="text-center w-[150px]">Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -209,8 +209,8 @@ export default function BankingPage() {
             </p>
           </div>
           <div className="text-sm font-medium text-right space-y-1">
-            <p>Reconciled Balance: <span className="font-semibold text-foreground">{reconciledBalance.toLocaleString('en-IN')}</span></p>
-            <p>Total Balance in Books: <span className="font-semibold text-foreground">{balance.toLocaleString('en-IN')}</span></p>
+            <p>Reconciled Balance (INR): <span className="font-semibold text-foreground">{reconciledBalance.toLocaleString('en-IN')}</span></p>
+            <p>Total Balance in Books (INR): <span className="font-semibold text-foreground">{balance.toLocaleString('en-IN')}</span></p>
           </div>
         </CardFooter>
       </Card>

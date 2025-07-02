@@ -61,7 +61,7 @@ export default function RevenueChart() {
                 cursor={true}
                 content={<ChartTooltipContent 
                     indicator="dot" 
-                    formatter={(value) => `${new Intl.NumberFormat('en-IN').format(value as number)} Rupees`}
+                    formatter={(value) => `${new Intl.NumberFormat('en-IN').format(value as number)} INR`}
                 />}
               />
               <defs>

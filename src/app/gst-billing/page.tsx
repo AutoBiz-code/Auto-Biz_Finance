@@ -326,7 +326,7 @@ export default function GstBillingPage() {
                     </div>
                     <div className="flex justify-between items-center mt-2">
                       <p className="text-sm text-muted-foreground">
-                        Item Total: <span className="font-semibold text-foreground">{item.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        Item Total (INR): <span className="font-semibold text-foreground">{item.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </p>
                       {itemsList.length > 1 && (
                         <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(index)} className="text-destructive hover:text-destructive/80">
@@ -345,7 +345,7 @@ export default function GstBillingPage() {
             {/* Grand Total */}
             <div className="text-right mt-6">
               <p className="text-xl font-bold text-foreground">
-                Grand Total: {calculateGrandTotal().toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                Grand Total (INR): {calculateGrandTotal().toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
 

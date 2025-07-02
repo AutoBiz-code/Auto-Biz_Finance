@@ -130,7 +130,7 @@ export default function StockManagementPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="price" className="text-card-foreground">Price per Item (Rupees) *</Label>
+                <Label htmlFor="price" className="text-card-foreground">Price per Item (INR) *</Label>
                 <Input
                   id="price"
                   type="number"

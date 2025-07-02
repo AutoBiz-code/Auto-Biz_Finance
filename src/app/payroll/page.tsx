@@ -152,7 +152,7 @@ export default function PayrollPage() {
                     <Input id="employeeDept" value={department} onChange={e => setDepartment(e.target.value)} placeholder="e.g., Sales" required/>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="employeeSalary">Salary (Monthly, in Rupees)</Label>
+                    <Label htmlFor="employeeSalary">Salary (Monthly, INR)</Label>
                     <Input id="employeeSalary" type="number" value={salary} onChange={e => setSalary(e.target.value)} placeholder="e.g., 50000" required/>
                   </div>
                 </CardContent>
@@ -185,7 +185,7 @@ export default function PayrollPage() {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Department</TableHead>
-                      <TableHead className="text-right">Salary (Rupees)</TableHead>
+                      <TableHead className="text-right">Salary (INR)</TableHead>
                       <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>

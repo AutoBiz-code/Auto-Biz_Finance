@@ -26,9 +26,9 @@ export default function GeneralLedger() {
             <TableRow>
               <TableHead>Date</TableHead>
               <TableHead>Particulars</TableHead>
-              <TableHead className="text-right">Debit (Rupees)</TableHead>
-              <TableHead className="text-right">Credit (Rupees)</TableHead>
-              <TableHead className="text-right">Balance (Rupees)</TableHead>
+              <TableHead className="text-right">Debit (INR)</TableHead>
+              <TableHead className="text-right">Credit (INR)</TableHead>
+              <TableHead className="text-right">Balance (INR)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

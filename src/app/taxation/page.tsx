@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Landmark, FileText, Loader2, FileDigit, Scissors } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { fileGstReturnAction, generateEWayBillAction } from "@/actions/autobiz-features";
 
 // Mock data for sales summary
@@ -144,9 +144,9 @@ export default function TaxationPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Transaction Type</TableHead>
-                                    <TableHead className="text-right">Taxable Value</TableHead>
-                                    <TableHead className="text-right">Tax Amount</TableHead>
-                                    <TableHead className="text-right">Total Invoice Value</TableHead>
+                                    <TableHead className="text-right">Taxable Value (INR)</TableHead>
+                                    <TableHead className="text-right">Tax Amount (INR)</TableHead>
+                                    <TableHead className="text-right">Total Invoice Value (INR)</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -159,12 +159,14 @@ export default function TaxationPage() {
                                     </TableRow>
                                 ))}
                             </TableBody>
-                             <TableRow className="font-bold bg-muted/50">
-                                <TableCell>Total</TableCell>
-                                <TableCell className="text-right">{calculateTotal('taxableValue').toLocaleString('en-IN')}</TableCell>
-                                <TableCell className="text-right">{calculateTotal('taxAmount').toLocaleString('en-IN')}</TableCell>
-                                <TableCell className="text-right">{calculateTotal('totalValue').toLocaleString('en-IN')}</TableCell>
-                            </TableRow>
+                             <TableFooter>
+                                <TableRow className="font-bold bg-muted/50">
+                                    <TableCell>Total</TableCell>
+                                    <TableCell className="text-right">{calculateTotal('taxableValue').toLocaleString('en-IN')}</TableCell>
+                                    <TableCell className="text-right">{calculateTotal('taxAmount').toLocaleString('en-IN')}</TableCell>
+                                    <TableCell className="text-right">{calculateTotal('totalValue').toLocaleString('en-IN')}</TableCell>
+                                </TableRow>
+                             </TableFooter>
                         </Table>
                     </div>
                 </div>
@@ -209,4 +211,3 @@ export default function TaxationPage() {
       </Tabs>
     </div>
   );
-}

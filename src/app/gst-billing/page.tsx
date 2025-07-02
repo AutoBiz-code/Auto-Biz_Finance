@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type FormEvent, useEffect } from "react";
@@ -326,7 +325,7 @@ export default function GstBillingPage() {
                     </div>
                     <div className="flex justify-between items-center mt-2">
                       <p className="text-sm text-muted-foreground">
-                        Item Total: <span className="font-semibold text-foreground">₹{item.total.toFixed(2)}</span>
+                        Item Total: <span className="font-semibold text-foreground">{item.total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                       </p>
                       {itemsList.length > 1 && (
                         <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(index)} className="text-destructive hover:text-destructive/80">
@@ -345,7 +344,7 @@ export default function GstBillingPage() {
             {/* Grand Total */}
             <div className="text-right mt-6">
               <p className="text-xl font-bold text-foreground">
-                Grand Total: ₹{calculateGrandTotal().toFixed(2)}
+                Grand Total: {calculateGrandTotal().toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
               </p>
             </div>
 

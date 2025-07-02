@@ -148,7 +148,7 @@ export async function processPayrollAction(params: ProcessPayrollParams) {
 
     return { 
       success: true, 
-      message: `Payroll processed. Net pay: ₹${finalAmount.toLocaleString()}`,
+      message: `Payroll processed. Net pay: ${finalAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}`,
       payslipUrl: "https://example.com/payslip.pdf" // Placeholder
     };
   } catch (error: any) {
@@ -186,7 +186,7 @@ export async function restoreBackupAction(params: RestoreBackupParams) {
     if (Math.random() < 0.1) throw new Error("Simulated backup restore error.");
     return { success: true, message: "Restore process started successfully." };
   } catch (error: any) {
-    console.error("Error in restoreBackupAction", { errorMessage: error.message, stack: error.stack, params });
+    console.error("Error in restoreBackupAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred during backup restore." };
   }
 }

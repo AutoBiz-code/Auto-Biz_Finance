@@ -33,6 +33,17 @@ export interface GstInvoiceParams {
   customerEmail?: string;
   billingAddress: string;
   shippingAddress: string;
+  // Dispatch & Order Details
+  deliveryNote?: string;
+  termsOfPayment?: string;
+  referenceNoDate?: string;
+  otherReferences?: string;
+  buyersOrderNo?: string;
+  buyersOrderDate?: string; // ISO string date
+  dispatchDocNo?: string;
+  dispatchedThrough?: string;
+  destination?: string;
+  termsOfDelivery?: string;
   // Items
   items: GstInvoiceItem[];
   // Additional Charges
@@ -83,11 +94,34 @@ export async function generateGstPdfAction(params: GstInvoiceParams) {
         taxableValue,
         cgst: itemCgst,
         sgst: itemSgst,
+        discountAmount: discountAmount,
       };
     });
 
     const grandTotal = subtotal + totalTax + params.shippingCharges;
     const grandTotalInWords = numberToWords(Math.round(grandTotal));
+    const taxAmountInWords = numberToWords(Math.round(totalTax));
+
+    let eInvoiceDetails;
+    if (grandTotal >= 50000) {
+        console.info("Grand total >= 50,000 INR. Generating simulated E-Invoice details.");
+        const eWayBillResult = await generateEWayBillAction({
+            invoiceId: params.invoiceNumber,
+            companyId: 'mock-company-id'
+        });
+
+        if (eWayBillResult.success) {
+            eInvoiceDetails = {
+                irn: eWayBillResult.irn,
+                ackNo: `ACK${Date.now()}`,
+                ackDate: new Date().toISOString(),
+                qrCodeUrl: eWayBillResult.qrCode,
+            };
+        } else {
+            console.warn("Failed to generate E-Way Bill details, proceeding without them.");
+        }
+    }
+
 
     const flowInput: GenerateInvoiceHtmlInput = {
       ...params,
@@ -99,6 +133,8 @@ export async function generateGstPdfAction(params: GstInvoiceParams) {
       totalSgst,
       grandTotal,
       grandTotalInWords,
+      taxAmountInWords,
+      eInvoiceDetails,
     };
     
     const result = await generateInvoiceHtml(flowInput);

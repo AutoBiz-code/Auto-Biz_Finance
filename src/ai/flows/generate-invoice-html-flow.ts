@@ -37,6 +37,7 @@ const GenerateInvoiceHtmlInputSchema = z.object({
     taxRate: z.number(),
     cgst: z.number(),
     sgst: z.number(),
+    discountAmount: z.number(),
   })),
   shippingCharges: z.number(),
   bankName: z.string().optional(),
@@ -51,6 +52,24 @@ const GenerateInvoiceHtmlInputSchema = z.object({
   totalSgst: z.number(),
   grandTotal: z.number(),
   grandTotalInWords: z.string(),
+  taxAmountInWords: z.string(),
+  // E-Invoice Details
+  eInvoiceDetails: z.object({
+    irn: z.string(),
+    ackNo: z.string(),
+    ackDate: z.string(),
+    qrCodeUrl: z.string(),
+  }).optional(),
+  // Additional order details
+  deliveryNote: z.string().optional(),
+  termsOfPayment: z.string().optional(),
+  referenceNoDate: z.string().optional(),
+  otherReferences: z.string().optional(),
+  buyersOrderNo: z.string().optional(),
+  buyersOrderDate: z.string().optional(),
+  dispatchDocNo: z.string().optional(),
+  dispatchedThrough: z.string().optional(),
+  destination: z.string().optional(),
 });
 export type GenerateInvoiceHtmlInput = z.infer<typeof GenerateInvoiceHtmlInputSchema>;
 
@@ -62,10 +81,18 @@ export type GenerateInvoiceHtmlOutput = z.infer<typeof GenerateInvoiceHtmlOutput
 export async function generateInvoiceHtml(
   input: GenerateInvoiceHtmlInput
 ): Promise<GenerateInvoiceHtmlOutput> {
-  // Pre-format dates here to ensure consistency
   const formattedInvoiceDate = format(new Date(input.invoiceDate), 'dd-MMM-yy');
-  
-  const enhancedInput = { ...input, formattedInvoiceDate };
+  const formattedDueDate = format(new Date(input.dueDate), 'dd-MMM-yy');
+  const formattedAckDate = input.eInvoiceDetails?.ackDate ? format(new Date(input.eInvoiceDetails.ackDate), 'dd-MMM-yy') : '';
+  const formattedBuyersOrderDate = input.buyersOrderDate ? format(new Date(input.buyersOrderDate), 'dd-MMM-yy') : '';
+
+  const enhancedInput = { 
+    ...input, 
+    formattedInvoiceDate, 
+    formattedDueDate,
+    eInvoiceDetails: input.eInvoiceDetails ? { ...input.eInvoiceDetails, formattedAckDate } : undefined,
+    formattedBuyersOrderDate,
+  };
   
   return generateInvoiceHtmlFlow(enhancedInput);
 }
@@ -74,75 +101,73 @@ const prompt = ai.definePrompt({
   name: 'generateInvoiceHtmlPrompt',
   input: {schema: GenerateInvoiceHtmlInputSchema},
   output: {schema: GenerateInvoiceHtmlOutputSchema},
-  prompt: `You are an expert web developer specializing in creating pixel-perfect HTML invoices that precisely replicate the TallyPrime GST invoice format. Generate a single, self-contained HTML5 document. All CSS must be inside a single '<style>' tag in the '<head>'. Use a common sans-serif font like Arial, size 10px. Ensure all tables use thin, black, collapsed borders.
+  prompt: `You are an expert web developer tasked with creating a precise, self-contained HTML invoice that replicates the provided e-invoice format. All CSS must be in a single <style> tag. Use Arial, 10px font. All tables must have thin, black, collapsed borders.
 
-**Layout and Content Specification:**
+**Constraint Checklist & Confidence Score:**
+1.  Single HTML file: Yes
+2.  All CSS in one <style> tag: Yes
+3.  Font is Arial, 10px: Yes
+4.  All tables have thin, black, collapsed borders: Yes
+5.  Layout matches the image structure exactly: Yes
+Confidence Score: 5/5 - I will meet all constraints.
 
-1.  **Main Header:**
-    *   Create a main header with "TAX INVOICE" centered and bold.
-    *   Below it, add "ORIGINAL" centered.
+**HTML Structure Generation Plan:**
 
-2.  **Company & Invoice Details (Top Section):**
-    *   This section is a table with 2 columns.
-    *   **Left Column:**
-        *   "{{companyName}}" (bold, font-size 12px).
-        *   "{{companyAddress}}".
-        *   "E-mail: {{companyEmail}}".
-        *   "GSTIN: {{companyGstin}}" (bold).
-    *   **Right Column:**
-        *   A nested table with 2 columns.
-        *   Rows for: "INVOICE NO.", "INVOICE DATE", "Contact No".
-        *   Populate with: "{{invoiceNumber}}", "{{formattedInvoiceDate}}", "{{companyPhone}}".
+1.  **Main Container:** A div with a border.
+2.  **Top Header:**
+    *   A 'Tax Invoice' title, centered and bold.
+    *   If \`eInvoiceDetails\` exists, add 'e-Invoice' on the right.
+3.  **E-Invoice Details (Conditional):**
+    *   If \`eInvoiceDetails\` exists, create a 2-column table.
+    *   Left column: IRN, Ack No., Ack Date with labels and bold values from \`{{eInvoiceDetails}}\`.
+    *   Right column: A 100x100px QR code image using \`{{eInvoiceDetails.qrCodeUrl}}\`.
+4.  **Party Details:**
+    *   A 2-column table.
+    *   **Left Column (Seller):**
+        *   "{{companyName}}" (bold, 12px).
+        *   Address, GSTIN (bold), E-mail, Contact.
+    *   **Right Column (Buyer/Consignee):**
+        *   "Consignee (Ship to)": Name, Address, GSTIN (bold).
+        *   "Buyer (Bill to)": Name, Address, GSTIN (bold).
+5.  **Invoice Metadata:**
+    *   A 4-column table for: Invoice No/Date, Delivery Note, Mode/Terms of Payment, Ref No & Date, etc. Populate with corresponding input fields like \`{{invoiceNumber}}\`, \`{{formattedInvoiceDate}}\`, \`{{deliveryNote}}\`, \`{{termsOfPayment}}\`, etc.
+6.  **Items Table:**
+    *   Columns: 'Sl. No.', 'Description of Goods and Services', 'HSN/SAC', 'Quantity', 'Rate', 'per', 'Amount'.
+    *   Iterate through \`items\` array. For each item:
+        *   Create a row. Populate with description, HSN, quantity, rate, unit, and amount.
+        *   The 'Amount' is \`{{this.amount}}\`. Format all numbers to 2 decimal places.
+    *   After items, add a row for "FREIGHT & CARTAGE" if \`{{shippingCharges}}\` > 0.
+7.  **Totals Section (Below Items):**
+    *   A row spanning all columns.
+    *   Right-aligned: "CGST Output @9%", "SGST Output @9%", "Total".
+    *   Populate with \`{{totalCgst}}\`, \`{{totalSgst}}\`, and \`{{grandTotal}}\`.
+8.  **Amounts in Words:**
+    *   Full-width row: "Amount Chargeable (in words)".
+    *   Next line, bold: "{{grandTotalInWords}} Only".
+9.  **Tax Summary Table:**
+    *   A full-width table. Columns: "HSN/SAC", "Taxable Value", "CGST Rate", "CGST Amount", "SGST/UTGST Rate", "SGST/UTGST Amount", "Total Tax Amount".
+    *   Iterate through \`items\`. Add a row for each with its HSN, taxableValue, taxRate/2, cgst, taxRate/2, sgst, and total tax for the item.
+    *   Add a "Total" row summarizing `subtotal`, `totalCgst`, `totalSgst`, and `totalTax`.
+10. **Tax in Words:**
+    *   Full-width row: "Tax Amount (in words)".
+    *   Next line, bold: "{{taxAmountInWords}} Only".
+11. **Final Section:**
+    *   A 2-column table.
+    *   **Left Column:** Declaration text.
+    *   **Right Column:** Company's Bank Details, then "for {{companyName}}", and finally "(Authorised Signatory)".
+12. **Footer:**
+    *   Centered text: "This is a Computer Generated Invoice".
 
-3.  **Buyer Details (Middle Section):**
-    *   A table with 2 columns.
-    *   **Left Column (Bill To):**
-        *   "Bill To:-" (label).
-        *   "{{customerName}}" (bold).
-        *   "{{billingAddress}}".
-        *   "GSTIN: {{customerGstin}}" (bold).
-    *   **Right Column (Place of Supply):**
-        *   "Place of Supply:-" (label).
-        *   "{{customerName}}" (bold).
-        *   "{{shippingAddress}}".
-        *   "GSTIN: {{customerGstin}}" (bold).
-
-4.  **Items Table:**
-    *   A table with columns: "Sr. No.", "Description of Goods/Services", "HSN/SAC", "UNIT", "Qty", "Rate", "Amount (Rs.)".
-    *   For each item in \`items\`:
-        *   Create a row. "Amount (Rs.)" is \`{{this.amount}}\`. Format numbers to 2 decimal places.
-    *   After all items, add a row for "FREIGHT CHARGES". It should span the description column, and the charge \`{{shippingCharges}}\` should be in the amount column.
-
-5.  **Footer Section:**
-    *   A main table with 2 columns.
-    *   **Left Column (Bank Details):**
-        *   A nested table showing "Bank Name", "Bank A/C Number", "IFSC Code", "Branch" with their values ({{{bankName}}}, {{{accountNumber}}}, etc.).
-        *   Below the bank table, add "RUPEES (IN WORDS):".
-        *   On the next line, in bold, add "{{grandTotalInWords}} ONLY".
-    *   **Right Column (Totals):**
-        *   A nested table with rows for: "Taxable Value", "SGST Output @9%", "CGST Output @9%", "IGST Output @18%", "Rounded Off (+-)", and "Grand Total" (bold).
-        *   Populate "Taxable Value" with \`{{subtotal}}\`.
-        *   Populate "SGST" and "CGST" with \`{{totalSgst}}\` and \`{{totalCgst}}\`.
-        *   Leave IGST blank. Leave Rounded Off blank.
-        *   Populate "Grand Total" with \`{{grandTotal}}\` (bold).
-
-6.  **Tax Summary Table:**
-    *   A full-width table with columns: "HSN/SAC", "Taxable Value", "Rate", "SGST AMT", "CGST AMT", "IGST AMT", "Total Tax Amount".
-    *   For each item in \`items\`, add a row with its HSN/SAC, taxableValue, taxRate%, sgst, and cgst amounts.
-    *   A final "Total" row summarizing the `subtotal`, `totalSgst`, and `totalCgst`.
-
-7.  **Final Section:**
-    *   A table with 2 columns.
-    *   **Left Column:** "Note: {{notes}}".
-    *   **Right Column:** "for {{companyName}}" and below it, "(Authorised Signatory)".
-    *   At the very bottom, centered: "This is a Computer Generated Invoice".
-
-**Styling:**
-*   Use thin (1px), black, collapsed borders for ALL tables and cells.
-*   Ensure padding is minimal (e.g., 2px 4px) to replicate the dense Tally look.
-*   Match text alignment (right-align all numbers/amounts).
-*   Use bold font weight as specified.
-*   All monetary values should be formatted to two decimal places.
+**CSS Styling:**
+*   `body { font-family: Arial, sans-serif; font-size: 10px; }`
+*   `table { border-collapse: collapse; width: 100%; }`
+*   `th, td { border: 1px solid black; padding: 4px; vertical-align: top; }`
+*   `.bold { font-weight: bold; }`
+*   `.text-center { text-align: center; }`
+*   `.text-right { text-align: right; }`
+*   `.no-border { border: none; }`
+*   `.font-12 { font-size: 12px; }`
+*   All monetary values must be formatted to two decimal places.
 `
 });
 

@@ -8,11 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Loader2, PlusCircle, Trash2, Building, Landmark, User, Truck, IndianRupee } from "lucide-react";
+import { FileText, Loader2, PlusCircle, Trash2, Building, User, Truck, IndianRupee } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateGstPdfAction, type GstInvoiceItem } from "@/actions/autobiz-features";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface BillItem extends GstInvoiceItem {
@@ -55,7 +54,19 @@ export default function GstBillingPage() {
   const [billingAddress, setBillingAddress] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
   const [isShippingSameAsBilling, setIsShippingSameAsBilling] = useState(true);
-  
+
+  // Dispatch & Order Details
+  const [deliveryNote, setDeliveryNote] = useState("");
+  const [termsOfPayment, setTermsOfPayment] = useState("");
+  const [referenceNoDate, setReferenceNoDate] = useState("");
+  const [otherReferences, setOtherReferences] = useState("");
+  const [buyersOrderNo, setBuyersOrderNo] = useState("");
+  const [buyersOrderDate, setBuyersOrderDate] = useState<Date | undefined>();
+  const [dispatchDocNo, setDispatchDocNo] = useState("");
+  const [dispatchedThrough, setDispatchedThrough] = useState("");
+  const [destination, setDestination] = useState("");
+  const [termsOfDelivery, setTermsOfDelivery] = useState("");
+
   // Items
   const [itemsList, setItemsList] = useState<BillItem[]>([initialItem]);
   
@@ -173,6 +184,16 @@ export default function GstBillingPage() {
         branch,
         notes,
         termsAndConditions,
+        deliveryNote,
+        termsOfPayment,
+        referenceNoDate,
+        otherReferences,
+        buyersOrderNo,
+        buyersOrderDate: buyersOrderDate?.toISOString(),
+        dispatchDocNo,
+        dispatchedThrough,
+        destination,
+        termsOfDelivery,
       });
 
       if (result.success && result.htmlContent) {
@@ -229,7 +250,7 @@ export default function GstBillingPage() {
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
         <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">GST Invoice Generation</h1>
-        <p className="mt-2 text-muted-foreground">Create and generate detailed GST-compliant invoices in the TallyPrime format.</p>
+        <p className="mt-2 text-muted-foreground">Create and generate detailed GST-compliant invoices.</p>
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -295,7 +316,7 @@ export default function GstBillingPage() {
             {itemsList.map((item, index) => (
               <Card key={item.id} className="p-4 bg-input/30">
                 <div className="grid grid-cols-12 gap-3 items-end">
-                    <div className="col-span-12 md:col-span-4 space-y-1">
+                    <div className="col-span-12 md:col-span-3 space-y-1">
                         <Label htmlFor={`desc-${index}`} className="text-xs">Description</Label>
                         <Input id={`desc-${index}`} value={item.description} onChange={(e) => handleItemChange(index, "description", e.target.value)} placeholder="Item Name" required />
                     </div>
@@ -312,14 +333,18 @@ export default function GstBillingPage() {
                         <Input id={`unit-${index}`} value={item.unit} onChange={(e) => handleItemChange(index, "unit", e.target.value)} placeholder="PCS"/>
                     </div>
                     <div className="col-span-6 md:col-span-1 space-y-1">
-                        <Label htmlFor={`rate-${index}`} className="text-xs">Rate</Label>
+                        <Label htmlFor={`rate-${index}`} className="text-xs">Rate (INR)</Label>
                         <Input id={`rate-${index}`} type="number" value={item.rate} onChange={(e) => handleItemChange(index, "rate", e.target.value)} placeholder="0" min="0"/>
+                    </div>
+                    <div className="col-span-6 md:col-span-1 space-y-1">
+                        <Label htmlFor={`discount-${index}`} className="text-xs">Disc %</Label>
+                        <Input id={`discount-${index}`} type="number" value={item.discount} onChange={(e) => handleItemChange(index, "discount", e.target.value)} placeholder="0" min="0" />
                     </div>
                      <div className="col-span-6 md:col-span-1 space-y-1">
                         <Label htmlFor={`tax-${index}`} className="text-xs">Tax %</Label>
                         <Input id={`tax-${index}`} type="number" value={item.taxRate} onChange={(e) => handleItemChange(index, "taxRate", e.target.value)} placeholder="18" min="0"/>
                     </div>
-                    <div className="col-span-6 md:col-span-1 space-y-1 text-right">
+                    <div className="col-span-12 md:col-span-1 space-y-1 text-right">
                        {itemsList.length > 1 && (
                         <Button type="button" variant="destructive" size="icon" onClick={() => handleRemoveItem(index)}>
                           <Trash2 className="h-4 w-4" />
@@ -335,9 +360,25 @@ export default function GstBillingPage() {
           </CardContent>
         </Card>
         
+        <Card className="shadow-xl bg-card text-card-foreground">
+            <CardHeader><CardTitle className="flex items-center gap-2 font-bold bg-primary-gradient bg-clip-text text-transparent"><Truck className="h-5 w-5 text-primary"/> Dispatch & Order Details</CardTitle></CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Input placeholder="Delivery Note" value={deliveryNote} onChange={e => setDeliveryNote(e.target.value)} />
+                <Input placeholder="Terms of Payment" value={termsOfPayment} onChange={e => setTermsOfPayment(e.target.value)} />
+                <Input placeholder="Reference No. & Date" value={referenceNoDate} onChange={e => setReferenceNoDate(e.target.value)} />
+                <Input placeholder="Other References" value={otherReferences} onChange={e => setOtherReferences(e.target.value)} />
+                <Input placeholder="Buyer's Order No." value={buyersOrderNo} onChange={e => setBuyersOrderNo(e.target.value)} />
+                <DatePicker date={buyersOrderDate} setDate={setBuyersOrderDate} placeholder="Buyer's Order Date" />
+                <Input placeholder="Dispatch Doc No." value={dispatchDocNo} onChange={e => setDispatchDocNo(e.target.value)} />
+                <Input placeholder="Dispatched Through" value={dispatchedThrough} onChange={e => setDispatchedThrough(e.target.value)} />
+                <Input placeholder="Destination" value={destination} onChange={e => setDestination(e.target.value)} />
+                <Input placeholder="Terms of Delivery" value={termsOfDelivery} onChange={e => setTermsOfDelivery(e.target.value)} />
+            </CardContent>
+        </Card>
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="shadow-xl bg-card text-card-foreground">
-                <CardHeader><CardTitle className="flex items-center gap-2 font-bold bg-primary-gradient bg-clip-text text-transparent"><Landmark className="h-5 w-5 text-primary"/> Payment Details</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent">Payment & Other Details</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                     <Input placeholder="Bank Name (e.g. HDFC BANK LTD)" value={bankName} onChange={e => setBankName(e.target.value)}/>
                     <Input placeholder="Bank Account Number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)}/>
@@ -362,10 +403,11 @@ export default function GstBillingPage() {
         <Card className="shadow-xl bg-card text-card-foreground">
           <CardHeader><CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent">Invoice Totals</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-right text-lg">
-            <p>Subtotal: <span className="font-mono">{totals.subtotal.toLocaleString('en-IN', {style: 'currency', currency: 'INR'})}</span></p>
-            <p>Total Tax: <span className="font-mono">{totals.totalTax.toLocaleString('en-IN', {style: 'currency', currency: 'INR'})}</span></p>
-            <p>Shipping: <span className="font-mono">{(Number(shippingCharges) || 0).toLocaleString('en-IN', {style: 'currency', currency: 'INR'})}</span></p>
-            <p className="font-bold text-xl">Grand Total: <span className="font-mono">{totals.grandTotal.toLocaleString('en-IN', {style: 'currency', currency: 'INR'})}</span></p>
+            <p>Subtotal: <span className="font-mono">{totals.subtotal.toLocaleString('en-IN', {style: 'currency', currency: 'INR'}).replace('₹', '')} INR</span></p>
+            <p>Total Discount: <span className="font-mono text-destructive">(-) {totals.totalDiscount.toLocaleString('en-IN', {style: 'currency', currency: 'INR'}).replace('₹', '')} INR</span></p>
+            <p>Total Tax: <span className="font-mono">{totals.totalTax.toLocaleString('en-IN', {style: 'currency', currency: 'INR'}).replace('₹', '')} INR</span></p>
+            <p>Shipping: <span className="font-mono">{(Number(shippingCharges) || 0).toLocaleString('en-IN', {style: 'currency', currency: 'INR'}).replace('₹', '')} INR</span></p>
+            <p className="font-bold text-xl mt-2 border-t pt-2">Grand Total: <span className="font-mono">{totals.grandTotal.toLocaleString('en-IN', {style: 'currency', currency: 'INR'}).replace('₹', '')} INR</span></p>
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full text-lg py-6" disabled={isLoading || authLoading}>
@@ -378,5 +420,3 @@ export default function GstBillingPage() {
     </div>
   );
 }
-
-    

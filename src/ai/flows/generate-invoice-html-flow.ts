@@ -133,7 +133,7 @@ Confidence Score: 5/5 - I will meet all constraints.
     *   A 4-column table for: Invoice No/Date, Delivery Note, Mode/Terms of Payment, Ref No & Date, etc. Populate with corresponding input fields like \`{{invoiceNumber}}\`, \`{{formattedInvoiceDate}}\`, \`{{deliveryNote}}\`, \`{{termsOfPayment}}\`, etc.
 6.  **Items Table:**
     *   Columns: 'Sl. No.', 'Description of Goods and Services', 'HSN/SAC', 'Quantity', 'Rate', 'per', 'Amount'.
-    *   Iterate through \`items\` array. For each item:
+    *   Iterate through the \`items\` array. For each item:
         *   Create a row. Populate with description, HSN, quantity, rate, unit, and amount.
         *   The 'Amount' is \`{{this.amount}}\`. Format all numbers to 2 decimal places.
     *   After items, add a row for "FREIGHT & CARTAGE" if \`{{shippingCharges}}\` > 0.
@@ -147,7 +147,7 @@ Confidence Score: 5/5 - I will meet all constraints.
 9.  **Tax Summary Table:**
     *   A full-width table. Columns: "HSN/SAC", "Taxable Value", "CGST Rate", "CGST Amount", "SGST/UTGST Rate", "SGST/UTGST Amount", "Total Tax Amount".
     *   Iterate through \`items\`. Add a row for each with its HSN, taxableValue, taxRate/2, cgst, taxRate/2, sgst, and total tax for the item.
-    *   Add a "Total" row summarizing `subtotal`, `totalCgst`, `totalSgst`, and `totalTax`.
+    *   Add a "Total" row summarizing \`subtotal\`, \`totalCgst\`, \`totalSgst\`, and \`totalTax\`.
 10. **Tax in Words:**
     *   Full-width row: "Tax Amount (in words)".
     *   Next line, bold: "{{taxAmountInWords}} Only".
@@ -159,14 +159,14 @@ Confidence Score: 5/5 - I will meet all constraints.
     *   Centered text: "This is a Computer Generated Invoice".
 
 **CSS Styling:**
-*   `body { font-family: Arial, sans-serif; font-size: 10px; }`
-*   `table { border-collapse: collapse; width: 100%; }`
-*   `th, td { border: 1px solid black; padding: 4px; vertical-align: top; }`
-*   `.bold { font-weight: bold; }`
-*   `.text-center { text-align: center; }`
-*   `.text-right { text-align: right; }`
-*   `.no-border { border: none; }`
-*   `.font-12 { font-size: 12px; }`
+*   \`body { font-family: Arial, sans-serif; font-size: 10px; }\`
+*   \`table { border-collapse: collapse; width: 100%; }\`
+*   \`th, td { border: 1px solid black; padding: 4px; vertical-align: top; }\`
+*   \`.bold { font-weight: bold; }\`
+*   \`.text-center { text-align: center; }\`
+*   \`.text-right { text-align: right; }\`
+*   \`.no-border { border: none; }\`
+*   \`.font-12 { font-size: 12px; }\`
 *   All monetary values must be formatted to two decimal places.
 `
 });
@@ -185,5 +185,3 @@ const generateInvoiceHtmlFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

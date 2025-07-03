@@ -1,91 +1,97 @@
 
 "use client";
 
-import { useState, type FormEvent, useEffect } from "react";
+import { useState, type FormEvent, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Loader2, PlusCircle, Trash2, Building, RefreshCw, Landmark } from "lucide-react";
+import { FileText, Loader2, PlusCircle, Trash2, Building, Landmark, User, Truck, IndianRupee } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { generateGstPdfAction, type GstPdfItem } from "@/actions/autobiz-features";
+import { generateGstPdfAction, type GstInvoiceItem } from "@/actions/autobiz-features";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 
-
-interface BillItem extends GstPdfItem {
+interface BillItem extends GstInvoiceItem {
   id: string; // For React key prop
 }
 
+const initialItem: BillItem = { 
+  id: crypto.randomUUID(), 
+  description: "", 
+  hsnSac: "", 
+  quantity: 1, 
+  unit: "PCS", 
+  rate: 0, 
+  discount: 0, 
+  taxRate: 18 
+};
+
 export default function GstBillingPage() {
+  // Invoice Header
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(new Date());
+  const [dueDate, setDueDate] = useState<Date | undefined>(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 10);
+    return date;
+  });
+
   // Company Details
   const [companyName, setCompanyName] = useState("");
   const [companyAddress, setCompanyAddress] = useState("");
   const [companyGstin, setCompanyGstin] = useState("");
   const [companyEmail, setCompanyEmail] = useState("");
   const [companyPhone, setCompanyPhone] = useState("");
-
-  // Bank Details
+  
+  // Customer Details
+  const [customerName, setCustomerName] = useState("");
+  const [customerGstin, setCustomerGstin] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [billingAddress, setBillingAddress] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [isShippingSameAsBilling, setIsShippingSameAsBilling] = useState(true);
+  
+  // Items
+  const [itemsList, setItemsList] = useState<BillItem[]>([initialItem]);
+  
+  // Charges & Totals
+  const [shippingCharges, setShippingCharges] = useState(0);
+  
+  // Payment Details
   const [bankName, setBankName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [ifscCode, setIfscCode] = useState("");
+  const [branch, setBranch] = useState("");
 
-  // Customer Details
-  const [customerName, setCustomerName] = useState("");
-  const [customerAddress, setCustomerAddress] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(undefined);
-  const [itemsList, setItemsList] = useState<BillItem[]>([]);
+  // Optional Fields
   const [notes, setNotes] = useState("");
-  const [isRecurring, setIsRecurring] = useState(false);
+  const [termsAndConditions, setTermsAndConditions] = useState("We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.");
+  
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
 
-  // Populate initial values on client-side mount to avoid hydration errors
   useEffect(() => {
-    setInvoiceDate(new Date());
-    setItemsList([{ id: crypto.randomUUID(), name: "", quantity: 1, rate: 0, taxRate: 0, total: 0 }]);
-  }, []);
+    if (isShippingSameAsBilling) {
+      setShippingAddress(billingAddress);
+    }
+  }, [billingAddress, isShippingSameAsBilling]);
 
-  const handleItemChange = (index: number, field: keyof Omit<BillItem, "id" | "total">, value: string | number) => {
+  const handleItemChange = (index: number, field: keyof Omit<BillItem, "id">, value: string | number) => {
     const newItems = [...itemsList];
     const currentItem = { ...newItems[index] };
-
-    if (field === 'name') {
-        currentItem.name = value as string;
-    } else {
-        // For quantity, rate, taxRate
-        const numValue = parseFloat(value as string);
-        if (!isNaN(numValue)) {
-            if (field === 'quantity') currentItem.quantity = numValue;
-            else if (field === 'rate') currentItem.rate = numValue;
-            else if (field === 'taxRate') currentItem.taxRate = numValue;
-        } else if (value === "") { // If empty string, set to 0
-           if (field === 'quantity') currentItem.quantity = 0;
-           else if (field === 'rate') currentItem.rate = 0;
-           else if (field === 'taxRate') currentItem.taxRate = 0;
-        }
-    }
-    
-    // Defensively calculate total, ensuring inputs are numbers
-    const q = Number(currentItem.quantity);
-    const r = Number(currentItem.rate);
-    const tr = Number(currentItem.taxRate);
-
-    const finalQ = isNaN(q) ? 0 : q;
-    const finalR = isNaN(r) ? 0 : r;
-    const finalTR = isNaN(tr) ? 0 : tr;
-    
-    currentItem.total = finalQ * finalR * (1 + finalTR / 100);
+    (currentItem as any)[field] = value;
     newItems[index] = currentItem;
     setItemsList(newItems);
   };
 
   const handleAddItem = () => {
-    setItemsList([...itemsList, { id: crypto.randomUUID(), name: "", quantity: 1, rate: 0, taxRate: 0, total: 0 }]);
+    setItemsList([...itemsList, { ...initialItem, id: crypto.randomUUID() }]);
   };
 
   const handleRemoveItem = (index: number) => {
@@ -93,66 +99,100 @@ export default function GstBillingPage() {
     setItemsList(newItems);
   };
 
-  const calculateGrandTotal = () => {
-    return itemsList.reduce((acc, item) => acc + (Number(item.total) || 0), 0);
-  };
+  const totals = useMemo(() => {
+    let subtotal = 0;
+    let totalTax = 0;
+    let totalDiscount = 0;
+    
+    itemsList.forEach(item => {
+      const quantity = Number(item.quantity) || 0;
+      const rate = Number(item.rate) || 0;
+      const discountPercent = Number(item.discount) || 0;
+      const taxRatePercent = Number(item.taxRate) || 0;
 
+      const amount = quantity * rate;
+      const discountAmount = amount * (discountPercent / 100);
+      const taxableValue = amount - discountAmount;
+      const taxAmount = taxableValue * (taxRatePercent / 100);
+      
+      subtotal += taxableValue;
+      totalTax += taxAmount;
+      totalDiscount += discountAmount;
+    });
+
+    const grandTotal = subtotal + totalTax + (Number(shippingCharges) || 0);
+
+    return { subtotal, totalTax, totalDiscount, grandTotal };
+  }, [itemsList, shippingCharges]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!companyName || !companyAddress || !companyGstin || !companyEmail || !customerName || !customerAddress || !customerPhone || !invoiceDate || itemsList.some(item => !item.name || item.quantity <= 0 || item.rate <= 0 || item.taxRate < 0)) {
-      toast({ title: "Missing Information", description: "Please fill out all required company, customer, and item details correctly. Ensure item quantity and rate are positive, and tax rate is non-negative.", variant: "destructive" });
+    if (!invoiceNumber || !invoiceDate || !dueDate || !companyName || !companyAddress || !companyGstin || !customerName || !billingAddress || itemsList.some(item => !item.description || !item.hsnSac)) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill out all required fields marked with *. This includes invoice details, company/customer info, and item descriptions with HSN/SAC codes.",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsLoading(true);
     try {
-      const itemsToSubmit: GstPdfItem[] = itemsList.map(item => ({
-        name: item.name,
+      const itemsToSubmit: GstInvoiceItem[] = itemsList.map(item => ({
+        description: item.description,
+        hsnSac: item.hsnSac,
         quantity: Number(item.quantity) || 0,
+        unit: item.unit,
         rate: Number(item.rate) || 0,
+        discount: Number(item.discount) || 0,
         taxRate: Number(item.taxRate) || 0,
-        total: Number(item.total) || 0,
       }));
 
       const result = await generateGstPdfAction({
         userId: user?.uid || "guest-user",
+        invoiceNumber,
+        invoiceDate: invoiceDate.toISOString(),
+        dueDate: dueDate.toISOString(),
         companyName,
         companyAddress,
         companyGstin,
         companyEmail,
         companyPhone,
+        customerName,
+        customerGstin,
+        customerPhone,
+        customerEmail,
+        billingAddress,
+        shippingAddress: isShippingSameAsBilling ? billingAddress : shippingAddress,
+        items: itemsToSubmit,
+        shippingCharges: Number(shippingCharges) || 0,
         bankName,
         accountNumber,
         ifscCode,
-        customerName,
-        customerAddress,
-        customerPhone,
-        invoiceDate: invoiceDate.toISOString(),
-        items: itemsToSubmit,
+        branch,
         notes,
-        recurring: isRecurring,
+        termsAndConditions,
       });
-      
+
       if (result.success && result.htmlContent) {
         toast({ title: "Generating PDF...", description: "Please wait while we prepare your download." });
-
+        
         const { default: jsPDF } = await import('jspdf');
         const { default: html2canvas } = await import('html2canvas');
 
         const invoiceElement = document.createElement('div');
-        // Set a fixed width corresponding to A4 paper for accurate rendering
         invoiceElement.style.width = '210mm'; 
-        invoiceElement.style.padding = '20px';
+        invoiceElement.style.padding = '10px';
         invoiceElement.style.backgroundColor = 'white';
         invoiceElement.innerHTML = result.htmlContent;
-        // Append to body to be rendered, but off-screen
         invoiceElement.style.position = 'absolute';
         invoiceElement.style.left = '-9999px';
         document.body.appendChild(invoiceElement);
 
-        html2canvas(invoiceElement, { scale: 2 }) // Higher scale for better quality
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        html2canvas(invoiceElement, { scale: 3, useCORS: true }) 
           .then((canvas) => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
@@ -160,9 +200,9 @@ export default function GstBillingPage() {
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`invoice-${customerName.replace(/\s/g, '_')}-${Date.now()}.pdf`);
+            pdf.save(`Invoice-${invoiceNumber}.pdf`);
 
-            document.body.removeChild(invoiceElement); // Clean up the temporary element
+            document.body.removeChild(invoiceElement);
             
             toast({ title: "PDF Downloaded", description: "Your invoice has been downloaded successfully." });
           });
@@ -188,181 +228,155 @@ export default function GstBillingPage() {
   return (
     <div className="space-y-8 fade-in">
       <header className="text-center md:text-left">
-        <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">GST Bill Generation</h1>
-        <p className="mt-2 text-muted-foreground">Create and generate detailed GST-compliant bills as PDFs.</p>
+        <h1 className="text-3xl font-headline font-bold bg-primary-gradient bg-clip-text text-transparent">GST Invoice Generation</h1>
+        <p className="mt-2 text-muted-foreground">Create and generate detailed GST-compliant invoices in the TallyPrime format.</p>
       </header>
 
-      <Card className="max-w-4xl mx-auto shadow-xl bg-card text-card-foreground border-primary/20">
-        <CardHeader>
-          <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
-            <FileText className="h-6 w-6 text-primary" />
-            New GST Bill
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Enter your company details, customer details, and bill items below. Fields marked with * are required.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-8">
-            {/* Company Details */}
-            <section>
-              <h3 className="text-xl font-bold bg-primary-gradient bg-clip-text text-transparent mb-4 flex items-center gap-2">
-                <Building className="h-5 w-5 text-primary" /> Your Company Details
-              </h3>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="companyName" className="text-card-foreground">Company Name *</Label>
-                    <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Your Business Name" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="companyGstin" className="text-card-foreground">Company GSTIN *</Label>
-                    <Input id="companyGstin" value={companyGstin} onChange={(e) => setCompanyGstin(e.target.value)} placeholder="Your Company GSTIN" required />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="companyAddress" className="text-card-foreground">Company Address *</Label>
-                  <Textarea id="companyAddress" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Your Company's Full Address" required />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="companyEmail" className="text-card-foreground">Company Email *</Label>
-                    <Input id="companyEmail" type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="yourcompany@example.com" required/>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="companyPhone" className="text-card-foreground">Company Phone</Label>
-                    <Input id="companyPhone" type="tel" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} placeholder="Your Company Phone Number" />
-                  </div>
-                </div>
-              </div>
-            </section>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <Card className="shadow-xl bg-card text-card-foreground border-primary/20">
+          <CardHeader>
+            <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent">Invoice Details</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="invoiceNumber">Invoice Number *</Label>
+              <Input id="invoiceNumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder="e.g., INV-001" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="invoiceDate">Invoice Date *</Label>
+              <DatePicker date={invoiceDate} setDate={setInvoiceDate} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dueDate">Due Date *</Label>
+              <DatePicker date={dueDate} setDate={setDueDate} />
+            </div>
+          </CardContent>
+        </Card>
 
-            <hr className="border-border/50" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Card className="shadow-xl bg-card text-card-foreground">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-bold bg-primary-gradient bg-clip-text text-transparent"><Building className="h-5 w-5 text-primary"/> Seller Details *</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input placeholder="Company Name" value={companyName} onChange={e => setCompanyName(e.target.value)} required/>
+              <Textarea placeholder="Company Address" value={companyAddress} onChange={e => setCompanyAddress(e.target.value)} required/>
+              <Input placeholder="Company GSTIN" value={companyGstin} onChange={e => setCompanyGstin(e.target.value)} required/>
+              <Input type="email" placeholder="Company Email" value={companyEmail} onChange={e => setCompanyEmail(e.target.value)}/>
+              <Input type="tel" placeholder="Company Phone" value={companyPhone} onChange={e => setCompanyPhone(e.target.value)}/>
+            </CardContent>
+          </Card>
 
-            {/* Bank Details */}
-            <section>
-              <h3 className="text-xl font-bold bg-primary-gradient bg-clip-text text-transparent mb-4 flex items-center gap-2">
-                <Landmark className="h-5 w-5 text-primary" /> Bank Details (Optional)
-              </h3>
-              <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="bankName" className="text-card-foreground">Bank Name</Label>
-                      <Input id="bankName" value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g., HDFC Bank" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="ifscCode" className="text-card-foreground">IFSC Code</Label>
-                      <Input id="ifscCode" value={ifscCode} onChange={(e) => setIfscCode(e.target.value)} placeholder="e.g., HDFC0000001" />
-                    </div>
-                  </div>
-                   <div className="space-y-2">
-                      <Label htmlFor="accountNumber" className="text-card-foreground">Account Number</Label>
-                      <Input id="accountNumber" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder="Your Company's Bank Account Number" />
-                    </div>
-              </div>
-            </section>
+          <Card className="shadow-xl bg-card text-card-foreground">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-bold bg-primary-gradient bg-clip-text text-transparent"><User className="h-5 w-5 text-primary"/> Buyer Details *</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+               <Input placeholder="Customer Name" value={customerName} onChange={e => setCustomerName(e.target.value)} required/>
+               <Textarea placeholder="Billing Address" value={billingAddress} onChange={e => setBillingAddress(e.target.value)} required/>
+               <Input placeholder="Customer GSTIN (if applicable)" value={customerGstin} onChange={e => setCustomerGstin(e.target.value)}/>
 
-            <hr className="border-border/50" />
-
-            {/* Customer Details */}
-            <section>
-              <h3 className="text-xl font-bold bg-primary-gradient bg-clip-text text-transparent mb-4">Customer Details</h3>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="customerName" className="text-card-foreground">Customer Name *</Label>
-                    <Input id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="e.g., Acme Corp" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="customerPhone" className="text-card-foreground">Customer Phone *</Label>
-                    <Input id="customerPhone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="e.g., 9876543210" required />
-                  </div>
+                <div className="flex items-center space-x-2 pt-2">
+                    <Checkbox id="sameAsBilling" checked={isShippingSameAsBilling} onCheckedChange={(checked) => setIsShippingSameAsBilling(checked as boolean)} />
+                    <Label htmlFor="sameAsBilling" className="cursor-pointer">Shipping address is the same as billing address</Label>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="customerAddress" className="text-card-foreground">Customer Address *</Label>
-                  <Textarea id="customerAddress" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} placeholder="e.g., 123 Main St, Anytown" required />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="invoiceDate" className="text-card-foreground">Invoice Date *</Label>
-                      <DatePicker date={invoiceDate} setDate={setInvoiceDate} className="bg-input border-border text-foreground focus:ring-primary" />
-                    </div>
-                    <div className="flex items-center space-x-2 pt-8">
-                        <Switch id="recurring-invoice" checked={isRecurring} onCheckedChange={setIsRecurring} />
-                        <Label htmlFor="recurring-invoice" className="flex items-center gap-2 cursor-pointer">
-                            <RefreshCw className={`h-4 w-4 ${isRecurring ? 'text-primary' : 'text-muted-foreground'}`}/>
-                             Recurring Invoice
-                        </Label>
-                    </div>
-                </div>
-              </div>
-            </section>
+                {!isShippingSameAsBilling && (
+                    <Textarea placeholder="Shipping Address" value={shippingAddress} onChange={e => setShippingAddress(e.target.value)} required={!isShippingSameAsBilling}/>
+                )}
+            </CardContent>
+          </Card>
+        </div>
 
-            <hr className="border-border/50" />
-            
-            {/* Itemized List */}
-            <section>
-              <h3 className="text-xl font-bold bg-primary-gradient bg-clip-text text-transparent mb-4">Items *</h3>
-              <div className="space-y-4">
-                {itemsList.map((item, index) => (
-                  <Card key={item.id} className="p-4 space-y-3 bg-input/50 border-border/50">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                      <div className="md:col-span-2 space-y-1">
-                        <Label htmlFor={`itemName-${index}`} className="text-xs">Item Name</Label>
-                        <Input id={`itemName-${index}`} value={item.name} onChange={(e) => handleItemChange(index, "name", e.target.value)} placeholder="Product/Service Name" required />
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor={`quantity-${index}`} className="text-xs">Quantity</Label>
-                        <Input id={`quantity-${index}`} type="number" value={item.quantity} onChange={(e) => handleItemChange(index, "quantity", e.target.value)} placeholder="Qty" required min="0.01" step="any"/>
-                      </div>
-                      <div className="space-y-1">
+        <Card className="shadow-xl bg-card text-card-foreground">
+          <CardHeader>
+            <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent">Items *</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {itemsList.map((item, index) => (
+              <Card key={item.id} className="p-4 bg-input/30">
+                <div className="grid grid-cols-12 gap-3 items-end">
+                    <div className="col-span-12 md:col-span-4 space-y-1">
+                        <Label htmlFor={`desc-${index}`} className="text-xs">Description</Label>
+                        <Input id={`desc-${index}`} value={item.description} onChange={(e) => handleItemChange(index, "description", e.target.value)} placeholder="Item Name" required />
+                    </div>
+                    <div className="col-span-6 md:col-span-2 space-y-1">
+                        <Label htmlFor={`hsn-${index}`} className="text-xs">HSN/SAC</Label>
+                        <Input id={`hsn-${index}`} value={item.hsnSac} onChange={(e) => handleItemChange(index, "hsnSac", e.target.value)} placeholder="HSN" required />
+                    </div>
+                     <div className="col-span-6 md:col-span-1 space-y-1">
+                        <Label htmlFor={`qty-${index}`} className="text-xs">Qty</Label>
+                        <Input id={`qty-${index}`} type="number" value={item.quantity} onChange={(e) => handleItemChange(index, "quantity", e.target.value)} placeholder="1" min="0"/>
+                    </div>
+                     <div className="col-span-6 md:col-span-1 space-y-1">
+                        <Label htmlFor={`unit-${index}`} className="text-xs">Unit</Label>
+                        <Input id={`unit-${index}`} value={item.unit} onChange={(e) => handleItemChange(index, "unit", e.target.value)} placeholder="PCS"/>
+                    </div>
+                    <div className="col-span-6 md:col-span-1 space-y-1">
                         <Label htmlFor={`rate-${index}`} className="text-xs">Rate</Label>
-                        <Input id={`rate-${index}`} type="number" value={item.rate} onChange={(e) => handleItemChange(index, "rate", e.target.value)} placeholder="Rate" required min="0.01" step="any"/>
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor={`taxRate-${index}`} className="text-xs">Tax Rate (%)</Label>
-                        <Input id={`taxRate-${index}`} type="number" value={item.taxRate} onChange={(e) => handleItemChange(index, "taxRate", e.target.value)} placeholder="GST %" required min="0" step="any"/>
-                      </div>
+                        <Input id={`rate-${index}`} type="number" value={item.rate} onChange={(e) => handleItemChange(index, "rate", e.target.value)} placeholder="0" min="0"/>
                     </div>
-                    <div className="flex justify-between items-center mt-2">
-                      <p className="text-sm text-muted-foreground">
-                        Item Total (INR): <span className="font-semibold text-foreground">{item.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                      </p>
-                      {itemsList.length > 1 && (
-                        <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(index)} className="text-destructive hover:text-destructive/80">
+                     <div className="col-span-6 md:col-span-1 space-y-1">
+                        <Label htmlFor={`tax-${index}`} className="text-xs">Tax %</Label>
+                        <Input id={`tax-${index}`} type="number" value={item.taxRate} onChange={(e) => handleItemChange(index, "taxRate", e.target.value)} placeholder="18" min="0"/>
+                    </div>
+                    <div className="col-span-6 md:col-span-1 space-y-1 text-right">
+                       {itemsList.length > 1 && (
+                        <Button type="button" variant="destructive" size="icon" onClick={() => handleRemoveItem(index)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
                     </div>
-                  </Card>
-                ))}
-                <Button type="button" variant="outline" onClick={handleAddItem} className="text-primary border-primary hover:bg-primary/10">
-                  <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-                </Button>
-              </div>
-            </section>
-            
-            {/* Grand Total */}
-            <div className="text-right mt-6">
-              <p className="text-xl font-bold text-foreground">
-                Grand Total (INR): {calculateGrandTotal().toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
+                </div>
+              </Card>
+            ))}
+            <Button type="button" variant="outline" onClick={handleAddItem}>
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="shadow-xl bg-card text-card-foreground">
+                <CardHeader><CardTitle className="flex items-center gap-2 font-bold bg-primary-gradient bg-clip-text text-transparent"><Landmark className="h-5 w-5 text-primary"/> Payment Details</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                    <Input placeholder="Bank Name (e.g. HDFC BANK LTD)" value={bankName} onChange={e => setBankName(e.target.value)}/>
+                    <Input placeholder="Bank Account Number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)}/>
+                    <Input placeholder="IFSC Code" value={ifscCode} onChange={e => setIfscCode(e.target.value)}/>
+                    <Input placeholder="Branch" value={branch} onChange={e => setBranch(e.target.value)}/>
+                    <div className="space-y-2">
+                        <Label htmlFor="shippingCharges">Freight/Shipping Charges</Label>
+                        <Input id="shippingCharges" type="number" value={shippingCharges} onChange={e => setShippingCharges(Number(e.target.value))} placeholder="0"/>
+                    </div>
+                </CardContent>
+            </Card>
 
-            {/* Notes */}
-            <div className="space-y-2">
-              <Label htmlFor="notes" className="text-card-foreground">Notes</Label>
-              <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional notes or terms and conditions." />
-            </div>
+            <Card className="shadow-xl bg-card text-card-foreground">
+                <CardHeader><CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent">Notes & Terms</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                    <Textarea placeholder="Notes..." value={notes} onChange={e => setNotes(e.target.value)}/>
+                    <Textarea placeholder="Terms & Conditions..." value={termsAndConditions} onChange={e => setTermsAndConditions(e.target.value)} rows={5}/>
+                </CardContent>
+            </Card>
+        </div>
+
+        <Card className="shadow-xl bg-card text-card-foreground">
+          <CardHeader><CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent">Invoice Totals</CardTitle></CardHeader>
+          <CardContent className="space-y-2 text-right text-lg">
+            <p>Subtotal: <span className="font-mono">{totals.subtotal.toLocaleString('en-IN', {style: 'currency', currency: 'INR'})}</span></p>
+            <p>Total Tax: <span className="font-mono">{totals.totalTax.toLocaleString('en-IN', {style: 'currency', currency: 'INR'})}</span></p>
+            <p>Shipping: <span className="font-mono">{(Number(shippingCharges) || 0).toLocaleString('en-IN', {style: 'currency', currency: 'INR'})}</span></p>
+            <p className="font-bold text-xl">Grand Total: <span className="font-mono">{totals.grandTotal.toLocaleString('en-IN', {style: 'currency', currency: 'INR'})}</span></p>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={isLoading || authLoading}>
+            <Button type="submit" className="w-full text-lg py-6" disabled={isLoading || authLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
-              Generate GST PDF
+              Generate & Download Invoice
             </Button>
           </CardFooter>
-        </form>
-      </Card>
+        </Card>
+      </form>
     </div>
   );
 }
+
+    

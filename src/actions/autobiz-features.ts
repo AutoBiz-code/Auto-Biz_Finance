@@ -1,53 +1,107 @@
 
 "use server";
 
-import { generateInvoiceHtml } from "@/ai/flows/generate-invoice-html-flow";
+import { generateInvoiceHtml, type GenerateInvoiceHtmlInput } from "@/ai/flows/generate-invoice-html-flow";
+import { numberToWords } from "@/lib/number-to-words";
 
-// Placeholder server actions for AutoBiz Finance features
-
-export interface GstPdfItem {
-  name: string;
+export interface GstInvoiceItem {
+  description: string;
+  hsnSac: string;
   quantity: number;
+  unit: string;
   rate: number;
-  taxRate: number;
-  total: number; // Total for this item: quantity * rate * (1 + taxRate/100)
+  discount: number; // Percentage
+  taxRate: number; // Percentage
 }
 
-export interface GstPdfParams {
+export interface GstInvoiceParams {
   userId: string;
+  // Invoice Header
+  invoiceNumber: string;
+  invoiceDate: string; // ISO string date
+  dueDate: string; // ISO string date
   // Company Details
   companyName: string;
   companyAddress: string;
   companyGstin: string;
-  companyEmail: string; // Made mandatory
+  companyEmail?: string;
   companyPhone?: string;
+  // Customer Details
+  customerName: string;
+  customerGstin?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  billingAddress: string;
+  shippingAddress: string;
+  // Items
+  items: GstInvoiceItem[];
+  // Additional Charges
+  shippingCharges: number;
   // Bank Details
   bankName?: string;
   accountNumber?: string;
   ifscCode?: string;
-  // Customer Details
-  customerName: string;
-  customerAddress: string;
-  customerPhone: string; // Assuming this was intended to be string and not optional
-  invoiceDate: string; // ISO string date
-  items: GstPdfItem[];
+  branch?: string;
+  // Optional Fields
   notes?: string;
-  recurring?: boolean;
+  termsAndConditions?: string;
 }
 
-export async function generateGstPdfAction(params: GstPdfParams) {
-  console.info("Server Action: Attempting to generate GST invoice HTML.", { userId: params.userId, company: params.companyName });
+export async function generateGstPdfAction(params: GstInvoiceParams) {
+  console.info("Server Action: Attempting to generate GST invoice HTML.", { userId: params.userId, invoiceNumber: params.invoiceNumber });
   try {
-    const subtotal = params.items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
-    const totalTax = params.items.reduce((acc, item) => acc + (item.quantity * item.rate * (item.taxRate / 100)), 0);
-    const grandTotal = subtotal + totalTax;
+    let subtotal = 0;
+    let totalTax = 0;
+    let totalDiscount = 0;
+    const cgstSgstRate = 9; // Assuming 9% CGST and 9% SGST for now
+    let totalCgst = 0;
+    let totalSgst = 0;
 
-    const result = await generateInvoiceHtml({
+    const processedItems = params.items.map(item => {
+      const quantity = Number(item.quantity) || 0;
+      const rate = Number(item.rate) || 0;
+      const discountPercent = Number(item.discount) || 0;
+      const taxRatePercent = Number(item.taxRate) || 0;
+
+      const amount = quantity * rate;
+      const discountAmount = amount * (discountPercent / 100);
+      const taxableValue = amount - discountAmount;
+      const taxAmount = taxableValue * (taxRatePercent / 100);
+      
+      subtotal += taxableValue;
+      totalTax += taxAmount;
+      totalDiscount += discountAmount;
+
+      const itemCgst = taxAmount / 2;
+      const itemSgst = taxAmount / 2;
+      totalCgst += itemCgst;
+      totalSgst += itemSgst;
+
+      return {
+        ...item,
+        amount,
+        taxableValue,
+        cgst: itemCgst,
+        sgst: itemSgst,
+      };
+    });
+
+    const grandTotal = subtotal + totalTax + params.shippingCharges;
+    const grandTotalInWords = numberToWords(Math.round(grandTotal));
+
+    const flowInput: GenerateInvoiceHtmlInput = {
       ...params,
+      items: processedItems,
       subtotal,
       totalTax,
+      totalDiscount,
+      totalCgst,
+      totalSgst,
       grandTotal,
-    });
+      grandTotalInWords,
+    };
+    
+    const result = await generateInvoiceHtml(flowInput);
     
     return { success: true, htmlContent: result.html };
   } catch (error: any) {
@@ -298,3 +352,5 @@ export async function reconcileTransactionsAction(params: ReconcileTransactionsP
         return { success: false, error: error.message || "An unknown error occurred during bulk reconciliation." };
     }
 }
+
+    

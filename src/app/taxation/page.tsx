@@ -10,8 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Landmark, FileText, Loader2, FileDigit, Scissors } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
-import { fileGstReturnAction, generateEWayBillAction } from "@/actions/autobiz-features";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter as TF } from "@/components/ui/table";
+import { fileGstReturnAction, liveGenerateEInvoiceAction, liveGenerateEWayBillAction } from "@/actions/autobiz-features";
+import Image from "next/image";
 
 // Mock data for sales summary
 const salesSummary = [
@@ -23,11 +24,25 @@ const salesSummary = [
 
 export default function TaxationPage() {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isGeneratingEWay, setIsGeneratingEWay] = useState(false);
+  // State for GST Returns Tab
+  const [isFiling, setIsFiling] = useState(false);
   const [gstin, setGstin] = useState("29ABCDE1234F1Z5"); // Mock GSTIN
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
+  
+  // State for E-Invoice Tab
+  const [isGeneratingEInvoice, setIsGeneratingEInvoice] = useState(false);
+  const [isGeneratingEWayBill, setIsGeneratingEWayBill] = useState(false);
+  const [irn, setIrn] = useState('');
+  const [qrCode, setQrCode] = useState('');
+  const [ewbNo, setEwbNo] = useState('');
+  const [vehicleNo, setVehicleNo] = useState('');
+  const [invoiceData, setInvoiceData] = useState({
+    invoiceNumber: '', buyerGstin: '33GSPTN1882G3Z5', buyerName: 'Test Buyer', buyerAddr: 'Test Address, Chennai',
+    items: [{ description: 'Test Item', hsn: '998314', quantity: 1, unitPrice: 100, gstRate: 18, taxable: 100, total: 118, cgst: 9, sgst: 9, igst: 0 }]
+  });
+  const ourGstin = "29ABCDE1234F1Z5"; // Seller's GSTIN (Test)
+
 
   useEffect(() => {
     const now = new Date();
@@ -37,7 +52,7 @@ export default function TaxationPage() {
 
   const handleFileReturn = async (e: FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsFiling(true);
     try {
       const result = await fileGstReturnAction({ 
         gstin, 
@@ -49,31 +64,68 @@ export default function TaxationPage() {
         toast({ title: "Error", description: result.error || "Failed to initiate GST filing.", variant: "destructive" });
       }
     } catch (error: any) {
-      console.error("Critical error calling fileGstReturnAction:", error);
-      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
+      toast({ title: "Critical Error", description: "A critical error occurred.", variant: "destructive" });
     } finally {
-      setIsLoading(false);
+      setIsFiling(false);
     }
   };
 
-  const handleGenerateEWayBill = async () => {
-    setIsGeneratingEWay(true);
+  const handleItemChange = (field: string, value: string) => {
+    const newItems = [...invoiceData.items];
+    const item = { ...newItems[0] };
+    (item as any)[field] = value;
+    
+    // Recalculate
+    const unitPrice = Number(item.unitPrice) || 0;
+    const quantity = Number(item.quantity) || 1;
+    const gstRate = Number(item.gstRate) || 0;
+    
+    item.taxable = unitPrice * quantity;
+    const tax = (item.taxable * gstRate) / 100;
+    item.total = item.taxable + tax;
+    // Assuming intra-state for this example
+    item.cgst = tax / 2;
+    item.sgst = tax / 2;
+    item.igst = 0;
+
+    setInvoiceData(prev => ({...prev, items: [item]}));
+  };
+
+  const handleGenerateEInvoice = async () => {
+    setIsGeneratingEInvoice(true);
+    setIrn('');
+    setQrCode('');
+    setEwbNo('');
     try {
-      // Using mock IDs for simulation
-      const result = await generateEWayBillAction({ invoiceId: 'inv_12345', companyId: 'comp_abcde' });
-      if (result.success) {
-        toast({
-          title: "E-Way Bill Generated (Simulated)",
-          description: `IRN: ${result.irn}. E-Way Bill No: ${result.eWayBillNumber}`,
-        });
+      const result = await liveGenerateEInvoiceAction({ gstin: ourGstin, ...invoiceData });
+      if (result.success && result.irn && result.qrCode) {
+        setIrn(result.irn);
+        setQrCode(result.qrCode);
+        toast({ title: "e-Invoice Generated!", description: `IRN: ${result.irn}` });
       } else {
-        toast({ title: "Error", description: result.error || "Failed to generate E-Way Bill.", variant: "destructive" });
+        toast({ title: "Error", description: result.error || "Failed to generate e-invoice.", variant: "destructive" });
       }
-    } catch (error: any) {
-      console.error("Critical error calling generateEWayBillAction:", error);
-      toast({ title: "Critical Error", description: "A critical error occurred. Please check the console.", variant: "destructive" });
+    } catch (error) {
+      toast({ title: "Critical Error", description: "A critical error occurred.", variant: "destructive" });
     } finally {
-      setIsGeneratingEWay(false);
+      setIsGeneratingEInvoice(false);
+    }
+  };
+  
+  const handleGenerateEWayBill = async () => {
+    setIsGeneratingEWayBill(true);
+    try {
+      const result = await liveGenerateEWayBillAction({ irn, vehicleNo });
+      if (result.success && result.ewbNo) {
+        setEwbNo(result.ewbNo);
+        toast({ title: "e-Way Bill Generated!", description: `EWB No: ${result.ewbNo}` });
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to generate e-way bill.", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Critical Error", description: "A critical error occurred.", variant: "destructive" });
+    } finally {
+      setIsGeneratingEWayBill(false);
     }
   };
 
@@ -159,22 +211,22 @@ export default function TaxationPage() {
                                     </TableRow>
                                 ))}
                             </TableBody>
-                             <TableFooter>
+                             <TF>
                                 <TableRow className="font-bold bg-muted/50">
                                     <TableCell>Total</TableCell>
                                     <TableCell className="text-right">{calculateTotal('taxableValue').toLocaleString('en-IN')}</TableCell>
                                     <TableCell className="text-right">{calculateTotal('taxAmount').toLocaleString('en-IN')}</TableCell>
                                     <TableCell className="text-right">{calculateTotal('totalValue').toLocaleString('en-IN')}</TableCell>
                                 </TableRow>
-                             </TableFooter>
+                             </TF>
                         </Table>
                     </div>
                 </div>
               </CardContent>
               <CardFooter>
-                 <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <FileDigit className="mr-2 h-4 w-4"/>}
-                    {isLoading ? "Filing..." : "File GSTR-1 Return (Simulated)"}
+                 <Button type="submit" className="w-full" disabled={isFiling}>
+                    {isFiling ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <FileDigit className="mr-2 h-4 w-4"/>}
+                    {isFiling ? "Filing..." : "File GSTR-1 Return (Simulated)"}
                   </Button>
               </CardFooter>
             </form>
@@ -185,20 +237,84 @@ export default function TaxationPage() {
             <CardHeader>
               <CardTitle className="font-bold bg-primary-gradient bg-clip-text text-transparent flex items-center gap-2">
                 <FileText className="h-6 w-6 text-primary" />
-                E-Invoicing and E-Way Bill
+                Live E-Invoice & E-Way Bill Generation
               </CardTitle>
               <CardDescription>
-                Generate Invoice Reference Number (IRN) and E-Way Bills for your invoices.
+                Use this form to generate a live e-invoice and e-way bill using the official sandbox APIs.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground mb-4">
-                    This module allows you to connect with the GST portal to generate compliant e-invoices. The button below simulates this process for a sample invoice.
-                </p>
-                 <Button onClick={handleGenerateEWayBill} disabled={isGeneratingEWay}>
-                    {isGeneratingEWay ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
-                    {isGeneratingEWay ? "Generating..." : "Generate E-Way Bill (Simulated)"}
-                  </Button>
+            <CardContent className="space-y-6">
+                <div className="space-y-4 p-4 border rounded-md">
+                    <h3 className="font-bold text-lg text-foreground">Step 1: E-Invoice Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                            <Label htmlFor="invNo">Invoice Number</Label>
+                            <Input id="invNo" placeholder="Invoice Number" value={invoiceData.invoiceNumber} onChange={(e) => setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })} />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="buyerGstin">Buyer GSTIN</Label>
+                            <Input id="buyerGstin" placeholder="Buyer GSTIN" value={invoiceData.buyerGstin} onChange={(e) => setInvoiceData({ ...invoiceData, buyerGstin: e.target.value })} />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="buyerName">Buyer Name</Label>
+                            <Input id="buyerName" placeholder="Buyer Name" value={invoiceData.buyerName} onChange={(e) => setInvoiceData({ ...invoiceData, buyerName: e.target.value })} />
+                        </div>
+                         <div className="space-y-1">
+                            <Label htmlFor="buyerAddr">Buyer Address</Label>
+                            <Input id="buyerAddr" placeholder="Buyer Address" value={invoiceData.buyerAddr} onChange={(e) => setInvoiceData({ ...invoiceData, buyerAddr: e.target.value })} />
+                        </div>
+                    </div>
+                    <h4 className="font-medium pt-2">Item Details (1 item for demo)</h4>
+                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="space-y-1">
+                            <Label htmlFor="itemDesc">Item Description</Label>
+                            <Input id="itemDesc" placeholder="Item Description" value={invoiceData.items[0].description} onChange={(e) => handleItemChange('description', e.target.value)} />
+                        </div>
+                         <div className="space-y-1">
+                            <Label htmlFor="itemHsn">HSN Code</Label>
+                            <Input id="itemHsn" placeholder="HSN Code" value={invoiceData.items[0].hsn} onChange={(e) => handleItemChange('hsn', e.target.value)} />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="itemQty">Quantity</Label>
+                            <Input id="itemQty" type="number" placeholder="Quantity" value={invoiceData.items[0].quantity} onChange={(e) => handleItemChange('quantity', e.target.value)} />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="itemPrice">Unit Price (INR)</Label>
+                            <Input id="itemPrice" type="number" placeholder="Unit Price" value={invoiceData.items[0].unitPrice} onChange={(e) => handleItemChange('unitPrice', e.target.value)} />
+                        </div>
+                     </div>
+                     <Button onClick={handleGenerateEInvoice} disabled={isGeneratingEInvoice}>
+                        {isGeneratingEInvoice && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>} Generate e-Invoice
+                      </Button>
+                </div>
+
+                {irn && (
+                  <div className="space-y-4 p-4 border rounded-md">
+                    <h3 className="font-bold text-lg text-foreground">Step 2: E-Way Bill Details</h3>
+                    <div className="bg-green-50 p-3 rounded-md border border-green-200">
+                        <p className="font-semibold text-green-800">e-Invoice Generated Successfully!</p>
+                        <p className="text-sm text-green-700">IRN: <span className="font-mono bg-green-100 p-1 rounded">{irn}</span></p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <Label className="mb-2">QR Code</Label>
+                      <Image src={`data:image/png;base64,${qrCode}`} alt="E-Invoice QR Code" width={120} height={120} className="border p-1"/>
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="vehicleNo">Vehicle Number</Label>
+                        <Input id="vehicleNo" placeholder="e.g., HR26AB1234" value={vehicleNo} onChange={(e) => setVehicleNo(e.target.value)} />
+                    </div>
+                    <Button onClick={handleGenerateEWayBill} disabled={!irn || isGeneratingEWayBill}>
+                        {isGeneratingEWayBill && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>} Generate e-Way Bill
+                    </Button>
+                  </div>
+                )}
+                
+                {ewbNo && (
+                   <div className="bg-green-50 p-3 rounded-md border border-green-200">
+                        <p className="font-semibold text-green-800">e-Way Bill Generated Successfully!</p>
+                        <p className="text-sm text-green-700">EWB No: <span className="font-mono bg-green-100 p-1 rounded">{ewbNo}</span></p>
+                    </div>
+                )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -211,3 +327,4 @@ export default function TaxationPage() {
       </Tabs>
     </div>
   );
+}

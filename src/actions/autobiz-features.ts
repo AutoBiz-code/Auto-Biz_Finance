@@ -3,6 +3,7 @@
 
 import { generateInvoiceHtml, type GenerateInvoiceHtmlInput } from "@/ai/flows/generate-invoice-html-flow";
 import { numberToWords } from "@/lib/number-to-words";
+import axios from 'axios';
 
 export interface GstInvoiceItem {
   description: string;
@@ -242,7 +243,7 @@ export async function processPayrollAction(params: ProcessPayrollParams) {
       payslipUrl: "https://example.com/payslip.pdf" // Placeholder
     };
   } catch (error: any) {
-    console.error("Error in processPayrollAction", { errorMessage: error.message, stack: error.stack, params });
+    console.error("Error in processPayrollAction", { errorMessage: error.message, stack: error.stack, params: params });
     return { success: false, error: error.message || "An unknown error occurred while processing payroll." };
   }
 }
@@ -389,4 +390,136 @@ export async function reconcileTransactionsAction(params: ReconcileTransactionsP
     }
 }
 
+// --- LIVE E-INVOICE & E-WAY BILL ACTIONS ---
+
+interface LiveEInvoiceItem {
+    description: string;
+    hsn: string;
+    quantity: number;
+    unitPrice: number;
+    gstRate: number;
+    taxable: number;
+    total: number;
+    cgst: number;
+    sgst: number;
+    igst: number;
+}
+
+interface LiveEInvoiceParams {
+    gstin: string; // Seller GSTIN from your app's config
+    invoiceNumber: string;
+    buyerGstin: string;
+    buyerName: string;
+    buyerAddr: string;
+    items: LiveEInvoiceItem[];
+}
+
+export async function liveGenerateEInvoiceAction(data: LiveEInvoiceParams) {
+    console.info("Server Action: Attempting to generate live E-Invoice.", { invoiceNumber: data.invoiceNumber });
+    const { gstin, invoiceNumber, buyerGstin, buyerName, buyerAddr, items } = data;
     
+    const username = process.env.GST_EINVOICE_USERNAME;
+    const password = process.env.GST_EINVOICE_PASSWORD;
+
+    if (!username || !password) {
+        return { success: false, error: "E-Invoice API credentials are not configured on the server. Please set them in the .env file." };
+    }
+
+    // Following user guide to use sandbox URL.
+    const url = 'https://einv-apisandbox.nic.in/version1.03/invoice'; 
+    const auth = Buffer.from(`${username}:${password}`).toString('base64');
+    
+    const payload = {
+        "Version": "1.1",
+        "TranDtls": { "TaxSch": "GST", "SupTyp": "B2B" },
+        "DocDtls": { "Typ": "INV", "No": invoiceNumber, "Dt": new Date().toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'}) },
+        "SellerDtls": { "Gstin": gstin, "LglNm": "AutoBiz Finance", "Addr1": "Gurugram, Haryana" },
+        "BuyerDtls": { "Gstin": buyerGstin, "LglNm": buyerName, "Addr1": buyerAddr },
+        "ItemList": items.map((item, index) => ({
+            "SlNo": (index + 1).toString(),
+            "PrdDesc": item.description,
+            "HsnCd": item.hsn,
+            "Qty": item.quantity,
+            "Unit": "NOS",
+            "UnitPrice": item.unitPrice,
+            "TotAmt": item.taxable,
+            "AssAmt": item.taxable,
+            "GstRt": item.gstRate,
+            "CgstAmt": item.cgst,
+            "SgstAmt": item.sgst,
+            "IgstAmt": item.igst,
+            "TotItemVal": item.total
+        })),
+        "ValDtls": {
+            "AssVal": items.reduce((acc, i) => acc + i.taxable, 0),
+            "CgstVal": items.reduce((acc, i) => acc + i.cgst, 0),
+            "SgstVal": items.reduce((acc, i) => acc + i.sgst, 0),
+            "IgstVal": items.reduce((acc, i) => acc + i.igst, 0),
+            "TotInvVal": items.reduce((acc, i) => acc + i.total, 0)
+        }
+    };
+    
+    try {
+        const requestBody = { Data: Buffer.from(JSON.stringify(payload)).toString('base64') };
+        const response = await axios.post(url, requestBody, { 
+            headers: { 
+                'Authorization': `Basic ${auth}`, 
+                'Content-Type': 'application/json',
+                'gstin': gstin 
+            }
+        });
+        
+        if (response.data.Status === "0") {
+             return { success: false, error: `API Error: ${response.data.ErrorDetails[0].ErrorMessage}` };
+        }
+        
+        const decodedData = JSON.parse(Buffer.from(response.data.Data, 'base64').toString('utf8'));
+        return { success: true, irn: decodedData.Irn, qrCode: decodedData.SignedQRCode };
+    } catch (error: any) {
+        console.error("Error in liveGenerateEInvoiceAction:", error.response?.data || error.message);
+        const apiError = error.response?.data?.ErrorDetails?.[0]?.ErrorMessage || 'An unknown API error occurred. Check credentials and payload.';
+        return { success: false, error: `e-Invoice generation failed: ${apiError}` };
+    }
+}
+
+interface LiveEWayBillParams {
+    irn: string;
+    vehicleNo: string;
+}
+
+export async function liveGenerateEWayBillAction(data: LiveEWayBillParams) {
+    console.info("Server Action: Attempting to generate live E-Way Bill from IRN.", { irn: data.irn });
+    const { irn, vehicleNo } = data;
+
+    const username = process.env.GST_EWAYBILL_USERNAME;
+    const password = process.env.GST_EWAYBILL_PASSWORD;
+
+    if (!username || !password) {
+        return { success: false, error: "E-Way Bill API credentials are not configured on the server. Please set them in the .env file." };
+    }
+    
+    const url = 'https://ewaybillgst.gov.in/api/ewb/registration';
+    const auth = Buffer.from(`${username}:${password}`).toString('base64');
+
+    const payload = { 
+        "Irn": irn, 
+        "VehicleNo": vehicleNo, 
+        "TransDocNo": `TD${Date.now()}`, 
+        "TransDocDt": new Date().toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'})
+    };
+
+    try {
+        const response = await axios.post(url, payload, {
+            headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/json' }
+        });
+        
+        if (response.data.status === "0") {
+             return { success: false, error: `API Error: ${response.data.error.message}` };
+        }
+        
+        return { success: true, ewbNo: response.data.EwbNo, validity: response.data.Validity };
+    } catch (error: any) {
+        console.error("Error in liveGenerateEWayBillAction", { errorMessage: error.response?.data || error.message });
+        return { success: false, error: 'E-Way Bill generation failed. Please check credentials and vehicle details.' };
+    }
+}

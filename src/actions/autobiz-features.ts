@@ -523,21 +523,3 @@ export async function liveGenerateEWayBillAction(data: LiveEWayBillParams) {
         return { success: false, error: 'E-Way Bill generation failed. Please check credentials and vehicle details.' };
     }
 }
-
-
-// --- NEW ACTION for IP Check ---
-export async function getOutboundIpAction() {
-  console.info("Server Action: Attempting to get outbound IP address.");
-  try {
-    const response = await axios.get('https://api.ipify.org?format=json');
-    const ip = response.data.ip;
-    if (ip) {
-      return { success: true, ip: ip };
-    } else {
-      return { success: false, error: "Could not retrieve IP from the response." };
-    }
-  } catch (error: any) {
-    console.error("Error in getOutboundIpAction", { errorMessage: error.message });
-    return { success: false, error: "Failed to fetch outbound IP. Check server logs." };
-  }
-}

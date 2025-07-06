@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Landmark, FileText, Loader2, FileDigit, Scissors } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter as TF } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { fileGstReturnAction, liveGenerateEInvoiceAction, liveGenerateEWayBillAction } from "@/actions/autobiz-features";
 import Image from "next/image";
 
@@ -211,14 +211,14 @@ export default function TaxationPage() {
                                     </TableRow>
                                 ))}
                             </TableBody>
-                             <TF>
+                             <TableFooter>
                                 <TableRow className="font-bold bg-muted/50">
                                     <TableCell>Total</TableCell>
                                     <TableCell className="text-right">{calculateTotal('taxableValue').toLocaleString('en-IN')}</TableCell>
                                     <TableCell className="text-right">{calculateTotal('taxAmount').toLocaleString('en-IN')}</TableCell>
                                     <TableCell className="text-right">{calculateTotal('totalValue').toLocaleString('en-IN')}</TableCell>
                                 </TableRow>
-                             </TF>
+                             </TableFooter>
                         </Table>
                     </div>
                 </div>
@@ -291,13 +291,13 @@ export default function TaxationPage() {
                 {irn && (
                   <div className="space-y-4 p-4 border rounded-md">
                     <h3 className="font-bold text-lg text-foreground">Step 2: E-Way Bill Details</h3>
-                    <div className="bg-green-50 p-3 rounded-md border border-green-200">
-                        <p className="font-semibold text-green-800">e-Invoice Generated Successfully!</p>
-                        <p className="text-sm text-green-700">IRN: <span className="font-mono bg-green-100 p-1 rounded">{irn}</span></p>
+                    <div className="bg-green-50 p-3 rounded-md border border-green-200 dark:bg-green-900/20 dark:border-green-700">
+                        <p className="font-semibold text-green-800 dark:text-green-300">e-Invoice Generated Successfully!</p>
+                        <p className="text-sm text-green-700 dark:text-green-400">IRN: <span className="font-mono bg-green-100 dark:bg-green-800/50 p-1 rounded">{irn}</span></p>
                     </div>
                     <div className="flex flex-col items-center">
                       <Label className="mb-2">QR Code</Label>
-                      <Image src={`data:image/png;base64,${qrCode}`} alt="E-Invoice QR Code" width={120} height={120} className="border p-1"/>
+                      <Image src={`data:image/png;base64,${qrCode}`} alt="E-Invoice QR Code" width={120} height={120} className="border p-1 bg-white"/>
                     </div>
                     <div className="space-y-1">
                         <Label htmlFor="vehicleNo">Vehicle Number</Label>
@@ -310,9 +310,9 @@ export default function TaxationPage() {
                 )}
                 
                 {ewbNo && (
-                   <div className="bg-green-50 p-3 rounded-md border border-green-200">
-                        <p className="font-semibold text-green-800">e-Way Bill Generated Successfully!</p>
-                        <p className="text-sm text-green-700">EWB No: <span className="font-mono bg-green-100 p-1 rounded">{ewbNo}</span></p>
+                   <div className="bg-green-50 p-3 rounded-md border border-green-200 dark:bg-green-900/20 dark:border-green-700">
+                        <p className="font-semibold text-green-800 dark:text-green-300">e-Way Bill Generated Successfully!</p>
+                        <p className="text-sm text-green-700 dark:text-green-400">EWB No: <span className="font-mono bg-green-100 dark:bg-green-800/50 p-1 rounded">{ewbNo}</span></p>
                     </div>
                 )}
             </CardContent>

@@ -425,7 +425,7 @@ export async function liveGenerateEInvoiceAction(data: LiveEInvoiceParams) {
         return { success: false, error: "E-Invoice API credentials are not configured on the server. Please set them in the .env file." };
     }
 
-    // Following user guide to use sandbox URL.
+    // Using the official sandbox URL
     const url = 'https://einv-apisandbox.nic.in/version1.03/invoice'; 
     const auth = Buffer.from(`${username}:${password}`).toString('base64');
     
@@ -434,7 +434,7 @@ export async function liveGenerateEInvoiceAction(data: LiveEInvoiceParams) {
         "TranDtls": { "TaxSch": "GST", "SupTyp": "B2B" },
         "DocDtls": { "Typ": "INV", "No": invoiceNumber, "Dt": new Date().toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'}) },
         "SellerDtls": { "Gstin": gstin, "LglNm": "AutoBiz Finance", "Addr1": "Gurugram, Haryana" },
-        "BuyerDtls": { "Gstin": buyerGstin, "LglNm": buyerName, "Addr1": buyerAddr },
+        "BuyerDtls": { "Gstin": buyerGstin, "LglNm": buyerName, "Addr1": buyerAddr, "Stcd": buyerGstin.substring(0, 2) },
         "ItemList": items.map((item, index) => ({
             "SlNo": (index + 1).toString(),
             "PrdDesc": item.description,
@@ -521,5 +521,22 @@ export async function liveGenerateEWayBillAction(data: LiveEWayBillParams) {
     } catch (error: any) {
         console.error("Error in liveGenerateEWayBillAction", { errorMessage: error.response?.data || error.message });
         return { success: false, error: 'E-Way Bill generation failed. Please check credentials and vehicle details.' };
+    }
+}
+
+// --- IP CHECK ACTION ---
+export async function getOutboundIpAction() {
+    console.info("Server Action: Checking outbound IP address.");
+    try {
+        const response = await axios.get('https://api.ipify.org?format=json');
+        const ip = response.data.ip;
+        if (!ip) {
+            throw new Error("IP address not found in API response.");
+        }
+        return { success: true, ip: ip };
+    } catch (error: any) {
+        console.error("Error in getOutboundIpAction", { errorMessage: error.message, stack: error.stack });
+        const errorMessage = (error as any).response?.data || (error as any).message || "An unknown error occurred while fetching the IP address.";
+        return { success: false, error: errorMessage };
     }
 }

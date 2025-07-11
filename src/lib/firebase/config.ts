@@ -2,7 +2,7 @@
 // src/lib/firebase/config.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth, GoogleAuthProvider, PhoneAuthProvider } from "firebase/auth";
-import { getPerformance, Performance } from "firebase/performance";
+import { getPerformance } from "firebase/performance";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -18,7 +18,7 @@ let app: FirebaseApp;
 let auth: Auth;
 let googleProvider: GoogleAuthProvider;
 let phoneProvider: PhoneAuthProvider;
-let performance: Performance;
+let performance: any;
 
 
 // This check is important to avoid server-side initialization
@@ -30,22 +30,38 @@ if (typeof window !== "undefined") {
       "NEXT_PUBLIC_FIREBASE_* variables from your Firebase project settings."
     );
   }
-  
-  if (getApps().length === 0) {
-    app = initializeApp(firebaseConfig);
-  } else {
-    app = getApps()[0];
-  }
 
-  auth = getAuth(app);
-  auth.useDeviceLanguage();
-  googleProvider = new GoogleAuthProvider();
-  phoneProvider = new PhoneAuthProvider(auth);
+  try {
+    if (getApps().length === 0) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApps()[0];
+    }
 
-  if (process.env.NODE_ENV === 'production' && firebaseConfig.measurementId) {
-    performance = getPerformance(app);
+    auth = getAuth(app);
+    auth.useDeviceLanguage();
+
+    // Configure Google Auth Provider with better settings
+    googleProvider = new GoogleAuthProvider();
+    googleProvider.addScope('email');
+    googleProvider.addScope('profile');
+    googleProvider.setCustomParameters({
+      prompt: 'select_account'
+    });
+
+    phoneProvider = new PhoneAuthProvider(auth);
+
+    if (process.env.NODE_ENV === 'production' && firebaseConfig.measurementId) {
+      performance = getPerformance(app);
+    }
+
+    console.log('Firebase initialized successfully');
+  } catch (error) {
+    console.error('Firebase initialization error:', error);
   }
 }
+
+// @ts-ignore
 
 // @ts-ignore
 export { app, auth, googleProvider, phoneProvider, performance };

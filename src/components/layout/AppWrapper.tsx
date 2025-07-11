@@ -40,15 +40,17 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
 
     // If logged in, redirect from auth/landing pages to the dashboard.
     if (user && (isAuthPage || pathname === '/')) {
+      console.log('User authenticated, redirecting to dashboard');
       router.replace('/dashboard');
     }
 
     // If logged out, redirect from protected pages to sign-in.
     if (!user && !isPublicPage) {
+      console.log('User not authenticated, redirecting to sign-in');
       router.replace('/sign-in');
     }
   }, [user, loading, pathname, router]);
-  
+
   // While loading auth state, show a global loader.
   if (loading) {
     return (
@@ -57,7 +59,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  
+
   const isAuthPage = authPages.includes(pathname);
   const isPublicPage = publicPages.includes(pathname);
 
@@ -69,7 +71,7 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
 
   if (isRedirectingToDashboard || isRedirectingToSignIn) {
     return (
-       <div className="flex h-screen w-full items-center justify-center bg-background">
+      <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     );
